@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .Digital-Heading-Login {
+    @apply text-center font-oswald tracking-wider text-4xl text-[#F5F5F3]
+  }
+
+  .Style-Heading-Login {
+    @apply text-center font-playfair tracking-wider text-4xl
+  }
+
+  .Style-Label-Login {
+    @apply text-xl font-josefin
+  }
+
+  .Digital-Label-Login {
+    @apply text-xl font-josefin text-white
+  }
+
+  .Digital-Heading {
+    @apply font-oswald lg:text-4xl text-2xl mb-2 text-[#F5F5F3]
+  }
+
+  .Style-Heading2 {
+    @apply font-playfair lg:text-4xl text-2xl text-[#0F3A32] mb-2
+  }
+
+  .Digital-Text1 {
+    @apply font-inter lg:text-lg text-justify lg:leading-relaxed text-white
+  }
+
+  .Style-Text1 {
+    @apply font-cabin text-gray-600 lg:text-lg text-justify lg:leading-relaxed
+  }
+
+  .Digital-Text2 {
+    @apply font-inter text-base text-justify text-white
+  }
+
+  .Style-Text2 {
+    @apply font-cabin text-base text-justify text-gray-600
+  }
+
+  .Style-Video {
+    @apply w-full h-full object-cover shadow-xl
+  }
+
+  .Shadow {
+    @apply shadow-2xl rounded-lg overflow-hidden
+  }
+
+  .Classic-Login-Input{
+    @apply focus:outline-none w-full h-[50px] pl-2 pr-9 bg-[#E4E1D4] border-[2px] border-black rounded-md font-cabin
+  }
+
+  .Digital-Login-Input{
+    @apply focus:outline-none w-full h-[50px] pl-2 pr-9 bg-gray-200 border-[2px] border-gray-300 rounded-md font-inter
+  }
+
+  .Digital-Input {
+    @apply w-full h-[40px] pl-2 border-b border-gray-100 bg-black/5 font-inter text-base focus:outline-none
+  }
+
+  .Style-Input {
+    @apply w-full h-[40px] pl-2 border-b border-black bg-black/5 font-cabin text-base focus:outline-none
+  }
+
+  .Classic-Login-Button{
+    @apply block p-2 rounded-lg ml-auto font-josefin text-lg border-[2px] border-black hover:bg-[#E4E1D4] transition-all duration-300 ease-in-out
+  }
+
+  .Digital-Login-Button{
+    @apply block p-2 rounded-lg ml-auto font-josefin text-lg border-[2px] border-black bg-gray-400 hover:bg-[#F5F5F3] transition-all duration-300 ease-in-out
+  }
+
+  .Style-Nav {
+    @apply font-josefin lg:text-lg text-gray-600 text-justify lg:leading-relaxed
+  }
+
+  .snap-section {
+    @apply h-screen w-full relative overflow-hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
+
+@layer base {
+  html {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  html {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
