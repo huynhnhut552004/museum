@@ -1,40 +1,30 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const ArtworkDetailSchema = new mongoose.Schema({
+const ArtworkDetailSchema = new Schema({
   artwork_id: { type: String, required: true, unique: true, index: true },
     
-  attributes: {
-    type: Map,
-    of: String, 
-    default: {}
+  // 1. attributes & specs: Giữ nguyên là Mixed
+  attributes: { type: Schema.Types.Mixed, default: {} },
+  specs: { type: Schema.Types.Mixed, default: {} },
+
+  // 2. three_d_config: Chuyển sang Mixed để tránh lỗi parse Schema con
+  // AdminJS sẽ hiển thị ô nhập JSON cho phần này
+  three_d_config: { 
+    type: Schema.Types.Mixed, 
+    default: {
+      scale: 1,
+      frame_color: '#000000',
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 }
+    }
   },
 
-  specs: {
-    type: Map,
-    of: String 
+  // 3. annotations: Chuyển sang Mixed (Mảng JSON)
+  annotations: { 
+    type: Schema.Types.Mixed, 
+    default: [] 
   },
-
-  three_d_config: {
-     scale: { type: Number, default: 1 }, 
-     frame_color: { type: String, default: '#000000' },
-     position: {
-        x: { type: Number, default: 0 },
-        y: { type: Number, default: 0 },
-        z: { type: Number, default: 0 }
-     },
-     rotation: {
-        x: { type: Number, default: 0 },
-        y: { type: Number, default: 0 },
-        z: { type: Number, default: 0 }
-     }
-  },
-
-  annotations: [{
-    x: Number,
-    y: Number,
-    title: String,
-    description: String
-  }],
 
   updated_at: { type: Date, default: Date.now }
 });

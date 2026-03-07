@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import HeaderClassic from '../components/Header/HeaderClassic';
-import FooterClassic from '../components/Footer/FooterClassic';
+import HeaderClass from '../components/classic/Header';
+import FooterClass from '../components/classic/Footer';
 import { motion } from 'framer-motion';
 
 export default function ClassicLayout() {
@@ -18,11 +18,11 @@ export default function ClassicLayout() {
     transition={{duration:0.5, ease: "easeInOut"}}
     className="flex flex-col min-h-screen font-sans
     ">
-      <HeaderClassic />
+      <HeaderClass/>
       <main className="flex-1 md:pt-[150px] pt-[100px] mt-16">
         <Outlet />
       </main>
-      <FooterClassic />
+      <FooterClass/>
     </motion.div>
   );
 }

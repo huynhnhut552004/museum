@@ -84,7 +84,8 @@ const ArtworkService = {
         artwork_id: newArtworkId,
         attributes: attributesMap,
         three_d_config: data.three_d_config || {},
-        annotations: data.annotations || []
+        annotations: data.annotations || [],
+        client
       });
       await client.query('COMMIT');
       clearCachePattern('artworks:list:*');
@@ -244,7 +245,8 @@ const ArtworkService = {
         await ArtworkDetail.findOneAndUpdate(
           { artwork_id: id },
           { $set: { ...mongoUpdateFields, updated_at: new Date() } },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
+          client
         );
       }
       await client.query('COMMIT');
@@ -279,7 +281,7 @@ deleteArtwork: async (id) => {
         }
         artToDelete = art;
         await client.query('DELETE FROM artworks WHERE id = $1', [id]);
-        await ArtworkDetail.deleteOne({ artwork_id: id });
+        await ArtworkDetail.deleteOne({ artwork_id: id }, client);
         await client.query('COMMIT');
         clearCachePattern('artworks:list:*');
         if (artToDelete.slug) {

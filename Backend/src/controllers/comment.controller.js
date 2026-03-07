@@ -21,7 +21,7 @@ const CommentController = {
     get: asyncHandler(async (req, res) => {
         const { eId, aId } = req.params;
         const userId = req.user ? req.user.id : null;
-        const {rawdata} = req.query;
+        const rawdata = req.query;
         if (eId && !UUID.test(eId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         if (aId && !UUID.test(aId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const data = {

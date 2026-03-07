@@ -1,5 +1,5 @@
-const HTTP_STATUS = require('../constants/httpStatus');
-const SearchService = require('../services/search.service');
+const HTTP_STATUS = require ('../constants/httpStatus');
+const SearchService = require ('../services/search.service');
 const asyncHandler = require ('../utils/asyncHandle');
 
 const SearchController = {

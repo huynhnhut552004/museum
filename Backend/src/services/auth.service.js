@@ -3,11 +3,12 @@ const redis = require('../config/redis');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const transporter = require('../config/email');
-const {generateUtils} = require('../utils/generate');
+const generateUtils = require('../utils/generate');
 const createError = require ('../utils/createError');
-const HTTP_STATUS = require('../constants/httpStatus');
+const {HTTP_STATUS} = require('../constants/httpStatus');
 const { AUTH_MESSAGES } = require('../constants/message');
-const FORGOT_PASS = require('../constants/mail');
+const {FORGOT_PASS} = require('../constants/mail');
+require('dotenv').config();
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;

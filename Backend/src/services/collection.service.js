@@ -4,7 +4,7 @@ const { ARTWORK_MESSAGES, COLLECTION_MESSAGES } = require('../constants/message'
 const createError = require ('../utils/createError');
 
 const CollectionService = {
-  createCollection: async (userId, { name, is_public = true }) => {
+  createCollection: async (userId, { name, is_public }) => {
     const query = `
       INSERT INTO collections (user_id, name, is_public)
       VALUES ($1, $2, $3)

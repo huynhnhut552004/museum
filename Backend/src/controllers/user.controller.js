@@ -12,6 +12,12 @@ const UserController = {
         return res.status(HTTP_STATUS.OK).json({data: result});
     }),
 
+    getUser: asyncHandler(async (req, res) =>{
+        const {page, limit} = req.query;
+        const result = await UserService.getUser(page, limit);
+        return res.status(HTTP_STATUS.OK).json({data: result});
+    }),
+
     getByEmail: asyncHandler (async (req, res) => {
         const {email} = req.body;
         if(!email) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
@@ -33,15 +39,15 @@ const UserController = {
         if(!newEmail) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
         if(!EMAIL.test(newEmail)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         await UserService.requestEmailChange(userId, newEmail);
-        return res.stasus(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.REQUEST_OK});
+        return res.status(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.REQUEST_OK});
     }),
 
     verifyChangeEmail: asyncHandler (async (req, res) => {
         const userId = req.user.id;
-        const {otp} = req.body;
-        if(!otp) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        await UserService.verifyEmailChange(userId, otp);
-        return res.stasus(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.VERIFY_OK});
+        const {inputOtp} = req.body;
+        if(!inputOtp) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        await UserService.verifyEmailChange(userId, inputOtp);
+        return res.status(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.VERIFY_OK});
     }),
 
     changePassword: asyncHandler (async (req, res) => {
@@ -58,7 +64,7 @@ const UserController = {
         if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
         if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const result = await UserService.toggleBan(id);
-        return res.stasus(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.SUCCESS, data: result});
+        return res.status(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.SUCCESS, data: result});
     })
 };
 

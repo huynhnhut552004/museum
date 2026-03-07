@@ -10,4 +10,4 @@ const HTTP_STATUS = {
   INTERNAL_SERVER: 500 // Lỗi code server
 };
 
-module.exports = HTTP_STATUS;
+module.exports = {HTTP_STATUS};

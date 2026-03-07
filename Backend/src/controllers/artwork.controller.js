@@ -77,7 +77,7 @@ const ArtworkController = {
   getBySlug: asyncHandler( async (req, res) => {
       const { slug } = req.params;
       if (!slug) throw createError(ERROR_MESSAGES.MISSING_SLUG, HTTP_STATUS.BAD_REQUEST);
-      if(!SLUG.test(slug)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUES);
+      if(!SLUG.test(slug)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
       const result = await ArtworkService.getArtworkBySlug(slug);
       if (!result) throw createError(ARTWORK_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
       return res.status(HTTP_STATUS.OK).json({ data: result });
@@ -85,8 +85,8 @@ const ArtworkController = {
 
   update: asyncHandler( async (req, res)=> {
     const {id}= req.params;
-    if(!id) throw createError(ERROR_MESSAGES.MISSING_ID, HTTP_STATUS.BAD_REQUES);
-    if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUES);
+    if(!id) throw createError(ERROR_MESSAGES.MISSING_ID, HTTP_STATUS.BAD_REQUEST);
+    if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
     const rawdata= req.body;
     const data={
       title: rawdata.title,
@@ -96,13 +96,13 @@ const ArtworkController = {
       file: req.file || undefined
     };
     const result = await ArtworkService.updateArtwork(id, data);
-    return res.status(HTTP_STATUS.OK).json({message: ARTWORK_MESSAGES.UPADATED, result});
+    return res.status(HTTP_STATUS.OK).json({message: ARTWORK_MESSAGES.UPDATED, result});
   }),
 
   delete: asyncHandler( async (req, res) =>{
     const {id} = req.params;
-    if(!id) throw createError(ERROR_MESSAGES.MISSING_ID, HTTP_STATUS.BAD_REQUES);
-    if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUES);
+    if(!id) throw createError(ERROR_MESSAGES.MISSING_ID, HTTP_STATUS.BAD_REQUEST);
+    if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
     await ArtworkService.deleteArtwork(id);
     return res.status(HTTP_STATUS.OK).json({message: ARTWORK_MESSAGES.DELETED});
   }),
@@ -139,7 +139,7 @@ const ArtworkController = {
       description: rawdata.description
     };
     const result = await ArtworkService.updateAnnotations(id, data);
-    return res.status(HTTP_STATUS.OK).json({message: ARTWORK_MESSAGES.UPADATED, data: result});
+    return res.status(HTTP_STATUS.OK).json({message: ARTWORK_MESSAGES.UPDATED, data: result});
   })
 };
 

@@ -2,13 +2,19 @@ const { pool } = require('../config/postgres');
 const redis = require('../config/redis');
 const transporter = require('../config/email');
 const bcrypt = require('bcryptjs');
-const { generateUtils } = require('../utils/generate');
+const generateUtils  = require('../utils/generate');
 const createError = require ('../utils/createError');
 const { AUTH_MESSAGES } = require('../constants/message');
 const HTTP_STATUS = require('../constants/httpStatus');
 const { CHANGE_EMAIL } = require('../constants/mail');
 
 const UserService = {
+    getUser: async ({page=1, limit=20}) => {
+        const offset = (page - 1) * limit;
+        const res= await pool.query('SELECT id, email, full_name, role, is_banned, created_at, updated_at FROM users LIMIT $1 OFFSET $2', [limit, offset]);
+        return res.rows;
+    },
+
     getProfile: async (userId) => {
         const res = await pool.query('SELECT id, email, full_name, role, is_banned FROM users WHERE id = $1', [userId]);
         return res.rows[0];

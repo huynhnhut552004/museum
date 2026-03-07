@@ -9,9 +9,9 @@ const CollectionController = {
     create: asyncHandler (async (req, res) => {
         const userId = req.user.id;
         const {name, rawPublic} = req.body;
-        const is_Public = rawPublic === undefined ? true : String(rawPublic) === 'true';
+        const is_public = rawPublic === undefined ? true : String(rawPublic) === 'true';
         if(!name) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        const result = await CollectionService.createCollection(userId, {name, is_Public});
+        const result = await CollectionService.createCollection(userId, {name, is_public});
         return res.status(HTTP_STATUS.CREATED).json({message: COLLECTION_MESSAGES.CREATED, data: result});
     }),
     
@@ -63,7 +63,8 @@ const CollectionController = {
     update: asyncHandler (async (req, res) => {
         const userId = req.user.id;
         const {id} = req.params;
-        const {name, is_public} = req.body;
+        const {name, rawPublic} = req.body;
+        const is_public = rawPublic === undefined ? true : String(rawPublic) === 'true';
         if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
         if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const result = await CollectionService.updateCollection(userId, id, {name, is_public});

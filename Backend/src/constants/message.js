@@ -6,7 +6,7 @@ const AUTH_MESSAGES = {
   UNAUTHORIZED: 'Bạn cần đăng nhập để thực hiện thao tác này.',
   FORBIDDEN: 'Bạn không có quyền truy cập tài nguyên này.',
   LOGOUT_SUCCESS: 'Đăng xuất thành công.',
-  BAN: 'Tài khoản của bạn đã bị khóa vi phạm chính sách.',
+  BAN: 'Tài khoản của bạn đã bị khóa vì vi phạm chính sách.',
   INVALID_SESSION: 'Phiên đăng nhập không hợp lệ',
   SESSION_EXPIRED: 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại',
   NOT_FOUND_BAN: 'Tài khoản đã bị khóa hoặc không tồn tại',

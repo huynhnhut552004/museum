@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import HeaderDigital from '../components/Header/HeaderDigital';
-import FooterDigital from '../components/Footer/FooterDigital';
+import HeaderDigi from '../components/digital/Header';
+import FooterDigi from '../components/digital/Footer';
 import { motion } from "framer-motion";
 import { useLocation } from 'react-router-dom';
 
@@ -21,11 +21,11 @@ export default function DigitalLayout() {
     transition={{duration:0.5, ease: "easeInOut"}}
     className="flex flex-col min-h-screen font-sans 
     ">
-      <HeaderDigital/>
+      <HeaderDigi/>
       <main className={`flex-1 ${isExplore ? "pt-[70px]" : "pt-[100px]"}`}>
         <Outlet />
       </main>
-      <FooterDigital />
+      <FooterDigi/>
     </motion.div>
   );
 }
