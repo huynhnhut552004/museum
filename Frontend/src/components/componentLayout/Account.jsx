@@ -1,5 +1,7 @@
-import apiClient from "../../api/axiosClient";
-import { useState, useEffect } from "react";
+import userApi from "../../api/userApi";
+import authApi from "../../api/authApi";
+import collectionApi from "../../api/collectionApi";
+import { useState, useEffect, use } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import ErrorNoti from "../comon/Noti/Error";
 import AnimatedSection from "../comon/Animation/AnimatedSection";
@@ -28,16 +30,9 @@ export default function Account({ style, link }) {
 
     const logout = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
         setLoading(true)
         try {
-            await apiClient.post('http://localhost:5000/api/auth/logout',
-                {},
-                {
-                    headers: {
-                        authorization: `Bearer ${token}`
-                    }
-                });
+            await authApi.logout();
             localStorage.removeItem('token');
             window.dispatchEvent(new Event("authChange"));
             if (path === "/account") {
@@ -54,15 +49,7 @@ export default function Account({ style, link }) {
 
     const fetchCollection = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await apiClient.get(
-                'http://localhost:5000/api/Collection/mine',
-                {
-                    headers: {
-                        authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            const res = await collectionApi.getMine();
             setCollection(res.data.data);
         } catch (error) {
             setCollection([]);
@@ -74,16 +61,8 @@ export default function Account({ style, link }) {
             setMobile(window.innerWidth < 1024);
         };
         const userName = async () => {
-            const token = localStorage.getItem('token');
             try {
-                const res = await apiClient.get(
-                    "http://localhost:5000/api/user",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                );
+                const res = await userApi.get();
                 setName(res.data.data.full_name);
             } catch (error) {
                 setName('null');
@@ -138,7 +117,6 @@ export default function Account({ style, link }) {
 
     const createCollection = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
         if (!form.name) {
             setErr('Vui lòng nhập tên bộ sưu tập!');
             return;
@@ -146,18 +124,7 @@ export default function Account({ style, link }) {
         setLoading(true);
         setErr('');
         try {
-            await apiClient.post(
-                "http://localhost:5000/api/collection",
-                {
-                    name: form.name,
-                    rawPublic: form.state
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            await collectionApi.create(form.name, form.state);
             await fetchCollection();
             setCreate(false);
         } catch (error) {
@@ -177,7 +144,6 @@ export default function Account({ style, link }) {
 
     const editCollection = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
         if (!form.name) {
             setErr('Vui lòng nhập tên bộ sưu tập!');
             return;
@@ -185,18 +151,7 @@ export default function Account({ style, link }) {
         setLoading(true);
         setErr('');
         try {
-            await apiClient.patch(
-                `http://localhost:5000/api/collection/${id}`,
-                {
-                    name: form.name,
-                    rawPublic: form.state
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            await collectionApi.update(id, form.name, form.state);
             await fetchCollection();
             setEditing(false);
         } catch (error) {
@@ -217,14 +172,9 @@ export default function Account({ style, link }) {
 
     const deleteCollection = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
         setLoading(true);
         try {
-            await apiClient.delete(`http://localhost:5000/api/collection/${id}`, {
-                headers: {
-                    authorization: `Bearer ${token}`
-                }
-            });
+            await collectionApi.delete(id);
             setEditing(false);
             await fetchCollection();
         } catch (error) {

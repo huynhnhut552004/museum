@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:5000',
+    baseURL: 'http://localhost:5000/api',
     withCredentials: true
 });
 
@@ -28,8 +28,10 @@ apiClient.interceptors.response.use(
                 const res = await axios.post('http://localhost:5000/api/auth/refreshToken', {}, {
                     withCredentials: true
                 });
-                const newAccessToken = res.data.data.accessToken; 
+                const newAccessToken = res.data.data.accessToken;
+                const newRole = res.data.data.role;
                 localStorage.setItem('token', newAccessToken);
+                localStorage.setItem('role', newRole);
                 originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                 return apiClient(originalRequest);
             } catch (err) {

@@ -1,3 +1,5 @@
+const dayjs = require('dayjs');
+
 const parseDateSafe = (dateString) => {
     const d = dayjs(dateString);
     if (!d.isValid()) return null;

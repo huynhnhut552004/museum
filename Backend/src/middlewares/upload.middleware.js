@@ -32,8 +32,10 @@ const createUploader = (folderName) => {
 };
 const uploadArtwork = createUploader('museum_artworks');
 const uploadCMS = createUploader('museum_cms');
+const uploadEvent = createUploader('museum_event');
 
 module.exports = {
   uploadArtwork,
-  uploadCMS
+  uploadCMS,
+  uploadEvent
 };

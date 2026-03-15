@@ -3,8 +3,48 @@
 @tailwind utilities;
 
 @layer components {
+  .heading{
+    @apply font-Vietnam lg:text-4xl text-2xl font-bold text-white leading-relaxed text-justify mb-2
+  }
+
+  .heading-nav{
+    @apply font-Vietnam lg:text-xl text-lg text-white leading-relaxed text-justify mb-2
+  }
+
+  .admin-button-search{
+    @apply bg-[#191B1D] rounded-l-md px-4 h-[50px] 
+  }
+
+  .admin-select{
+    @apply h-[50px] bg-inherit heading-body text border border-gray-400 rounded-md
+  }
+  
+  .admin-input-search{
+    @apply h-[50px] rounded-r-md w-full pl-2 pr-9 bg-gray-200 border-[2px] border-gray-300 font-inter focus:outline-none 
+  }
+
+  .admin-confirm-button{
+    @apply heading-body bg-[#4A67ED] text-white p-2 rounded-sm 
+  }
+
+  .admin-add-button{
+    @apply bg-[#4A67ED] px-4 rounded-md flex items-center justify-center
+  }
+  
   .Digital-Heading-Login {
     @apply text-center font-oswald tracking-wider text-4xl text-[#F5F5F3]
+  }
+
+  .heading-body{
+    @apply font-Vietnam lg:text-xl text-lg text-black leading-relaxed text-justify mb-2
+  }
+
+  .text{
+    @apply font-inter text-base
+  }
+
+  .text-button{
+    @apply font-inter text-white
   }
 
   .Style-Heading-Login {

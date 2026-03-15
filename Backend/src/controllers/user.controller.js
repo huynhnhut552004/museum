@@ -12,12 +12,6 @@ const UserController = {
         return res.status(HTTP_STATUS.OK).json({data: result});
     }),
 
-    getUser: asyncHandler(async (req, res) =>{
-        const {page, limit} = req.query;
-        const result = await UserService.getUser(page, limit);
-        return res.status(HTTP_STATUS.OK).json({data: result});
-    }),
-
     getByEmail: asyncHandler (async (req, res) => {
         const {email} = req.body;
         if(!email) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
@@ -57,6 +51,22 @@ const UserController = {
         if(!PASSWORD_STRONG.test(newPass)) throw createError(AUTH_MESSAGES.WEAK_PASS, HTTP_STATUS.BAD_REQUEST);
         await UserService.changePassword(userId, oldPass, newPass);
         return res.status(HTTP_STATUS.OK).json({message: AUTH_MESSAGES.CHANGED_PASS});
+    }),
+
+    getUser: asyncHandler(async (req, res) =>{
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 20;
+        const result = await UserService.getUser({page, limit});
+        return res.status(HTTP_STATUS.OK).json({data: result});
+    }),
+
+    createUser: asyncHandler(async (req, res) => {
+        const {email, password, full_name, role, ban} = req.body;
+        if (!email || !password || !full_name || !role || ban === undefined) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if(!EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if(!PASSWORD_STRONG.test(password)) throw createError(AUTH_MESSAGES.WEAK_PASS, HTTP_STATUS.BAD_REQUEST);
+        const result = await UserService.createUser(email, password, full_name, role, ban);
+        return res.status(HTTP_STATUS.CREATED).json({message: AUTH_MESSAGES.CREATED, data: result});
     }),
 
     Ban: asyncHandler(async (req, res) => {

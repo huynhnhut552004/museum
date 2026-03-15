@@ -15,7 +15,7 @@ export default function ContactClass() {
         fdback: "Phản hồi của bạn sẽ được trả lời trong vòng 24h tiếp theo, không tính các ngày cuối tuần.",
         style: {
             heading: "Style-Heading2",
-            text: "Style-Tex1",
+            text: "Style-Text1",
             input: "Style-Input",
             button: "text-black"
         }

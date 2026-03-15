@@ -30,6 +30,15 @@ import AccountDigital from '../pages/digital/AccountDigi';
 import EditAccountDigital from '../pages/digital/EditAccountDigi';
 
 import AdminIndex from '../pages/admin';
+import AdminUser from '../pages/admin/user/user';
+import AdminAddUser from '../pages/admin/user/Add';
+import AdminSubmission from '../pages/admin/submisstion/Submission';
+import AdminArtwork from '../pages/admin/artwork/Artwork';
+import AdminCustomArtwork from '../pages/admin/artwork/Custom';
+import AdminCategory from '../pages/admin/category/Category';
+import AdminCustomCategory from '../pages/admin/category/Custom';
+import AdminEvent from '../pages/admin/event/Event';
+import AdminCustomEvent from '../pages/admin/event/Custom';
 
 import LoginDigital from '../pages/digital/LoginDigi';
 import Login from '../pages/classic/Login';
@@ -77,6 +86,18 @@ export default function Index() {
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
              <Route element={<AdminLayout />}>
                 <Route path="/admin" element={<AdminIndex />} />
+                <Route path="/admin/user" element={<AdminUser />} />
+                <Route path="/admin/user/add" element={<AdminAddUser />} />
+                <Route path="/admin/submission" element={<AdminSubmission />} />
+                <Route path="/admin/artwork" element={<AdminArtwork />} />
+                <Route path="/admin/artwork/custom" element={<AdminCustomArtwork />} />
+                <Route path="/admin/artwork/custom/:id" element={<AdminCustomArtwork />} />
+                <Route path="/admin/category" element={<AdminCategory />} />
+                <Route path="/admin/category/custom" element={<AdminCustomCategory />} />
+                <Route path="/admin/category/custom/:slug" element={<AdminCustomCategory />} />
+                <Route path="/admin/event" element={<AdminEvent/>}/>
+                <Route path="/admin/event/custom" element={<AdminCustomEvent />} />
+                <Route path="/admin/event/custom/:slug" element={<AdminCustomEvent />} />
              </Route>
           </Route>
 

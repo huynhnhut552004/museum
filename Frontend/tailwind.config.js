@@ -11,7 +11,8 @@ export default {
         'josefin': ['"Josefin Sans"', 'sans-serif'],
         'playfair': ['"Playfair Display"', 'serif'],
         'oswald': ['"Oswald"', 'sans-serif'],
-        'inter': ['"Inter"', 'san-serif']
+        'inter': ['"Inter"', 'san-serif'],
+        Vietnam: ['"Be Vietnam Pro"', 'san-serif']
       },
        animation: {
         'spin-slow': 'spin 15s linear infinite',        

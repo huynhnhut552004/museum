@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import apiClient from "../../api/axiosClient";
+import userApi from "../../api/userApi";
 import ErrorNoti from "../comon/Noti/Error";
 import SuccessNoti from "../comon/Noti/Success";
 import { AnimatePresence, motion } from "framer-motion";
@@ -29,16 +29,11 @@ export default function EditAccount({ style }) {
 
     const getInfor = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await apiClient.get('http://localhost:5000/api/user', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await userApi.get();
             const data = res.data.data;
-
             const emailParts = data.email?.split('@') || ["", ""];
-            const prefix = emailParts[0]; // VD: abcxyz
+            const prefix = emailParts[0];
             const suffix = emailParts.length > 1 ? `@${emailParts[1]}` : "";
-
             setInfor({
                 name: data.full_name,
                 email: prefix,
@@ -109,19 +104,9 @@ export default function EditAccount({ style }) {
             return;
         }
         try {
-            const token = localStorage.getItem('token');
             setLoading(true);
             setErr('');
-            await apiClient.patch('http://localhost:5000/api/user',
-                {
-                    full_name: form.name
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            await userApi.update(form.name);
             await getInfor();
             setSucc('Đổi tên thành công.');
             resetForm();
@@ -148,23 +133,12 @@ export default function EditAccount({ style }) {
             return;
         }
         try {
-            const token = localStorage.getItem('token');
             setLoading(true);
             setVisible(true);
             setErr('');
             setSucc('');
-            await apiClient.post('http://localhost:5000/api/user/changeEmail',
-                {
-                    newEmail: form.Email
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            await userApi.changeEmail(form.email);
         } catch (error) {
-
         } finally {
             setLoading(false)
 
@@ -179,20 +153,10 @@ export default function EditAccount({ style }) {
         }
         try {
             if (form.Email === infor.email) return;
-            const token = localStorage.getItem('token');
             setLoading(true);
             setErr('');
             setSucc('');
-            await apiClient.post('http://localhost:5000/api/user/verifyEmail',
-                {
-                    inputOtp: form.otp
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            await userApi.verifyEmail(form.otp);
             setSucc('Đổi Email thành công.');
             await getInfor();
             resetForm();
@@ -215,21 +179,10 @@ export default function EditAccount({ style }) {
                 setErr('Mật khẩu không khớp!')
                 return;
             }
-            const token = localStorage.getItem('token');
             setLoading(true);
             setErr('');
             setSucc('');
-            await apiClient.post('http://localhost:5000/api/user/changePassword',
-                {
-                    oldPass: form.oldPass,
-                    newPass: form.newPass
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            await userApi.changeEmail(form.oldPass, form.newPass);
             setSucc('Đổi mật khẩu thành công.');
             await getInfor();
             resetForm();

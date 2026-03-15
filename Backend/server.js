@@ -30,35 +30,29 @@ const userRoute = require('./src/routes/user.route');
 const app = express();
 const server = http.createServer(app);
 
-// 1. KẾT NỐI DATABASE TRƯỚC
 console.log('--- Connecting to Databases ---');
 connectMongo();
 connectPostgres();
 
-// 2. MIDDLEWARE CƠ BẢN
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(cors({
   origin: [
     "http://localhost:5173",
     "http://localhost:5174"
-  ], // Chỉ định rõ origin để an toàn
+  ],
   credentials: true
 }));
 
-// --- QUAN TRỌNG: Cấu hình Helmet để không chặn AdminJS ---
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Tắt CSP để AdminJS load được script/style
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   })
 );
-// 3. SETUP ADMINJS (Phải đặt TRƯỚC body-parser json để xử lý upload file)
-// AdminJS tự có router và body-parser riêng
 (async () => {
   try {
     await sequelize.authenticate();
-    // setupAdmin sẽ gắn router vào app.use('/admin', ...)
     setupAdmin(app); 
     console.log('✅ AdminJS setup success');
   } catch (error) {
@@ -66,7 +60,6 @@ app.use(
   }
 })();
 
-// 4. BODY PARSER (Dùng cho API của bạn)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -79,7 +72,6 @@ const io = new Server(server, {
 });
 socketHandle(io);
 
-// 6. API ROUTES (Phải đặt TRƯỚC Route Frontend)
 app.use('/api/artwork', artworkRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/category', categoryRoute);
@@ -92,21 +84,6 @@ app.use('/api/search', searchRoute);
 app.use('/api/submission', submissionRoute);
 app.use('/api/user', userRoute);
 app.use(errorHandler);
-// ⚠️ BỎ ROUTE NÀY: app.get('/admin', ...) 
-// Vì setupAdmin(app) ở trên đã chiếm dụng đường dẫn '/admin' rồi. 
-// Nếu bạn muốn bảo mật Admin, phải config trong file admin/index.js
-
-// 7. FRONTEND STATIC FILES (Đặt CUỐI CÙNG)
-// Phục vụ file tĩnh (JS, CSS, Img) của React
-// app.use(express.static(path.join(__dirname, '..', 'Frontend', 'dist')));
-
-// // Route "Catch-All" (Hứng mọi request còn lại để trả về React index.html)
-// // Cái này BẮT BUỘC phải nằm dưới cùng của file
-// app.get(/.*/, (req, res) => {
-//   res.sendFile(
-//     path.join(__dirname, '..', 'Frontend', 'dist', 'index.html')
-//   );
-// });
 
 // 8. START SERVER
 const PORT = process.env.PORT || 5000;

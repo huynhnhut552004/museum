@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from 'axios';
+import authApi from "../../api/authApi";
 import { motion, AnimatePresence } from "framer-motion";
 import ErrorNoti from "../comon/Noti/Error";
 import SuccessNoti from "../comon/Noti/Success";
@@ -69,6 +69,7 @@ export default function Login({ style, animate }) {
         });
         if (err) setErr('');
     };
+    
     const registerChange = (e) => {
         setRegister({
             ...register,
@@ -88,9 +89,7 @@ export default function Login({ style, animate }) {
         setErr('');
         setSucc('');
         try {
-            await axios.post('http://localhost:5000/api/auth/forgot-password', {
-                email: email.email
-            });
+            await authApi.forgotPassword(email.email);
         } catch (error) {
             if (error.request) {
                 setErr("Không thể kết nối đến Server!");
@@ -112,11 +111,7 @@ export default function Login({ style, animate }) {
         setErr('');
         setSucc('');
         try {
-            await axios.post('http://localhost:5000/api/auth/reset-password', {
-                email: email.email,
-                otp: reset.otp,
-                newPassword: reset.newPassword
-            });
+            await authApi.resetPassword(email.email, reset.otp, reset.newPassword);
             setSucc('Đổi mật khẩu thành công.');
             setTimeout(() => {
                 setView('login');
@@ -157,11 +152,7 @@ export default function Login({ style, animate }) {
         setErr('');
         setSucc('');
         try {
-            await axios.post('http://localhost:5000/api/auth/signup', {
-                email: register.email,
-                password: register.password,
-                full_name: register.name
-            });
+            await authApi.register(register.email, register.password, register.name);
             setSucc('Đăng ký tài khoản thành công!');
             setTimeout(() => {
                 setView('login');
@@ -196,13 +187,7 @@ export default function Login({ style, animate }) {
         setErr('');
         setSucc('');
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', {
-                email: login.email,
-                password: login.password
-            },
-                {
-                    withCredentials: true
-                });
+            const res = await authApi.login(login.email, login.password);
             localStorage.setItem('token', res.data.data.accessToken);
             localStorage.setItem('role', res.data.data.user.role);
             if (path === '/login') {

@@ -78,21 +78,24 @@ const AuthService = {
   refreshToken: async (userId, tokenFromClient) => {
     const storedToken = await redis.get(`auth:refresh:${userId}`);
     if (!storedToken || storedToken !== tokenFromClient) {
-      throw createError (AUTH_MESSAGES.INVALID_SESSION, HTTP_STATUS.UNAUTHORIZED);
+      throw createError(AUTH_MESSAGES.INVALID_SESSION, HTTP_STATUS.UNAUTHORIZED);
     }
     try {
       jwt.verify(storedToken, REFRESH_SECRET);
     } catch (err) {
-      throw createError (AUTH_MESSAGES.SESSION_EXPIRED, HTTP_STATUS.UNAUTHORIZED);
+      throw createError(AUTH_MESSAGES.SESSION_EXPIRED, HTTP_STATUS.UNAUTHORIZED);
     }
     const userRes = await pool.query('SELECT role, is_banned FROM users WHERE id = $1', [userId]);
     const user = userRes.rows[0];
     if (!user || user.is_banned) {
       await redis.del(`auth:refresh:${userId}`);
-      throw createError (AUTH_MESSAGES.NOT_FOUND_BAN, HTTP_STATUS.UNAUTHORIZED);
+      throw createError(AUTH_MESSAGES.NOT_FOUND_BAN, HTTP_STATUS.UNAUTHORIZED);
     }
     const newAccessToken = jwt.sign({ id: userId, role: user.role }, ACCESS_SECRET, { expiresIn: '1h' });
-    return { accessToken: newAccessToken };
+    return {
+      accessToken: newAccessToken,
+      role: user.role
+    };
   },
 
   forgotPassword: async (email) => {

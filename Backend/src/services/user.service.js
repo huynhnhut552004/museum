@@ -2,27 +2,22 @@ const { pool } = require('../config/postgres');
 const redis = require('../config/redis');
 const transporter = require('../config/email');
 const bcrypt = require('bcryptjs');
-const generateUtils  = require('../utils/generate');
-const createError = require ('../utils/createError');
+const generateUtils = require('../utils/generate');
+const createError = require('../utils/createError');
 const { AUTH_MESSAGES } = require('../constants/message');
-const HTTP_STATUS = require('../constants/httpStatus');
+const { HTTP_STATUS } = require('../constants/httpStatus');
 const { CHANGE_EMAIL } = require('../constants/mail');
 
 const UserService = {
-    getUser: async ({page=1, limit=20}) => {
-        const offset = (page - 1) * limit;
-        const res= await pool.query('SELECT id, email, full_name, role, is_banned, created_at, updated_at FROM users LIMIT $1 OFFSET $2', [limit, offset]);
-        return res.rows;
-    },
-
     getProfile: async (userId) => {
         const res = await pool.query('SELECT id, email, full_name, role, is_banned FROM users WHERE id = $1', [userId]);
         return res.rows[0];
     },
-    
+
     getUserByEmail: async (email) => {
         const query = `SELECT id, full_name, is_banned FROM users WHERE email= $1`;
         const res = await pool.query(query, [email]);
+        if (res.rows.length === 0) throw createError(AUTH_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
         return res.rows[0];
     },
 
@@ -77,7 +72,27 @@ const UserService = {
         );
         return true;
     },
-    
+
+    getUser: async ({ page = 1, limit = 20 }) => {
+        const offset = (page - 1) * limit;
+        const res = await pool.query('SELECT id, email, full_name, role, is_banned, created_at, updated_at FROM users LIMIT $1 OFFSET $2', [limit, offset]);
+        return res.rows;
+    },
+
+    createUser: async (email, password, full_name, role, ban) => {
+        const check = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+        if (check.rows.length > 0) throw createError(AUTH_MESSAGES.EMAIL_EXISTED, HTTP_STATUS.CONFLICT);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const query = `
+        INSERT INTO users (email, password_hash, full_name, role, is_banned)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, email, full_name, role, created_at
+        `;
+        const res = await pool.query(query, [email, hashedPassword, full_name, role, ban]);
+        return res.rows[0];
+    },
+
     toggleBan: async (userId) => {
         const query = `
       UPDATE users 

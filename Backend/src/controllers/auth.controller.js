@@ -22,8 +22,8 @@ const AuthController = {
         const result = await AuthService.login({ email, password });
         res.cookie('refreshToken', result.refreshToken, {
             httpOnly: true,
-            secure: false, // Bắt buộc để false khi chạy http://localhost (chưa có https)
-            sameSite: 'lax', // Đổi từ strict thành lax để dev dễ hơn
+            secure: false, 
+            sameSite: 'lax', 
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         const { refreshToken, ...loginData } = result;

@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Nav from '../components/admin/navbar/navigation';
+import Nav from '../components/admin/navbar/Navigation';
 import { useState, useEffect } from 'react';
 
 export default function AdminLayout() {

@@ -1,17 +1,20 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
-const CategoryDetailSchema = new Schema({
+const CategoryDetailSchema = new mongoose.Schema({
   category_id: { type: String, required: true, unique: true },
-
-  // Chuyển sang Mixed
-  three_d_config: { 
-    type: Schema.Types.Mixed, 
-    default: {
-      scale: 1,
-      position: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0 }
-    }
+  
+  three_d_config: {
+     scale: { type: Number, default: 1 },
+     position: {
+        x: { type: Number, default: 0 },
+        y: { type: Number, default: 0 },
+        z: { type: Number, default: 0 }
+     },
+     rotation: {
+        x: { type: Number, default: 0 },
+        y: { type: Number, default: 0 },
+        z: { type: Number, default: 0 }
+     }
   },
 
   updated_at: { type: Date, default: Date.now }

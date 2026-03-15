@@ -1,4 +1,4 @@
-const HTTP_STATUS = require('../constants/httpStatus');
+const {HTTP_STATUS} = require('../constants/httpStatus');
 const { ERROR_MESSAGES, EVENT_MESSAGES } = require('../constants/message');
 const { SLUG, UUID } = require('../constants/regex');
 const EventService = require('../services/event.service');
@@ -33,13 +33,12 @@ const EventController = {
         if(!rawdata.start_time || !rawdata.end_time || !rawdata.title) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
         const startTimeISO = parseDateSafe(rawdata.start_time);
         const endTimeISO = parseDateSafe(rawdata.end_time);
-        const content = rawdata.content ? parseJSONSafe(rawdata.content, {}) : {};
         if(!startTimeISO || !endTimeISO) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const data = {
             title: rawdata.title,
             slug:  rawdata.slug,
             description: rawdata.description,
-            content: content,
+            content: data.content,
             banner_url: req.file.path,
             public_id: req.file.filename,
             start_time: startTimeISO,

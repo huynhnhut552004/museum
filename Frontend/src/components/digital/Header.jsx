@@ -62,7 +62,7 @@ export default function HeaderDigi() {
                         </div>
                     </div>
                     <div className={admin ? "block" : "hidden"}>
-                        <Link to="/admin" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out'>Admin</Link>
+                        <Link to="/admin" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out'>Quản trị</Link>
                     </div>
                 </div>
                 <div className="lg:hidden">

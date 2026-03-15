@@ -4,7 +4,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
     const location = useLocation();
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('role') || 'guest'; 
-    const loginPath = location.pathname.includes('/digital') ? '/digital/login' : '/login';
+    const loginPath = location.pathname.includes('/digital') ? '/digital' : '/';
     if (!token) {
         return <Navigate to={loginPath} state={{ from: location }} replace />;
     }

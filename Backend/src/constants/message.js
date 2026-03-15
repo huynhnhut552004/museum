@@ -11,6 +11,7 @@ const AUTH_MESSAGES = {
   SESSION_EXPIRED: 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại',
   NOT_FOUND_BAN: 'Tài khoản đã bị khóa hoặc không tồn tại',
   NOT_FOUND_OTP: 'Mã OTP hết hạn hoặc không đúng',
+  NOT_FOUND: "Không tìm thấy",
   INVALID_OTP: 'Mã OTP không chính xác',
   REFRESH_TOKEN: 'Làm mới token thành công',
   OTP_SEND: 'Gửi mã OTP thành công.',
@@ -70,6 +71,7 @@ const ERROR_MESSAGES={
   MISSING_DATA: "Vui lòng nhập đầy đủ thông tin.",
   WRONG_FORMAT: "Không đúng định dạng.",
   ERR_TIME: 'Thời gian kết thúc phải sau thời gian bắt đầu',
+  NOT_FOUND: 'Không tìm thấy sự kiện.',
 };
 
 const SUCCESS_MESSAGES={

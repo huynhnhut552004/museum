@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS artworks (
     slug VARCHAR(255) UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     artist_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    artist_display_name VARCHAR(255), 
+    artist_display_name VARCHAR(255),
     media_url TEXT NOT NULL, 
     media_type VARCHAR(20) DEFAULT 'image',
     public_id VARCHAR(100), 
@@ -68,7 +68,6 @@ CREATE TABLE IF NOT EXISTS events (
     public_id VARCHAR(100),
     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
     end_time TIMESTAMP WITH TIME ZONE NOT NULL,
-    total_views INTEGER DEFAULT 0, 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

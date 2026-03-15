@@ -61,7 +61,7 @@ export default function HeaderClass() {
             </div>
           </div>
           <div className={admin ? "block" : "hidden"}>
-          <Link to="/admin" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out lg:text-xl text-lg '>Admin</Link>
+          <Link to="/admin" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out lg:text-xl text-lg '>Quản trị</Link>
         </div>
         </div>
         <div className={admin ? 'hidden' : 'block'}>

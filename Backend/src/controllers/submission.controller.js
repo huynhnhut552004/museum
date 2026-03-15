@@ -1,4 +1,4 @@
-const HTTP_STATUS = require('../constants/httpStatus');
+const {HTTP_STATUS} = require('../constants/httpStatus');
 const { SUCCESS_MESSAGES, ERROR_MESSAGES } = require('../constants/message');
 const { EMAIL, UUID } = require('../constants/regex');
 const SubmissionService = require('../services/submission.service');
@@ -16,11 +16,9 @@ const SubmissionController = {
     }),
 
     get: asyncHandler (async (req, res) => {
-        const {page, limit} = req.query;
-        const {status, email} = req.body;
+        const {page, limit, status, email} = req.query;
         if(email && !EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        if(!['rule', 'contact', 'feedback'].includes(status)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        if(email && !EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if(status && !['rule', 'contact', 'feedback'].includes(status)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const result = await SubmissionService.getSubmission({page: parseInt(page), limit: parseInt(limit), status, email});
         return res.status(HTTP_STATUS.OK).json(result);
     }),
