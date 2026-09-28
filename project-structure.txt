@@ -70,7 +70,6 @@
 │   │   └── utils/
 │   │       ├── asyncHandler.js (0.2 KB)
 │   │       ├── cloudinaryHelper.js (0.7 KB)
-│   │       ├── CreateAccount.js (1.0 KB)
 │   │       ├── createError.js (0.2 KB)
 │   │       ├── generate.js (0.5 KB)
 │   │       ├── parseDateHepler.js (0.2 KB)
@@ -172,15 +171,15 @@
     │   │   │   ├── X.png (2.1 KB)
     │   │   │   └── Youtube.png (1.6 KB)
     │   │   └── img/
+    │   │       ├── Icon.svg (0.4 KB)
     │   │       ├── Logo_Invert.png (806.1 KB)
     │   │       ├── Logo.png (22.9 KB)
     │   │       ├── LostConnection.png (112.5 KB)
     │   │       ├── No_Image.png (261.9 KB)
     │   │       ├── Not_Found1.png (168.1 KB)
     │   │       └── Not_Found2.png (145.3 KB)
-    │   ├── videos/
-    │   │   └── water-caustics.mp4 (74525.3 KB)
-    │   └── vite.svg (1.5 KB)
+    │   └── videos/
+    │       └── water-caustics.mp4 (74525.3 KB)
     ├── src/
     │   ├── api/
     │   │   ├── algoliaClient.js (0.2 KB)
@@ -442,6 +441,5 @@
     ├── package-lock.json (229.4 KB)
     ├── package.json (1.2 KB)
     ├── postcss.config.js (0.1 KB)
-    ├── README.md (1.1 KB)
     ├── tailwind.config.js (1.2 KB)
     └── vite.config.js (0.3 KB)
