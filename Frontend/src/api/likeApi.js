@@ -3,12 +3,12 @@ import apiClient from "./axiosClient";
 const likeApi = {
     likeEvent: (eId) => {
         const url = `/like/event/${eId}`;
-        return apiClient.post(url,{});
+        return apiClient.post(url, {});
     },
 
     likeArtwork: (aId) => {
         const url = `/like/artwork/${aId}`;
-        return apiClient.post(url,{});
+        return apiClient.post(url, {});
     },
 
     checkLikeEvent: (eId) => {
@@ -19,6 +19,11 @@ const likeApi = {
     checkLikeArtwork: (aId) => {
         const url = `/like/artwork/${aId}`;
         return apiClient.get(url);
+    },
+
+    getLikeByMe: (filterType) => {
+        const url = '/like/likeByMe';
+        return apiClient.get(url, { params: { filterType } });
     }
 };
 

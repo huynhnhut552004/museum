@@ -16,14 +16,18 @@ export default function AddUserLayout() {
             ...prev,
             [name]: name === "ban" ? value === "true" : value
         }));
-        if(err) setErr('');
-        if(succ) setSucc('');
+        if (err) setErr('');
+        if (succ) setSucc('');
     };
 
     const create = async (e) => {
         e.preventDefault();
         if (!form.email || !form.name || !form.password) {
             setErr("Vui lòng nhập đủ dữ liệu!");
+            return;
+        }
+        if (form.name.length > 20) {
+            setErr("Tên quá dài, tối đa 20 ký tự!");
             return;
         }
         setLoading(true);
@@ -40,7 +44,7 @@ export default function AddUserLayout() {
                 if (status === 409) {
                     setErr('Email này đã được sử dụng!');
                 } else if (status === 400 && mess.includes("Không đúng định dạng.")) {
-                    setErr('Email không đúng định dạng!');
+                    setErr('Dữ liệu không đúng định dạng!');
                 } else if (status === 400 && mess.includes("Mật khẩu yếu.")) {
                     setErr('Mật khẩu yếu!')
                 }
@@ -49,7 +53,7 @@ export default function AddUserLayout() {
             } else {
                 setErr('Không thể kết nối server!');
             }
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
@@ -65,15 +69,15 @@ export default function AddUserLayout() {
             <form onSubmit={create} className="border border-gray-800 bg-gray-200 p-2 rounded-md w-full lg:h-[80vh] h-[70vh] flex flex-col justify-around">
                 <div className="">
                     <label className="heading-body">Tên</label>
-                    <input type="text" name="name" value={form.name} onChange={handleOnchange} className="Digital-Login-Input" />
+                    <input spellcheck="false" type="text" name="name" value={form.name} onChange={handleOnchange} className="Digital-Login-Input" />
                 </div>
                 <div className="">
                     <label className="heading-body">Email</label>
-                    <input type="email" name="email" value={form.email} onChange={handleOnchange} className="Digital-Login-Input" />
+                    <input spellcheck="false" type="email" name="email" value={form.email} onChange={handleOnchange} className="Digital-Login-Input" />
                 </div>
                 <div className="">
                     <label className="heading-body">Mật khẩu</label>
-                    <input type="text" name="password" value={form.password} onChange={handleOnchange} className="Digital-Login-Input" />
+                    <input spellcheck="false" type="text" name="password" value={form.password} onChange={handleOnchange} className="Digital-Login-Input" />
                 </div>
                 <div className="justify-between lg:justify-normal flex">
                     <div className="flex gap-2 items-center w-[30%]">

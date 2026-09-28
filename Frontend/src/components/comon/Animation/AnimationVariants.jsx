@@ -66,40 +66,39 @@ export const section = {
   }
 };
 
-
-export const inUp={
-  hidden: {opacity: 0, y: 30},
-  visible:{
+export const inUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
     opacity: 1,
     y: 0,
-    transition: {duration: 0.6, ease: "easeOut"}
+    transition: { duration: 0.6, ease: "easeOut" }
   }
 };
 
-export const inDown={
-  hidden: {opacity: 0, y: -30},
-  visible:{
+export const inDown = {
+  hidden: { opacity: 0, y: -30 },
+  visible: {
     opacity: 1,
     y: 0,
-    transition: {duration: 0.6, ease: "easeInOut"}
+    transition: { duration: 0.6, ease: "easeInOut" }
   }
 };
 
-export const inLeft={
-  hidden: {opacity: 0, x: -30},
-  visible:{
+export const inLeft = {
+  hidden: { opacity: 0, x: -30 },
+  visible: {
     opacity: 1,
     x: 0,
-    transition: {duration: 0.6, ease: "easeInOut"}
+    transition: { duration: 0.6, ease: "easeInOut" }
   }
 };
 
-export const inRight={
-  hidden: {opacity: 0, x: 30},
-  visible:{
+export const inRight = {
+  hidden: { opacity: 0, x: 30 },
+  visible: {
     opacity: 1,
     x: 0,
-    transition: {duration: 0.6, ease: "easeInOut"}
+    transition: { duration: 0.6, ease: "easeInOut" }
   }
 };
 

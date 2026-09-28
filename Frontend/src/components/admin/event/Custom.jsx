@@ -3,6 +3,7 @@ import SuccessNoti from "../../comon/Noti/Success";
 import eventApi from "../../../api/eventApi";
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from "react";
+import TranslationFields from '../../comon/cms/TranslationFields';
 
 export default function CustomEventkLayout() {
     const [getId, setGetId] = useState('');
@@ -10,7 +11,14 @@ export default function CustomEventkLayout() {
     const [err, setErr] = useState('');
     const [succ, setSucc] = useState('');
     const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState({ title: "", slug: "", description: "", content: "", start_time: "", end_time: "" });
+    const [form, setForm] = useState({
+        title: { vi: "", en: "" },
+        slug: "", slugArtwork: "",
+        description: { vi: "", en: "" },
+        content: { vi: "", en: "" },
+        start_time: "",
+        end_time: ""
+    });
     const [deleted, setDeleted] = useState(false);
     const [previewUrl, setPreviewUrl] = useState('');
     const [isVideo, setIsVideo] = useState(false);
@@ -18,13 +26,29 @@ export default function CustomEventkLayout() {
     const [errFile, setErrFile] = useState('');
     const fileInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-
+    const fieldsConfig = [
+        { name: "title", type: "text", label: "Tên sự kiện" },
+        { name: "description", type: "textarea", label: "Mô tả" },
+        { name: "content", type: "textarea", label: "Nội dung" }
+    ];
     const [succPopup, setSuccPopup] = useState('');
     const [errPopup, setErrPopup] = useState('');
     const { slug } = useParams();
     const navigate = useNavigate();
 
-    const getEventBySlug= async (EventSlug) => {
+    const parseMultiLang = (data) => {
+        if (!data) return { vi: "", en: "" };
+        if (typeof data === 'string') {
+            try {
+                return JSON.parse(data);
+            } catch (e) {
+                return { vi: data, en: "" };
+            }
+        }
+        return data;
+    };
+
+    const getEventBySlug = async (EventSlug) => {
         if (!EventSlug) return;
         setLoading(true);
         setErrGetSlug('');
@@ -36,16 +60,24 @@ export default function CustomEventkLayout() {
                 if (!isoString) return "";
                 return isoString.substring(0, 16);
             };
-            setForm({ title: data.title, slug: data.slug, description: data.description, content: data.content, start_time: formatForInput(data.start_time), end_time: formatForInput(data.end_time) });
+            setForm({
+                title: parseMultiLang(data.title),
+                slug: data.slug,
+                slugArtwork: data.slug_artwork || "",
+                description: parseMultiLang(data.description),
+                content: parseMultiLang(data.content),
+                start_time: formatForInput(data.start_time),
+                end_time: formatForInput(data.end_time)
+            });
             if (data.banner_url) {
                 setPreviewUrl(data.banner_url);
                 setIsVideo(data.banner_url.match(/\.(mp4|mov|webm)$/i) ? true : false);
             }
-        }catch (error){
-            if (error.response){
-                if(error.response.status === 400) setErrGetSlug('Thiếu dữ liệu, thử lại sau!');
-                if(error.response.status === 404) setErrGetSlug('Không tìm thấy sự kiện!');
-            } else if (error.request){
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status === 400) setErrGetSlug('Thiếu dữ liệu, thử lại sau!');
+                if (error.response.status === 404) setErrGetSlug('Không tìm thấy sự kiện!');
+            } else if (error.request) {
                 setErrGetSlug('Lỗi tìm kiếm sự kiện, vui lòng thử lại!');
             } else {
                 setErrGetSlug('Lỗi server, thử lại sau!');
@@ -55,15 +87,13 @@ export default function CustomEventkLayout() {
         }
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         getEventBySlug(slug);
-    },[slug]);
+    }, [slug]);
 
     useEffect(() => {
         return () => {
-            if (previewUrl && !previewUrl.startsWith('http')) {
-                URL.revokeObjectURL(previewUrl);
-            }
+            if (previewUrl && !previewUrl.startsWith('http')) URL.revokeObjectURL(previewUrl);
         };
     }, [previewUrl]);
 
@@ -75,6 +105,27 @@ export default function CustomEventkLayout() {
         }));
     };
 
+    const handleViChange = (newData) => {
+        setForm(prev => ({
+            ...prev,
+            title: { ...prev.title, vi: newData.title ?? prev.title.vi },
+            description: { ...prev.description, vi: newData.description ?? prev.description.vi },
+            content: { ...prev.content, vi: newData.content ?? prev.content.vi }
+        }));
+    };
+
+    const handleEnChange = (newData) => {
+        setForm(prev => ({
+            ...prev,
+            title: { ...prev.title, en: newData.title ?? prev.title.en },
+            description: { ...prev.description, en: newData.description ?? prev.description.en },
+            content: { ...prev.content, en: newData.content ?? prev.content.en }
+        }));
+    };
+
+    const viData = { title: form.title.vi, description: form.description.vi, content: form.content.vi };
+    const enData = { title: form.title.en, description: form.description.en, content: form.content.en };
+
     const handleProcessFile = (selectedFile) => {
         if (!selectedFile) return;
         if (selectedFile.size > 50 * 1024 * 1024) {
@@ -82,7 +133,7 @@ export default function CustomEventkLayout() {
             return;
         }
         setFile(selectedFile);
-        setErrFile(''); 
+        setErrFile('');
         const objectUrl = URL.createObjectURL(selectedFile);
         setPreviewUrl(objectUrl);
         setIsVideo(selectedFile.type.startsWith('video/'));
@@ -116,7 +167,7 @@ export default function CustomEventkLayout() {
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        if (!form.title || !form.description || !form.content || !form.start_time || !form.end_time) {
+        if (!form.title.vi || !form.description.vi || !form.content.vi || !form.start_time || !form.end_time) {
             setErr("Vui lòng nhập đủ dữ liệu!");
             return;
         }
@@ -124,13 +175,12 @@ export default function CustomEventkLayout() {
         setErr('');
         setLoading(true);
         const payload = new FormData();
-        if (file) {
-            payload.append('image', file);
-        }
-        payload.append('title', form.title);
+        if (file) payload.append('image', file);
+        payload.append('title', JSON.stringify(form.title));
+        payload.append('description', JSON.stringify(form.description));
+        payload.append('content', JSON.stringify(form.content));
         payload.append('slug', form.slug);
-        payload.append('description', form.description);
-        payload.append('content', form.content);
+        payload.append('slug_artwork', form.slugArtwork)
         payload.append('start_time', form.start_time);
         payload.append('end_time', form.end_time);
         try {
@@ -138,14 +188,22 @@ export default function CustomEventkLayout() {
                 await eventApi.update(getId, payload);
                 setSucc('Cập nhật thành công!');
             } else {
-                if(!file){
-                    setErr("Chưa chọn ảnh hoặc video!")
+                if (!file) {
+                    setErr("Chưa chọn ảnh hoặc video!");
+                    setLoading(false);
                 }
                 await eventApi.create(payload);
                 setSucc('Tạo sự kiện thành công!');
                 setFile(null);
-                setForm({ title: "", slug: "", description: "", content: "", start_time: "", end_time: "" });
-                setPreviewUrl('');
+                setForm({
+                    title: { vi: "", en: "" },
+                    slug: "",
+                    slugArtwork: "",
+                    description: { vi: "", en: "" },
+                    content: { vi: "", en: "" },
+                    start_time: "",
+                    end_time: ""
+                }); setPreviewUrl('');
                 setErr('');
                 setErrFile('');
                 setTimeout(() => {
@@ -196,15 +254,19 @@ export default function CustomEventkLayout() {
                 {errGetSlug && (<ErrorNoti err={errGetSlug} />)}
             </div>
             <form onSubmit={handleSubmit} className="border overflow-y-auto border-gray-800 bg-gray-200 p-2 rounded-md w-full lg:h-[80vh] h-[70vh] space-y-4 flex flex-col justify-around">
-                <div className="flex gap-2">
-                    <div className="flex-1 space-y-2">
-                        <label className="heading-body">Tên sự kiện</label>
-                        <input type="text" name="title" value={form.title} onChange={handleOnchange} className="Digital-Login-Input" />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                        <label className="heading-body">Slug</label>
-                        <input type="text" name="slug" value={form.slug} onChange={handleOnchange} className="Digital-Login-Input" />
-                    </div>
+                <div className="[&_.bg-white]:bg-inherit [&>div]:!border-nones">
+                    <TranslationFields
+                        viData={viData}
+                        enData={enData}
+                        onChangeVi={handleViChange}
+                        onChangeEn={handleEnChange}
+                        fieldsConfig={fieldsConfig}
+                        height="h-[40vh]"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="heading-body">Đường dẫn sự kiện</label>
+                    <input spellcheck="false" type="text" name="slug" value={form.slug} onChange={handleOnchange} className="Digital-Login-Input" />
                 </div>
                 <div className="">
                     <div className="heading-body">Ảnh hoặc video</div>
@@ -233,26 +295,22 @@ export default function CustomEventkLayout() {
                                 </div>
                             </div>
                         )}
-                        <input type="file" ref={fileInputRef} accept="image/*,video/*" onChange={handleFileChange} className="hidden" />
+                        <input spellcheck="false" type="file" ref={fileInputRef} accept="image/*,video/*" onChange={handleFileChange} className="hidden" />
                     </div>
                     <div className="w-full">{errFile && (<ErrorNoti err={errFile} />)}</div>
                 </div>
                 <div className="space-y-2">
-                    <label className="heading-body">Mô tả</label>
-                    <textarea type="text" name="description" value={form.description} onChange={handleOnchange} className="Digital-Login-Input h-[200px]" />
-                </div>
-                <div className="space-y-2">
-                    <label className="heading-body">Nội dung</label>
-                    <textarea type="text" name="content" value={form.content} onChange={handleOnchange} className="Digital-Login-Input h-[200px]" />
+                    <label className="heading-body">Đường dẫn tác phẩm</label>
+                    <input spellcheck="false" type="text" name="slugArtwork" value={form.slugArtwork} onChange={handleOnchange} className="Digital-Login-Input" />
                 </div>
                 <div className="space-y-2 flex gap-4 items-end">
-                    <div className="space-y-2 w-[30%]">
+                    <div className="space-y-2 flex-1">
                         <label className="heading-body">Bắt đầu</label>
-                        <input type="datetime-local" name="start_time" value={form.start_time} onChange={handleOnchange} className="Digital-Login-Input"/>
+                        <input spellcheck="false" type="datetime-local" name="start_time" value={form.start_time} onChange={handleOnchange} className="Digital-Login-Input" />
                     </div>
-                    <div className="space-y-2 w-[30%]">
+                    <div className="space-y-2 flex-1">
                         <label className="heading-body">Kết thúc</label>
-                        <input type="datetime-local" name="end_time" value={form.end_time} onChange={handleOnchange} className="Digital-Login-Input"/>
+                        <input spellcheck="false" type="datetime-local" name="end_time" value={form.end_time} onChange={handleOnchange} className="Digital-Login-Input" />
                     </div>
                 </div>
                 <div className="flex gap-2 pt-4">
@@ -280,7 +338,7 @@ export default function CustomEventkLayout() {
                     <div className=" bg-[#f5f5f3] flex flex-col justify-between rounded-md space-y-4 p-6 relative z-10 w-[70vw] lg:w-[20vw]">
                         <div className="flex-1">
                             <div className="heading-body">Có chắc muốn xoá?</div>
-                            <div className="heading-body font-bold">{form.title}</div>
+                            <div className="heading-body font-bold">{form.title.vi}</div>
                         </div>
                         <div className="flex gap-2 items-end justify-around w-full">
                             <div className="">

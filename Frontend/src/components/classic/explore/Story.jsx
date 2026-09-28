@@ -1,13 +1,22 @@
-import Story from "../../componentLayout/exploreClass/Story"
+import { Link } from "react-router-dom";
+import AnimatedSection from "../../comon/Animation/AnimatedSection";
+import AnimatedTitle from "../../comon/Animation/AnimatedTitle";
 
-export default function StoryClass() {
-    const content = { link: "#", title: "Mở cánh cửa câu chuyện của tác phẩm...", desc: "Khám phá những câu chuyện phía sau các kiệt tác đã làm thay đổi dòng chảy văn hoá và hội hoạ nhân loại – từ những bức tranh khắc họa nỗi đau và khát vọng, đến những tác phẩm mở ra kỷ nguyên mới cho nghệ thuật. Mỗi tác phẩm không chỉ là hình ảnh, mà còn là dấu mốc lịch sử, là tiếng nói mạnh mẽ làm rung chuyển thế giới và truyền cảm hứng cho bao thế hệ sau.", img: "/User/img/Explore.png" }
+export default function Story({ link, title, desc, img, nav }) {
     return (
-        <Story
-            link={content.link}
-            title={content.title}
-            desc={content.desc}
-            img={content.img}
-        />
+        <AnimatedSection className="lg:h-[100vh] h-[60vh] relative pb-10 group">
+            <AnimatedTitle className="w-full h-full relative ">
+                <img src={img} alt="img" className="w-full h-full object-cover" />
+                <Link to={link} className="absolute flex items-center justify-center inset-0 w-full h-full">
+                    <div className=" w-[90vw] lg:h-[80vh] h-[50vh] rounded-xl bg-gray-800/90 z-1 lg:hover:cursor-arrow-right-white">
+                        <div className="flex flex-col gap-4 h-full w-full justify-around items-center lg:p-0 p-2">
+                            <div className=" Style-Heading2 text-white lg:text-left text-center">{title}</div>
+                            <div className=" Style-Text1 text-white max-w-4xl">{desc}</div>
+                            <div className=" Style-Text1 text-white underline">{nav}</div>
+                        </div>
+                    </div>
+                </Link>
+            </AnimatedTitle>
+        </AnimatedSection>
     )
 }

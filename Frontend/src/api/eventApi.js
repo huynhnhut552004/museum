@@ -3,7 +3,12 @@ import apiClient from "./axiosClient";
 const eventApi = {
     get: (type, page, limit) => {
         const url = '/event/';
-        return apiClient.get(url, {params: {type, page, limit}});
+        return apiClient.get(url, { params: { type, page, limit } });
+    },
+
+    searchByAdmin: (page, limit, keyword, type) => {
+        const url = '/event/searchByAdmin';
+        return apiClient.get(url, { params: { page, limit, keyword, type } });
     },
 
     getBySlug: (slug) => {
@@ -13,7 +18,7 @@ const eventApi = {
 
     create: (data) => {
         const url = '/event/';
-        return apiClient.post(url, data,{
+        return apiClient.post(url, data, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -22,7 +27,7 @@ const eventApi = {
 
     update: (id, rawdata) => {
         const url = `/event/${id}`;
-        return apiClient.patch(url, rawdata,{
+        return apiClient.patch(url, rawdata, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

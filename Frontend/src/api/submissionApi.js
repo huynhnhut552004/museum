@@ -6,9 +6,14 @@ const submissionApi = {
         return apiClient.post(url, data);
     },
 
-    get: ({page, limit, status, email}) => {
+    get: (page, limit, status, email) => {
         const url = '/submission/';
-        return apiClient.get(url, {params: {page, limit, status, email}});
+        return apiClient.get(url, { params: { page, limit, status, email } });
+    },
+
+    searchByAdmin: (page, limit, status, email, keyword) => {
+        const url = '/submission/searchByAdmin';
+        return apiClient.get(url, { params: { page, limit, status, email, keyword } });
     },
 
     readed: (id) => {

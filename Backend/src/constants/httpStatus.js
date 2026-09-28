@@ -2,12 +2,12 @@ const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
   NO_CONTENT: 204,
-  BAD_REQUEST: 400, // Lỗi do user gửi sai data
-  UNAUTHORIZED: 401, // Chưa đăng nhập
-  FORBIDDEN: 403, // Đã đăng nhập nhưng không có quyền (User đòi vào trang Admin)
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
   NOT_FOUND: 404,
-  CONFLICT: 409, // Trùng email
-  INTERNAL_SERVER: 500 // Lỗi code server
+  CONFLICT: 409,
+  INTERNAL_SERVER: 500
 };
 
-module.exports = {HTTP_STATUS};
+module.exports = { HTTP_STATUS };

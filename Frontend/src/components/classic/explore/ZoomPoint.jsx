@@ -1,24 +1,69 @@
-import ZoomPoint from "../../componentLayout/exploreClass/ZoomPoint";
+import { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
+import AnimatedSection from '../../comon/Animation/AnimatedSection';
 
-export default function ZoomPointClass() {
-    const Content = {
-        img: "/User/img/Explore_Zoom.png",
-        title: "Bữa ăn cuối cùng, Leonardo da Vinc 1495-1498.",
-        desc: "Nhấp vào chấm để phóng to và tìm hiểu thêm."
-    }
-    const hotspots = [
-        { id: 1, top: '65%', left: '25%', zoomX: '25%', zoomY: '-10%', scale: 2, title: "Tay phải của Chúa Jesus", desc: "Bàn tay phải mở ra hướng về chiếc bánh mì và ly rượu, tượng trưng cho sự ban phước và hiến dâng." },
-        { id: 2, top: '63%', left: '51%', zoomX: '0%', zoomY: '-9%', scale: 3, title: "Chúa Jesus", desc: "Trung tâm của bức tranh. Gương mặt ngài thể hiện sự điềm tĩnh nhưng đượm buồn khi thông báo có kẻ phản bội." },
-        { id: 3, top: '65%', left: '75%', zoomX: '-25%', zoomY: '-10%', scale: 2, title: "Nhóm môn đồ", desc: "Các môn đồ đang bàn tán xôn xao, thể hiện nhiều cung bậc cảm xúc từ nghi ngờ, sợ hãi đến tức giận." },
-        { id: 4, top: '20%', left: '50%', zoomX: '0%', zoomY: '20%', scale: 2, title: "Kiến trúc vòm", desc: "Việc sử dụng phối cảnh điểm tụ giúp mọi đường nét kiến trúc đều hướng sự tập trung về phía Chúa Jesus." },
-        { id: 5, top: '20%', left: '20%', zoomX: '25%', zoomY: '25%', scale: 2, title: "Ánh sáng và Bóng tối", desc: "Kỹ thuật Chiaroscuro được sử dụng để tạo chiều sâu và kịch tính cho không gian bữa tiệc." }
-    ];
-    return (
-        <ZoomPoint
-            img={Content.img}
-            title={Content.title}
-            desc={Content.desc}
-            hotspots={hotspots}
-        />
-    )
-}
+export default function ZoomPoint({ img, title, desc, hotspots, link, more }) {
+  const [zoomState, setZoomState] = useState({ scale: 1, x: 0, y: 0 });
+  const [activeSpot, setActiveSpot] = useState(null);
+
+  const handleSpotClick = (spot) => {
+    setZoomState({
+      scale: spot.scale,
+      x: spot.zoomX,
+      y: spot.zoomY,
+    });
+    setActiveSpot(spot);
+  };
+
+  const resetZoom = () => {
+    setZoomState({ scale: 1, x: 0, y: 0 });
+    setActiveSpot(null);
+  };
+
+  const isZoomed = zoomState.scale > 1;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setZoomState((prev) => {
+        if (prev.scale === 1) return prev;
+        setActiveSpot(null);
+        return { scale: 1, x: 0, y: 0 };
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return (
+    <AnimatedSection>
+      <div className='lg:hidden pb-2'>
+        <div className="Style-Heading2 lg:hidden text-center">{title}</div>
+        <div className="Style-Text1 lg:hidden text-center">{desc}</div>
+        <Link to={link} className='Style-Text1 border-black underline text-center rounded-lg lg:hidden '>{more}</Link>
+      </div>
+      <section className="relative pb-10 w-full lg:h-[90vh] h-[30vh] overflow-hidden group rounded-xl">
+        <img src={img} draggable={false} alt="Img" className="w-full h-full object-cover transition-transform duration-700 ease-in-out will-change-transform lg:cursor-pointer" style={{ transform: `scale(${zoomState.scale}) translate(${zoomState.x}, ${zoomState.y})` }} onClick={resetZoom} />
+        {hotspots.map(spot => (
+          <button key={spot.id} onClick={(e) => { handleSpotClick(spot); e.stopPropagation() }} className={`absolute lg:w-12 lg:h-12 w-8 h-8 -ml-6 -mt-6 rounded-full border-2 border-white/80 lg:hover:bg-white/20 lg:hover:scale-110 transition-all duration-300 z-10 focus:outline-none ${isZoomed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} style={{ top: spot.top, left: spot.left }}>
+            <span className="absolute inset-0 h-full w-full hidden lg:block rounded-full lg:hover:bg-white opacity-40 lg:hover:animate-ping"></span>
+          </button>
+        ))}
+        <div className={`absolute bottom-6 lg:block hidden left-0 p-8 text-white transition-opacity duration-500 ${isZoomed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className="Style-Heading2 text-white lg:block hidden">{title}</div>
+          <div className="Style-Text1 text-white lg:block hidden">{desc}</div>
+          <Link to={link} className='Style-Text1 text-black hidden bg-white p-1 cursor-pointer rounded-lg transition-all duration-300 ease-out lg:inline-block hover:bg-gray-300 '>{more}</Link>
+        </div>
+        <div className={`absolute lg:bottom-6 lg:left-6 bottom-1 left-1 lg:p-8 p-2 rounded-r-lg bg-black/30 border-l-4 transition-all duration-700 transform ${isZoomed && activeSpot ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+          {activeSpot && (
+            <>
+              <div className="Style-Heading2 text-white">{activeSpot.title}</div>
+              <div className="Style-Text1 text-white">{activeSpot.desc}</div>
+            </>
+          )}
+        </div>
+      </section>
+    </AnimatedSection>
+  );
+};

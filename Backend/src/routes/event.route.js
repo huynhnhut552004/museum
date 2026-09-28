@@ -1,10 +1,11 @@
-const express = require ('express');
+const express = require('express');
 const { verifyToken, authorize } = require('../middlewares/auth.middleware');
 const router = express.Router();
 const controller = require('../controllers/event.controller');
 const { uploadEvent } = require('../middlewares/upload.middleware');
 
 router.get('/', controller.get);
+router.get('/searchByAdmin', verifyToken, authorize(['admin', 'viewer']), controller.searchEventsByAdmin);
 router.post('/', verifyToken, authorize(['admin']), uploadEvent.single('image'), controller.create);
 router.patch('/:id', verifyToken, authorize(['admin']), uploadEvent.single('image'), controller.update);
 router.delete('/:id', verifyToken, authorize(['admin']), controller.delete);

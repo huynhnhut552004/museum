@@ -1,6 +1,6 @@
 const ArtworkService = require('../services/artwork.service');
 const { HTTP_STATUS } = require('../constants/httpStatus');
-const asyncHandler = require('../utils/asyncHandle');
+const asyncHandler = require('../utils/asyncHandler');
 const createError = require('../utils/createError');
 const { ERROR_MESSAGES, ARTWORK_MESSAGES } = require('../constants/message');
 const { SLUG, UUID } = require('../constants/regex');
@@ -10,15 +10,8 @@ const ArtworkController = {
   create: asyncHandler(async (req, res) => {
     if (!req.file) throw createError(ARTWORK_MESSAGES.MISSING_FILE, HTTP_STATUS.BAD_REQUEST);
     const rawdata = req.body;
-    let categories = [];
-    if (rawdata.category_ids) {
-      if (Array.isArray(rawdata.category_ids)) {
-        categories = rawdata.category_ids;
-      } else {
-        const parsed = parseJSONSafe(rawdata.category_ids, [rawdata.category_ids]);
-        categories = Array.isArray(parsed) ? parsed : [parsed];
-      }
-    };
+    const validLayouts = ['classic', 'digital', 'both'];
+    const layout_type = validLayouts.includes(rawdata.layout_type) ? rawdata.layout_type : 'classic';
     const has3D = String(rawdata.has3D) === 'true';
     const three_d_config = has3D ? {
       scale: parseFloat(rawdata.scale || 1),
@@ -32,7 +25,7 @@ const ArtworkController = {
         y: parseFloat(rawdata.RotationY || 0),
         z: parseFloat(rawdata.RotationZ || 0)
       }
-    } : {};
+    } : undefined;
     const annotations = rawdata.annotations ? parseJSONSafe(rawdata.annotations, []) : [];
     if (annotations.length === 0 && rawdata.AnnotationTitle) {
       annotations.push({
@@ -47,10 +40,9 @@ const ArtworkController = {
       slug: rawdata.slug,
       artist_id: rawdata.artist_id || null,
       artist_display_name: rawdata.artist_display_name,
-      status: rawdata.status,
       description: rawdata.description,
-      year: rawdata.year ? parseInt(rawdata.year) : new Date().getFullYear(),
-      category_ids: categories,
+      year: rawdata.year ? parseInt(rawdata.year) : null,
+      layout_type: layout_type,
       media_url: req.file.path,
       public_id: req.file.filename,
       media_type: req.file.mimetype.startsWith('video') ? 'video' : 'image',
@@ -59,26 +51,67 @@ const ArtworkController = {
       annotations
     };
     const result = await ArtworkService.createArtwork(data);
-    return res.status(HTTP_STATUS.CREATED).json({ message: ARTWORK_MESSAGES.CREATED, data: result });
+    return res.status(HTTP_STATUS.CREATED).json({
+      message: 'Tác phẩm đã được tải lên và đang chờ AI xử lý!',
+      data: result
+    });
+  }),
+
+  retryAI: asyncHandler(async (req, res) => {
+    const artworkId = req.params.id;
+    const { media_url, title, artist_name, layout_type, artistId, desc } = req.body;
+    const result = await ArtworkService.retryAIArtwork({ artworkId, media_url, title, artist_name, layout_type, artistId, desc });
+    return res.status(HTTP_STATUS.OK).json(result);
   }),
 
   getAll: asyncHandler(async (req, res) => {
-    const { page, limit, category_ids, keyword } = req.query;
+    const { page, limit, attributes, keyword, artist_name, layout } = req.query;
+    let parsedAttributes = null;
+    if (attributes) {
+      try {
+        parsedAttributes = typeof attributes === 'string' ? JSON.parse(attributes) : attributes;
+      } catch (error) {
+        console.warn("Lỗi parse JSON attributes:", error.message);
+        parsedAttributes = null;
+      }
+    }
     const data = {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      category_ids: category_ids ? parseInt(category_ids) : null,
-      keyword: keyword ? keyword : null
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 20,
+      attributes: parsedAttributes,
+      keyword: keyword ? keyword : null,
+      artist_name: artist_name ? artist_name : null,
+      layout: layout ? layout : null
     };
     const result = await ArtworkService.getArtworks(data);
+    return res.status(HTTP_STATUS.OK).json(result);
+  }),
+
+  recommended: asyncHandler(async (req, res) => {
+    const artworkId = req.params.id;
+    const { artist_name, layout_type, limit } = req.query;
+    const result = await ArtworkService.getRecommendedArtworks({
+      artworkId,
+      artist_name: artist_name ? artist_name : null,
+      layout_type: layout_type ? layout_type : null,
+      limit: limit ? parseInt(limit, 10) : 10
+    });
     return res.status(HTTP_STATUS.OK).json(result);
   }),
 
   getByAdmin: asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 20;
-    const {layout} = req.query || null;
+    const layout = req.query.layout || null;
     const result = await ArtworkService.getArtworksForAdmin({ page, limit, layout });
+    return res.status(HTTP_STATUS.OK).json(result);
+  }),
+
+  searchByAdmin: asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const keyword = req.query.keyword || '';
+    const result = await ArtworkService.searchArtworksForAdmin({ page, limit, keyword });
     return res.status(HTTP_STATUS.OK).json(result);
   }),
 
@@ -100,15 +133,13 @@ const ArtworkController = {
   update: asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const updateData = req.body;
-    let categories = [];
-    if (updateData.category_ids) {
-      if (Array.isArray(updateData.category_ids)) {
-        categories = updateData.category_ids;
-      } else {
-        const parsed = parseJSONSafe(updateData.category_ids, [updateData.category_ids]);
-        categories = Array.isArray(parsed) ? parsed : [parsed];
-      }
-    };
+    const validLayouts = ['classic', 'digital', 'both'];
+    let layout_type = undefined;
+    if (updateData.layout_type) {
+      layout_type = validLayouts.includes(updateData.layout_type)
+        ? updateData.layout_type
+        : 'classic';
+    }
     const has3D = String(updateData.has3D) === 'true';
     const three_d_config = has3D ? {
       scale: parseFloat(updateData.scale || 1),
@@ -141,12 +172,17 @@ const ArtworkController = {
       status: updateData.status,
       description: updateData.description,
       year: isNaN(parsedYear) ? null : parsedYear,
-      category_ids: categories,
+      layout_type: layout_type,
       file: req.file,
-      attributes_text: updateData.attributes_text, three_d_config, annotations
+      attributes_text: updateData.attributes_text,
+      three_d_config,
+      annotations
     };
     const result = await ArtworkService.updateArtwork(id, data);
-    return res.status(HTTP_STATUS.OK).json({ message: ARTWORK_MESSAGES.UPDATED, data: result });
+    return res.status(HTTP_STATUS.OK).json({
+      message: ARTWORK_MESSAGES.UPDATED,
+      data: result
+    });
   }),
 
   delete: asyncHandler(async (req, res) => {

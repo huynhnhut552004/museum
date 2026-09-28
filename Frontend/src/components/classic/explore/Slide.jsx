@@ -1,15 +1,73 @@
-import Slide from "../../componentLayout/exploreClass/Slide";
+import { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import AnimatedSection from "../../comon/Animation/AnimatedSection";
+import AnimatedTitle from "../../comon/Animation/AnimatedTitle";
 
-export default function SlideClass() {
-    const Card = [
-        { id: 1, img: "/User/img/Explore_Slide1.png", title: "Mona Lisa", desc: "Leonardo da Vinci 1503-1506", link: "#" },
-        { id: 2, img: "/User/img/Explore_Slide2.png", title: "Sự sáng tạo của Adam", desc: "Michelangelo 1512", link: "#" },
-        { id: 3, img: "/User/img/Explore_Slide3.png", title: "Sự ra đời của Venus", desc: "Sandro Botticelli 1486", link: "#" },
-        { id: 4, img: "/User/img/Explore_Slide4.png", title: "Mùa xuân", desc: "- Sandro Botticelli 1477-1482", link: "#" },
-        { id: 5, img: "/User/img/Explore_Slide5.png", title: "Đám cưới tại Cana", desc: "Paolo Veronese 1563", link: "#" },
-        { id: 6, img: "/User/img/Explore_Slide6.png", title: "Chân dung Arnolfini", desc: "Jan van Eyck 1434", link: "#" },
-        { id: 7, img: "/User/img/Explore_Slide7.png", title: "Bức bàn thờ Ghent", desc: "Jan van Eyck & Hubert van Eyck 1432", link: "#" },
-        { id: 8, img: "/User/img/Explore_Slide8.png", title: "Trường học Athens", desc: "Raphael 1511", link: "#" }
-    ];
-    return <Slide items={Card} />;
+export default function Slide({ title, items }) {
+    const scrollRef = useRef(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
+    const checkScroll = () => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+    };
+
+    useEffect(() => {
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        return () => window.removeEventListener('resize', checkScroll);
+    }, []);
+
+    const scroll = (direction) => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const items = Array.from(container.children);
+        const currentScroll = container.scrollLeft;
+        const buffer = 20;
+        let targetScroll = 0;
+        if (direction === 'left') {
+            const prevItem = [...items].reverse().find(item => item.offsetLeft < currentScroll - buffer);
+            targetScroll = prevItem ? prevItem.offsetLeft : 0;
+        } else {
+            const nextItem = items.find(item => item.offsetLeft > currentScroll + buffer);
+            targetScroll = nextItem ? nextItem.offsetLeft : container.scrollWidth;
+        }
+        container.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    };
+
+    return (
+        <AnimatedSection className="max-w-6xl mx-auto pb-10 lg:space-y-6 space-y-4">
+            <AnimatedTitle className="Style-Heading2 text-center">
+                {title}
+            </AnimatedTitle>
+            <AnimatedTitle className="relative group">
+                <div ref={scrollRef} onScroll={checkScroll} className="flex lg:gap-8 gap-2 items-start overflow-x-auto snap-x scroll-smooth no-scrollbar snap-mandatory py-4">
+                    {items.map(item => (
+                        <Link to={item.link} key={item.id} className="snap-start shrink-0 flex flex-col gap-2">
+                            <div className="lg:h-[50vh] h-[30vh]">
+                                <img src={item.img} alt="Img" draggable={false} className="h-full w-auto max-w-none object-contain rounded shadow-sm" />
+                            </div>
+                            <div className="w-min min-w-[200px]">
+                                <div className="Style-Heading2 lg:text-3xl truncate text-center lg:text-left">{item.title}</div>
+                                <div className="Style-Text1 text-base text-center lg:text-left">{item.desc}</div>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+                {canScrollLeft && (
+                    <button onClick={() => scroll('left')} className="absolute hidden lg:flex items-center justify-center left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl bg-white shadow-lg rounded-full w-12 h-12 z-10 hover:bg-gray-100 transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                        <img src="/User/icon/ArrowLeftBlack.png" className="w-6 h-6" alt="Prev" />
+                    </button>
+                )}
+                {canScrollRight && (
+                    <button onClick={() => scroll('right')} className="absolute hidden lg:flex items-center justify-center right-0 top-1/2 translate-x-1/2 -translate-y-1/2 text-4xl bg-white shadow-lg rounded-full w-12 h-12 z-10 hover:bg-gray-100 transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                        <img src="/User/icon/ArrowRightBlack.png" className="w-6 h-6" alt="Next" />
+                    </button>
+                )}
+            </AnimatedTitle>
+        </AnimatedSection>
+    );
 }

@@ -18,7 +18,7 @@ const authApi = {
 
     forgotPassword: (email) => {
         const url = '/auth/forgot-password';
-        return apiClient.post(url,{}, { email });
+        return apiClient.post(url, {}, { email });
     },
 
     resetPassword: (email, otp, newPassword) => {

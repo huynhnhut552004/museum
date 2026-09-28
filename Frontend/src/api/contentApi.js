@@ -1,14 +1,18 @@
 import apiClient from "./axiosClient";
 
 const contentApi = {
-    get: (page, lang) => {
+    get: (page) => {
         const url = '/content/';
-        return apiClient.get(url, {params: {page, lang}});
+        return apiClient.get(url, { params: { page } });
     },
 
-    save: (id, page, block_type, language, display_order) => {
+    save: (id, formData) => {
         const url = `/content/${id}`;
-        return apiClient.post(url, {page, block_type, language, display_order});
+        return apiClient.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
     },
 
     delete: (id) => {
@@ -16,9 +20,23 @@ const contentApi = {
         return apiClient.delete(url);
     },
 
-    order: (page, lang, orderId) => {
+    order: (page, orderId) => {
         const url = '/content/';
-        return apiClient.patch(url, { orderId: orderId }, { params: { page, lang } });
+        return apiClient.patch(url, { orderId: orderId }, { params: { page } });
+    },
+
+    uploadArray: (formData) => {
+        const url = '/uploadArray/images';
+        return apiClient.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    },
+
+    deleteImage: (public_id, resource_type = "image") => {
+        const url = `/upload/deleteImage`;
+        return apiClient.post(url, { public_id, resource_type });
     }
 };
 

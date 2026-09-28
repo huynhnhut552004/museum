@@ -1,21 +1,23 @@
-const {HTTP_STATUS} = require ('../constants/httpStatus');
+const { HTTP_STATUS } = require('../constants/httpStatus');
 const { ERROR_MESSAGES, COMMENT_MESSAGES } = require('../constants/message');
 const { UUID } = require('../constants/regex');
 const CommentService = require('../services/comment.service');
-const asyncHandler = require ('../utils/asyncHandle');
-const createError = require ('../utils/createError');
+const asyncHandler = require('../utils/asyncHandler');
+const createError = require('../utils/createError');
 
 const CommentController = {
-    create: asyncHandler (async (req, res) => {
+    create: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const {eId, aId} = req.params;
-        const {content, parentId} = req.body;
-        if(!content) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(eId && !UUID.test(eId)) throw createError (ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        if(aId && !UUID.test(aId)) throw createError (ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        if(parentId && !UUID.test(parentId)) throw createError (ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        const result = await CommentService.createComment({userId, eventId: eId, artworkId: aId, content, parentId});
-        return res.status(HTTP_STATUS.CREATED).json({message: COMMENT_MESSAGES.CREATED, data: result});
+        const { eId, aId } = req.params;
+        const { content, parentId } = req.body;
+        if (!content) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (eId && !UUID.test(eId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if (aId && !UUID.test(aId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if (parentId && !UUID.test(parentId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const result = await CommentService.createComment({ userId, eventId: eId, artworkId: aId, content, parentId });
+        const roomId = aId ? `artwork_${aId}` : `event_${eId}`;
+        if (roomId) req.io.to(roomId).emit('new_comment_realtime', { message: "Có bình luận mới", comment: result });
+        return res.status(HTTP_STATUS.CREATED).json({ message: COMMENT_MESSAGES.CREATED, data: result });
     }),
 
     get: asyncHandler(async (req, res) => {
@@ -24,48 +26,59 @@ const CommentController = {
         const rawdata = req.query;
         if (eId && !UUID.test(eId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         if (aId && !UUID.test(aId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        const data = {
-            page: parseInt(rawdata.page),
-            limit: parseInt(rawdata.limit)
-        };
+        const data = { page: parseInt(rawdata.page) || 1, limit: parseInt(rawdata.limit) || 10 };
         const result = await CommentService.getComments({ userId, eventId: eId, artworkId: aId, page: data.page, limit: data.limit });
+        return res.status(HTTP_STATUS.OK).json({ data: result });
+    }),
+
+    getTotal: asyncHandler(async (req, res) => {
+        const { eId, aId } = req.params;
+        if (eId && !UUID.test(eId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if (aId && !UUID.test(aId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const result = await CommentService.getTotalCommentCount({ eventId: eId, artworkId: aId });
         return res.status(HTTP_STATUS.OK).json({ data: result });
     }),
 
     getRep: asyncHandler(async (req, res) => {
         const userId = req.user ? req.user.id : null;
-        const {id} = req.params;
-        if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        const result = await CommentService.getReplies({commentId: id ,userId})
-        return res.status(HTTP_STATUS.OK).json({data: result});
+        const { id } = req.params;
+        if (!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const result = await CommentService.getReplies({ commentId: id, userId })
+        return res.status(HTTP_STATUS.OK).json({ data: result });
     }),
 
-    toggleLikeComment: asyncHandler(async (req, res) =>{
+    toggleLikeComment: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const {id} = req.params;
-        if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const { id } = req.params;
+        if (!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const result = await CommentService.toggleLikeComment(userId, id);
+        const roomId = req.body.artworkId ? `artwork_${req.body.artworkId}` : `event_${req.body.eventId}`;
+        if (roomId) req.io.to(roomId).emit('update_like_realtime', { commentId: id, newLikeCount: result.like_count });
         return res.status(HTTP_STATUS.OK).json(result);
     }),
 
-    delete: asyncHandler (async (req, res) =>{
+    delete: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const {id} = req.params;
-        const admin= req.user.role === 'admin';
-        if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const { id } = req.params;
+        const admin = req.user.role === 'admin';
+        if (!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         await CommentService.deleteComment(userId, id, admin);
-        return res.status(HTTP_STATUS.OK).json({message: COMMENT_MESSAGES.DELETED});
+        const roomId = req.body.artworkId ? `artwork_${req.body.artworkId}` : `event_${req.body.eventId}`;
+        if (req.body.artworkId || req.body.eventId) req.io.to(roomId).emit('delete_comment_realtime', { commentId: id });
+        return res.status(HTTP_STATUS.OK).json({ message: COMMENT_MESSAGES.DELETED });
     }),
 
     pin: asyncHandler(async (req, res) => {
-        const {id} = req.params;
-        if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const { id } = req.params;
+        if (!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         await CommentService.pinComment(id);
-        return res.status(HTTP_STATUS.OK).json({message: COMMENT_MESSAGES.PINED});
+        const roomId = req.body.artworkId ? `artwork_${req.body.artworkId}` : `event_${req.body.eventId}`;
+        if (req.body.artworkId || req.body.eventId) req.io.to(roomId).emit('pin_comment_realtime', { commentId: id });
+        return res.status(HTTP_STATUS.OK).json({ message: COMMENT_MESSAGES.PINED });
     })
 };
 

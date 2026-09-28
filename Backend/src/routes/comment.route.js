@@ -1,12 +1,14 @@
-const express = require ('express');
+const express = require('express');
 const { verifyTokenOption, verifyToken, authorize } = require('../middlewares/auth.middleware');
 const router = express.Router();
-const controller = require ('../controllers/comment.controller');
+const controller = require('../controllers/comment.controller');
 
 router.post('/event/:eId', verifyToken, controller.create);
 router.post('/artwork/:aId', verifyToken, controller.create);
 router.get('/event/:eId', verifyTokenOption, controller.get);
 router.get('/artwork/:aId', verifyTokenOption, controller.get);
+router.get('/event/total/:eId', verifyTokenOption, controller.getTotal);
+router.get('/artwork/total/:aId', verifyTokenOption, controller.getTotal);
 router.get('/:id/replies', verifyTokenOption, controller.getRep);
 router.post('/:id/like', verifyToken, controller.toggleLikeComment);
 router.delete('/:id', verifyToken, controller.delete);

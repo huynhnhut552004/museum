@@ -11,9 +11,19 @@ const userApi = {
         return apiClient.post(url, { email });
     },
 
+    getByTag: (userName) => {
+        const url = '/user/getByTag';
+        return apiClient.get(url, { params: { userName } });
+    },
+
     update: (full_name) => {
         const url = '/user/update';
         return apiClient.patch(url, { full_name });
+    },
+
+    updateInfo: (data) => {
+        const url = '/user/updateInfo';
+        return apiClient.patch(url, { data });
     },
 
     changeEmail: (newEmail) => {
@@ -31,20 +41,25 @@ const userApi = {
         return apiClient.post(url, { oldPass, newPass });
     },
 
-    getUser: (page) => {
+    getUser: (page, limit) => {
         const url = '/user/getAll';
-        return apiClient.get(url, {params: {page}});
+        return apiClient.get(url, { params: { page, limit } });
+    },
+
+    searchByAdmin: (page, limit, keyword) => {
+        const url = '/user/searchByAdmin';
+        return apiClient.get(url, { params: { page, limit, keyword } });
     },
 
     createUser: (email, password, full_name, role, ban) => {
         const url = '/user/createUser';
-        return apiClient.post(url, {email, password, full_name, role, ban});
+        return apiClient.post(url, { email, password, full_name, role, ban });
     },
 
     ban: (id) => {
-    const url = `/user/ban/${id}`; 
-    return apiClient.patch(url); 
-}
+        const url = `/user/ban/${id}`;
+        return apiClient.patch(url);
+    }
 }
 
 export default userApi;

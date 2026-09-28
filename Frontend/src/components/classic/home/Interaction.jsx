@@ -1,50 +1,44 @@
-export const Data = [
-  {
-    id: 1,
-    image: "/User/img/Main_Slide1.png",
-    title: "Mona Lisa",
-    desc: "Nụ cười bí ẩn thách thức thời gian của nàng La Gioconda.",
-    by: "Leonardo da Vinci - 1503",
-    ratio: 0.67
-  },
-  {
-    id: 2,
-    image: "/User/img/Main_Slide2.png",
-    title: "Red Fuji",
-    desc: "Khoảnh khắc núi thiêng nhuộm đỏ trong ráng bình minh.",
-    by: "Katsushika Hokusai (1760 – 1849)",
-    ratio: 1.48
-  },
-  {
-    id: 3,
-    image: "/User/img/Main_Slide3.png",
-    title: "Persistence of Memory",
-    desc: "Thế giới siêu thực nơi thời gian tan chảy như sáp nến.",
-    by: "Salvador Dalí - 1931",
-    ratio: 1.33
-  },
-  {
-    id: 4,
-    image: "/User/img/Main_Slide4.png",
-    title: "Em Thuý",
-    desc: "Vẻ đẹp trong veo và đôi mắt biết nói của tuổi thơ Việt Nam.",
-    by: "Trần Văn Cẩn - 1943",
-    ratio: 0.77
-  },
-  {
-    id: 5,
-    image: "/User/img/Main_Slide5.png",
-    title: "Impression, Sunrise",
-    desc: "Khoảnh khắc mặt trời xuyên qua lớp sương mù cảng Le Havre.",
-    by: "Claude Monet - 1872",
-    ratio: 1.25
-  },
-  {
-    id: 6,
-    image: "/User/img/Main_Slide6.png",
-    title: "The Scream",
-    desc: "Tiếng thét câm lặng trước sự lo âu của con người hiện đại.",
-    by: "Edvard Munch 1893 - 1910",
-    ratio: 0.73
-  }
-];
+import { useRef } from "react";
+import useAnimatedSlide from "../../comon/Animation/AnimatedSlide";
+import AnimatedSection from "../../comon/Animation/AnimatedSection";
+
+export default function Interaction({ Data = [] }) {
+    const containerRef = useRef(null);
+    const bgImgRef = useRef(null);
+    const textRef = useRef(null);
+    const thisImgRef = useRef(null);
+    const nextImgRef = useRef(null);
+    const frameRef = useRef(null);
+    if (!Data || Data.length === 0) return null;
+    const { activeIndex, changeSlide } = useAnimatedSlide({ containerRef, bgImgRef, textRef, thisImgRef, nextImgRef, frameRef, content: Data });
+    const currentSlide = Data[activeIndex];
+    
+    return (
+        <AnimatedSection ref={containerRef} className="h-screen flex items-end">
+            <div className="relative h-[95%] w-full overflow-hidden bg-black cursor-none flex items-center justify-center">
+                <div ref={bgImgRef} className="absolute inset-0">
+                    <img src={currentSlide.image} alt="Img" className="w-full h-full object-cover filter blur-md scale-110" />
+                    <div className="absolute w-full h-full inset-0 bg-black/40" />
+                </div>
+                <div className="absolute lg:top-[10%] lg:left-[5%] top-[5%] left-[80%] pointer-events-none">
+                    <span className="Style-Text1 text-white">0{activeIndex + 1}/0{Data.length}</span>
+                </div>
+                <div ref={textRef} className="absolute w-full lg:h-[90%] h-[80%] flex flex-col justify-between items-center">
+                    <div className="Style-Heading2 text-white">{currentSlide.title}</div>
+                    <div className="flex flex-col items-center">
+                        <div className="Style-Text1 text-white text-center lg:text-left">{currentSlide.desc}</div>
+                        <div className="Style-Text1 text-white">{currentSlide.by}</div>
+                    </div>
+                </div>
+                <div ref={frameRef} className="relative shadow-xl border-[2px] border-white/80 rounded-lg overflow-hidden bg-black">
+                    <img ref={thisImgRef} src={currentSlide.image} alt="Img" className="absolute inset-0 w-full h-full object-cover" style={{ transform: "translate(0%, 0%)" }} />
+                    <img ref={nextImgRef} alt="Img" className="absolute inset-0 w-full h-full object-cover" />
+                </div>
+                <div className="absolute inset-0 flex w-full h-full z-50">
+                    <div className="flex-1 h-full lg:cursor-prev-white" onClick={() => { changeSlide(-1) }}></div>
+                    <div className="flex-1 h-full lg:cursor-next-white" onClick={() => { changeSlide(1) }}></div>
+                </div>
+            </div>
+        </AnimatedSection>
+    )
+}

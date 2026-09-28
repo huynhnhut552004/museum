@@ -6,9 +6,9 @@ const connectMongo = async () => {
             dbName: "Museum"
         }
         );
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+        console.log(`✅ Đã kết nối MongoDB: ${conn.connection.host}`);
     } catch (error) {
-        console.error(`❌ MongoDB Connection Error: ${error.message}`);
+        console.error(`❌ Lỗi kết nối MongoDB: ${error.message}`);
         process.exit(1);
     }
 };

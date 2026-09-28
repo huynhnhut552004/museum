@@ -1,7 +1,7 @@
 const { pool } = require('../config/postgres');
 const HTTP_STATUS = require('../constants/httpStatus');
 const { ERROR_MESSAGES } = require('../constants/message');
-const createError = require ('../utils/createError');
+const createError = require('../utils/createError');
 
 const LikeService = {
   toggleLike: async (userId, { eventId, artworkId }) => {
@@ -35,15 +35,59 @@ const LikeService = {
       await client.query('ROLLBACK');
       throw e;
     } finally {
-        client.release();
+      client.release();
     }
   },
-  
+
   checkIsLiked: async (userId, { eventId, artworkId }) => {
     let whereClause = eventId ? 'event_id = $2' : 'artwork_id = $2';
     const params = [userId, eventId || artworkId];
     const res = await pool.query(`SELECT 1 FROM likes WHERE user_id = $1 AND ${whereClause}`, params);
     return res.rows.length > 0;
+  },
+
+  getUserLikes: async (userId, filterType = 'all') => {
+    const artworkQuery =
+      `SELECT 
+        'artwork' AS type,
+        a.id,
+        a.slug,
+        a.layout_type,
+        a.title,
+        a.artist_display_name AS author_name,
+        a.media_url AS image_url,
+        l.created_at AS liked_at
+      FROM likes l
+      INNER JOIN artworks a ON l.artwork_id = a.id
+      WHERE l.user_id = $1`;
+    const eventQuery =
+      `SELECT 
+        'event' AS type,
+        e.id,
+        e.slug,
+        NULL::text AS layout_type,
+        e.title,
+        NULL AS author_name, -- Event không có tác giả cụ thể trong schema này
+        e.banner_url AS image_url,
+        l.created_at AS liked_at
+      FROM likes l
+      INNER JOIN events e ON l.event_id = e.id
+      WHERE l.user_id = $1`;
+    let finalQuery = '';
+    if (filterType === 'artwork') {
+      finalQuery = `${artworkQuery} ORDER BY liked_at DESC`;
+    } else if (filterType === 'event') {
+      finalQuery = `${eventQuery} ORDER BY liked_at DESC`;
+    } else {
+      finalQuery = `${artworkQuery} UNION ALL ${eventQuery} ORDER BY liked_at DESC`;
+    }
+    try {
+      const { rows } = await pool.query(finalQuery, [userId]);
+      return rows;
+    } catch (error) {
+      throw createError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
   }
 };
+
 module.exports = LikeService;

@@ -1,20 +1,28 @@
-import Produce from "../../componentLayout/homeClass/Produce";
+import { Link } from "react-router-dom";
+import AnimatedMedia from "../../comon/Animation/AnimatedMedia";
+import AnimatedSection from "../../comon/Animation/AnimatedSection";
+import AnimatedTitle from "../../comon/Animation/AnimatedTitle";
+import AnimatedText from "../../comon/Animation/AnimatedText";
 
-export default function ProduceClass() {
-    const Content = {
-        title: "Bạn muốn tìm hiểu văn hoá nghệ thuật của các quốc gia khác nhau?",
-        img: "/User/img/Main_Produce.png",
-        desc: "Mosaic mang lại không gian nghệ thuật đa quốc gia, trải nghiệm văn hoá của mỗi châu lục, là những tác phẩm trường tồn qua thời gian, là những giá trị sống mãi.",
-        by: "Nighthawks bởi Edward Hopper - 1942",
-        nav: "Khám phá thêm →"
-    };
+export default function Produce({ title, by, desc, img, nav }) {
     return (
-        <Produce
-            title={Content.title}
-            img={Content.img}
-            desc={Content.desc}
-            by={Content.by}
-            nav={Content.nav}
-        />
+        <AnimatedSection className="max-w-6xl mx-auto pb-10 lg:space-y-6 space-y-4">
+            <AnimatedTitle className="Style-Heading2 text-center">{title}</AnimatedTitle>
+            <div className="relative w-full full">
+                <AnimatedMedia direction="left">
+                    <img src={img} alt="Img" className="w-full h-full object-cover" />
+                    <div className="bg-black/40 w-full h-full absolute inset-0" />
+                </AnimatedMedia>
+                <AnimatedText className="Style-Text1 text-white absolute bottom-1 left-1 lg:bottom-[90%] lg:left-6 backdrop-blur-sm p-2 rounded-xl">{by}</AnimatedText>
+                <AnimatedText className="max-w-2xl hidden lg:block Style-Text1 text-white absolute backdrop-blur-sm left-6 bottom-6 p-2 rounded-r-xl border-l-[2px] ">{desc}</AnimatedText>
+                <AnimatedText>
+                    <Link to="/explore" className="Style-Nav hidden lg:inline-block text-white backdrop-blur-sm absolute right-6 bottom-6 transition-all transform duration-300 ease-in-out hover:underline p-4 border border-white/20 hover:border-white/40">{nav}</Link>
+                </AnimatedText>
+            </div>
+            <AnimatedText className=" Style-Text1 lg:hidden">{desc}</AnimatedText>
+            <AnimatedText>
+                <Link to="/explore" className="Style-Nav lg:hidden border border-gray-800 p-4">{nav}→</Link>
+            </AnimatedText>
+        </AnimatedSection>
     )
 }

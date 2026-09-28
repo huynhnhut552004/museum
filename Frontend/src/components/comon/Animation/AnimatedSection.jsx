@@ -8,9 +8,7 @@ export default function AnimatedSection({ children, className = "", ref }) {
   return (
     <motion.section
       initial="hidden"
-      {...(isDesktop
-        ? { whileInView: "visible", viewport: { once: true, amount: 0 } }
-        : { animate: "visible" })}
+      {...(isDesktop ? { whileInView: "visible", viewport: { once: true, amount: 0 } } : { animate: "visible" })}
       variants={sectionVariants}
       className={`${className}`}
       ref={ref}

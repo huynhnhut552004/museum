@@ -1,17 +1,38 @@
-import Nation from "../../componentLayout/homeClass/Nation";
+import { useEffect, useState } from "react";
+import AnimatedSection from "../../comon/Animation/AnimatedSection";
+import AnimatedTitle from "../../comon/Animation/AnimatedTitle";
 
-export default function NationClass() {
-    const content = [
-        { title: "Thái Lan", img: "/User/img/Main_ThaiLan.png" },
-        { title: "Việt Nam", img: "/User/img/Main_VietNam.png" },
-        { title: "Trung Quốc", img: "/User/img/Main_TrungQuoc.png" },
-        { title: "Nhật Bản", img: "/User/img/Main_NhatBan.png" }
-    ];
-    const defaultImg = "/User/img/Main_Nation.png";
+export default function Nation({ items, defaultImg }) {
+    const [Img, setImg] = useState(defaultImg);
+    const [mobile, setMobile] = useState(false);
+    
+    useEffect(() => {
+        const handleResize = () => {
+            setMobile(window.innerWidth < 1024);
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     return (
-        <Nation
-            items={content}
-            defaultImg={defaultImg}
-        />
+        <AnimatedSection className="pb-10">
+            <AnimatedTitle className="relative w-full lg:h-[80vh] h-[30vh]">
+                <img src={Img} alt="Img" className="w-full h-full object-cover transition-all duration-500 ease-in-out" />
+                <div className="bg-black/40 w-full h-full absolute inset-0" />
+                <div className="flex absolute inset-0 w-full h-full">
+                    {items.map((item, index) => (
+                        <div key={index} className="flex-1 h-full border-r border-white/30 transition-all duration-300 ease-out hover:bg-white/10" onMouseEnter={!mobile ? () => setImg(item.img) : undefined} onMouseLeave={!mobile ? () => setImg(defaultImg) : undefined} onClick={mobile ? () => setImg(item.img) : undefined} />
+                    ))}
+                </div>
+                <div className="flex absolute inset-0 w-full h-full items-center pointer-events-none">
+                    {items.map((item, index) => (
+                        <div key={index} className="flex-1 text-center Style-Heading2 text-white">
+                            {item.title}
+                        </div>
+                    ))}
+                </div>
+            </AnimatedTitle>
+        </AnimatedSection>
     )
 }

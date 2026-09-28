@@ -1,4 +1,4 @@
-const FORGOT_PASS = (email, username, otp) =>({
+const FORGOT_PASS = (email, username, otp) => ({
     from: '"Mosaic Museum Support" <no-reply@mosaic.com>',
     to: `${email}`,
     subject: 'Khôi phục mật khẩu',
@@ -21,7 +21,7 @@ const CHANGE_EMAIL = (newEmail, otp) => ({
       `
 });
 
-module.exports={
+module.exports = {
     FORGOT_PASS,
     CHANGE_EMAIL
 };

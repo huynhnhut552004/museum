@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import artworkApi from '../../../api/artworkApi';
 import { Link, useNavigate } from 'react-router-dom';
 import ErrorNoti from '../../comon/Noti/Error';
@@ -9,69 +9,57 @@ export default function ArtworkLayout() {
     const [loading, setLoading] = useState(false);
     const [artwork, setArtwork] = useState([]);
     const [page, setPage] = useState(1);
-    const [halgore, setHalgore] = useState(true);
+    const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const [result, setResult] = useState(null);
+    const [searchKeyword, setSearchKeyword] = useState('');
     const [more, setMore] = useState(false);
-    const [popup, setPopup] = useState({ title: "", img: "", artist: "", desc: "", status: "", category: null });
+    const [popup, setPopup] = useState({ title: "", img: "", artist: "", desc: "", status: "", slug: "", year: "" });
     const navigate = useNavigate();
-    const observer = useRef();
 
     const labelMap = {
         'published': 'Công khai',
         'draft': 'Bản nháp',
         'hidden': 'Ẩn'
-    }
-
-    const lastRef = useCallback(node => {
-        if (loading) return;
-        if (observer.current) observer.current.disconnect();
-        if (result) return;
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && halgore) {
-                setPage(prev => prev + 1);
-            }
-        }, {
-            rootMargin: "200px"
-        });
-        if (node) observer.current.observe(node);
-    }, [loading, halgore, result]);
-
-    const getArtwork = async () => {
-        if (!halgore && page !== 1) return;
-        try {
-            setLoading(true);
-            const apiLayout = layout === '' ? null : layout;
-            const limit = 20;
-            const res = await artworkApi.getByAdmin(page, limit, apiLayout);
-            const newData = res.data.data;
-            if (newData.length === 0) {
-                setHalgore(false);
-            } else {
-                setArtwork(prev => {
-                    if (page === 1) return newData;
-                    const uniqueData = newData.filter(
-                        (newArt) => !prev.some((oldArt) => oldArt.id === newArt.id)
-                    );
-                    return [...prev, ...uniqueData];
-                });
-            }
-        } catch (error) {
-            handleApiError(error);
-        } finally {
-            setLoading(false);
-        }
     };
-    useEffect(() => {
-        setArtwork([]);
+
+    const searchArtwork = (e) => {
+        e.preventDefault();
+        const keyword = searchQuery.trim();
+        if (!keyword) {
+            setSearchKeyword('');
+            setPage(1);
+            return;
+        }
+        setErr('');
         setPage(1);
-        setHalgore(true);
-        setResult(null);
-    }, [layout]);
+        setSearchKeyword(keyword);
+    };
 
     useEffect(() => {
-        getArtwork();
-    }, [page, layout]);
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const apiLayout = layout === '' ? null : layout;
+                let res;
+                if (searchKeyword) {
+                    res = await artworkApi.searchByadmin(page, 20, searchKeyword, apiLayout);
+                } else {
+                    res = await artworkApi.getByAdmin(page, 20, apiLayout);
+                }
+                setArtwork(res.data.data);
+                setTotalPages(res.data.pagination.totalPages);
+            } catch (error) {
+                handleApiError(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [page, layout, searchKeyword]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [layout]);
 
     const handleApiError = (error) => {
         if (error.response) {
@@ -87,24 +75,17 @@ export default function ArtworkLayout() {
     const handleOnchange = (e) => {
         const value = e.target.value;
         setSearchQuery(value);
-        if (value.trim() === '') {
-            setResult(null);
-            setErr('');
-        }
+        if (value.trim() === '') setErr('');
     };
 
-    const getArtworkLabel = (categories) => {
-        if (!categories || categories.length === 0) return { text: 'Chưa phân loại', class: 'bg-gray-100 text-gray-600' };
-        const hasClassic = categories.some(cat => cat.layout_type === 'classic');
-        const hasDigital = categories.some(cat => cat.layout_type === 'digital');
-        if (hasClassic && hasDigital) {
-            return { text: 'Tất cả' };
-        } else if (hasClassic) {
+    const getArtworkLabel = (data) => {
+        if (data === 'classic') {
             return { text: 'Truyền thống' };
-        } else if (hasDigital) {
+        } else if (data === 'digital') {
             return { text: 'Kỹ thuật số' };
+        } else {
+            return { text: 'Cả hai' };
         }
-        return { text: 'Khác', class: 'bg-gray-100 text-gray-600' };
     };
 
     const ChangeLayout = (e) => {
@@ -112,56 +93,19 @@ export default function ArtworkLayout() {
         setLayout(value);
     };
 
-    const removeAccentsAndSpaces = (str) => {
-        if (!str) return "";
-        return str
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/đ/g, 'd').replace(/Đ/g, 'D')
-            .replace(/\s+/g, '')
-            .toLowerCase();
-    };
-
-    const handleLocalSearch = (e) => {
-        e.preventDefault();
-        const term = searchQuery.trim();
-        if (!term) {
-            setResult(null);
-            setErr('Vui lòng nhập từ khóa tìm kiếm!');
-            return;
-        }
-        const normalizedTerm = removeAccentsAndSpaces(term);
-        const statusMap = {
-            'published': 'congkhai',
-            'draft': 'bannhaptam',
-            'hidden': 'dangan'
-        }
-        const filteredCateory = artwork.filter(a => {
-            const titleSearch = removeAccentsAndSpaces(a.title || "");
-            const slugSearch = removeAccentsAndSpaces(a.slug || "");
-            const artistNameSearch = removeAccentsAndSpaces(a.artist_display_name || "");
-            const yearSearch = removeAccentsAndSpaces(String(a.year) || "");
-            const statusSearch = statusMap[a.status] || "";
-            return slugSearch.includes(normalizedTerm) || titleSearch.includes(normalizedTerm) || artistNameSearch.includes(normalizedTerm) || yearSearch.includes(normalizedTerm) || statusSearch.includes(normalizedTerm);
-        });
-        setResult(filteredCateory);
-        if (filteredCateory.length === 0) {
-            setErr("Không tìm thấy kết quả nào khớp chính xác!");
-        } else {
-            setErr("");
-        }
-    };
-
-    const toggleMore = (title, img, artist, desc, status, category) => {
+    const toggleMore = (title, img, artist, desc, status, slug, year) => {
         if (more) {
             setMore(false);
-            setPopup({ title: "", img: "", artist: "", desc: "", status: "", category: null });
+            setPopup({ title: "", img: "", artist: "", desc: "", status: "", slug: "", year: "" });
         } else {
             setMore(true);
-            setPopup({ title: title, img: img, artist: artist, desc: desc, status: status, category: category });
+            setPopup({ title: title, img: img, artist: artist, desc: desc, status: status, slug: slug, year: year });
         }
     };
-    const displayList = result ? result : artwork;
+
+    const displayList = artwork;
+
+    if (loading) return <div className="p-8 text-center text-gray-500">Đang kết nối...</div>;
 
     return (
         <section className="h-full max-w-[96%] mx-auto space-y-2 relative">
@@ -181,9 +125,9 @@ export default function ArtworkLayout() {
                     </select>
                 </div>
                 <div className='lg:w-[40%] flex lg:gap-1 lg:justify-normal'>
-                    <form onSubmit={handleLocalSearch} className='flex w-full'>
+                    <form onSubmit={searchArtwork} className='flex w-full'>
                         <button type='submit' disabled={loading} className='admin-button-search'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#fff" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14" /></svg></button>
-                        <input type='text' value={searchQuery} onChange={handleOnchange} placeholder='Tìm kiếm gì đó...' className='admin-input-search' />
+                        <input spellcheck="false" type='text' value={searchQuery} onChange={handleOnchange} placeholder='Tìm kiếm gì đó...' className='admin-input-search' />
                     </form>
                     <Link to='/admin/artwork/custom' className='admin-add-button '><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="#fff" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z" /></svg></Link>
                 </div>
@@ -218,10 +162,9 @@ export default function ArtworkLayout() {
                         </thead>
                         <tbody>
                             {displayList.map((item, index) => {
-                                const isLast = index === displayList.length - 1;
-                                const labelData = getArtworkLabel(item.categories);
+                                const labelData = getArtworkLabel(item.layout_type);
                                 return (
-                                    <tr key={item.id} ref={isLast ? lastRef : null} onClick={() => toggleMore(item.title, item.media_url, item.artist_display_name, item.description, item.status, item.categories)} className="border-b text hover:bg-gray-50 cursor-pointer transition-colors">
+                                    <tr key={item.id} onClick={() => toggleMore(item.title, item.media_url, item.artist_display_name, item.description, item.status, item.slug, item.year)} className="border-b text hover:bg-gray-50 cursor-pointer transition-colors">
                                         <td className="p-2">
                                             <div className="font-medium">{item.title}</div>
                                             <span className={`px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold ${labelData.class}`}>
@@ -239,7 +182,7 @@ export default function ArtworkLayout() {
                                             {item.year}
                                         </td>
                                         <td className="p-2">
-                                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold">
+                                            <span className=" text-blue-700 text-xs uppercase font-bold">
                                                 {labelMap[item.status] || item.status}
                                             </span>
                                         </td>
@@ -253,6 +196,48 @@ export default function ArtworkLayout() {
                             })}
                         </tbody>
                     </table>
+                    <div className="flex justify-center items-center gap-1 py-4">
+                        <button disabled={page === 1} onClick={() => setPage(prev => prev - 1)} className="px-3 py-2 border rounded disabled:opacity-30">‹</button>
+                        {(() => {
+                            const pages = [];
+                            if (totalPages <= 7) {
+                                for (let i = 1; i <= totalPages; i++) {
+                                    pages.push(i);
+                                }
+                            } else if (page <= 4) {
+                                pages.push(1, 2, 3, 4, 5, 6, '...', totalPages);
+                            } else if (page >= totalPages - 3) {
+                                pages.push(
+                                    1,
+                                    '...',
+                                    totalPages - 5,
+                                    totalPages - 4,
+                                    totalPages - 3,
+                                    totalPages - 2,
+                                    totalPages - 1,
+                                    totalPages
+                                );
+                            } else {
+                                pages.push(
+                                    1,
+                                    '...',
+                                    page - 1,
+                                    page,
+                                    page + 1,
+                                    '...',
+                                    totalPages
+                                );
+                            }
+                            return pages.map((item, index) =>
+                                item === '...' ? (
+                                    <span key={`dots-${index}`} className="px-2 py-2">...</span>
+                                ) : (
+                                    <button key={item} onClick={() => setPage(item)} className={`px-3 py-2 border rounded ${page === item ? 'bg-[#4A67ED] text-white' : 'bg-white hover:bg-gray-100'}`}>{item}</button>
+                                )
+                            );
+                        })()}
+                        <button disabled={page === totalPages} onClick={() => setPage(prev => prev + 1)} className="px-3 py-2 border rounded disabled:opacity-30">›</button>
+                    </div>
                 </div>
             )}
             {more &&
@@ -262,15 +247,19 @@ export default function ArtworkLayout() {
                         <div className=" bg-[#f5f5f3] flex-1 overflow-y-auto overflow-x-hidden rounded-md space-y-2 p-2 absolute h-[70vh] w-[80vw] lg:w-[60vw] top-[10%] left-[10%] lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
                             <div className=" p-2 items-center justify-between w-full rounded-sm bg-[#191B1D] sticky inset-0">
                                 <div className="flex gap-2">
-                                    <div className='flex-1 flex gap-2'>
+                                    <div className='flex-1 flex justify-between gap-2'>
                                         <div className="font-inter font-bold text-gray-300">
                                             {popup.title}
                                         </div>
-                                        <div className='hidden lg:flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold'>
-                                            {labelMap[popup.status] || popup.status}
-                                        </div>
-                                        <div className={`hidden lg:flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold ${getArtworkLabel(popup.category).class}`}>
-                                            {getArtworkLabel(popup.category).text}
+                                        <div className='flex gap-4'>
+                                            <div className='hidden lg:flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold'>
+                                                {labelMap[popup.status] || popup.status}
+                                            </div>
+                                            {popup.year && (
+                                                <div className='hidden lg:flex items-center px-4 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold'>
+                                                    {popup.year}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="">
@@ -278,29 +267,22 @@ export default function ArtworkLayout() {
                                     </div>
                                 </div>
                                 <div className='flex gap-2'>
-                                <div className='lg:hidden flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[8px]  uppercase font-bold'>
-                                     {labelMap[popup.status] || popup.status}
+                                    <div className='lg:hidden flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[8px]  uppercase font-bold'>
+                                        {labelMap[popup.status] || popup.status}
+                                    </div>
                                 </div>
-                                <div className={`lg:hidden flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full  text-[8px] uppercase font-bold ${getArtworkLabel(popup.category).class}`}>
-                                    {getArtworkLabel(popup.category).text}
-                                </div>
-                            </div>
                             </div>
                             <div className="space-y-2">
                                 <div className='flex justify-between'>
-                                    <div className='text lg:w-[20%] w-[30%]'>
+                                    <div className='text'>
                                         <span className='font-bold'>Tác giả: </span>
                                         {popup.artist}
                                     </div>
-                                    <div className='flex-1 text-right'>
-                                        <span className='font-bold'>Danh mục:</span>
-                                        <div className='flex justify-end flex-wrap gap-2'>
-                                            {popup.category.map((item, index) => (
-                                                <div key={item.id} className='text'>
-                                                    {item.name}
-                                                </div>
-                                            ))}
-                                        </div>
+                                </div>
+                                <div className='flex justify-between'>
+                                    <div className='text'>
+                                        <span className='font-bold'>Đường dẫn: </span>
+                                        {popup.slug}
                                     </div>
                                 </div>
                                 <div className='flex gap-2'>

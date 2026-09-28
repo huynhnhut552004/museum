@@ -1,14 +1,14 @@
 import apiClient from "./axiosClient";
 
 const searchApi = {
-    click: (keyword) => {
-        const url = '/search/';
-        return apiClient.post(url, {keyword});
+    click: (keyword, layout) => {
+        const url = '/search';
+        return apiClient.post(url, {keyword, layout});
     },
 
-    getHot: () => {
-        const url = '/search/';
-        return apiClient.get(url);
+    getHot: (layout) => {
+        const url = '/search';
+        return apiClient.get(url, {params: {layout}});
     }
 };
 

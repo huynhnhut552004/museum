@@ -1,7 +1,8 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { pool } = require('../../config/postgres'); 
+const { pool } = require('../../config/postgres');
+
 const runMigration = async () => {
   try {
     const sqlPath = path.join(__dirname, 'init_schema.sql');
@@ -11,10 +12,10 @@ const runMigration = async () => {
     console.log('⚡ Đang khởi tạo bảng...');
     await client.query(sql);
     client.release();
-    console.log('✅ KHỞI TẠO DATABASE THÀNH CÔNG! (Đã tạo đủ 10 bảng)');
+    console.log('✅ Khởi tạo thành công!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ LỖI KHI TẠO BẢNG:', error);
+    console.error('❌ Lỗi:', error);
     process.exit(1);
   }
 };

@@ -4,9 +4,7 @@ export default function SuccessNoti({succ}){
             <div className="absolute">
                 <img src="/User/icon/Success.png" alt="Success" draggable={false} className="w-6 h-auto"/>
             </div>
-            <div className="text-white text-center">
-                {succ}
-            </div>
+            <div className="text-white text-center">{succ}</div>
         </div>
     )
 }

@@ -28,7 +28,7 @@ const CATEROGY_MESSAGES = {
   INVALID_LAYOUT: 'Layout không hợp lệ.',
   CREATED: 'Tạo danh mục thành công.',
   UPDATED: 'Cập nhật danh mục thành công.',
-  DELETEERR:'Lỗi khi xoá.',
+  DELETEERR: 'Lỗi khi xoá.',
   DELETED: 'Xoá danh mục thành công.'
 };
 
@@ -58,14 +58,14 @@ const COMMENT_MESSAGES = {
   PINED: 'Ghim comment thành công'
 };
 
-const EVENT_MESSAGES={
+const EVENT_MESSAGES = {
   MISSING_FILE: 'Vui lòng chọn file ảnh hoặc video.',
   CREATED: 'Tạo sự kiện thành công',
   DELETED: 'Xoá sự kiện thành công',
   UPDATED: 'Cập nhật sự kiện thành công'
 };
 
-const ERROR_MESSAGES={
+const ERROR_MESSAGES = {
   MISSING_ID: "Thiếu id.",
   MISSING_SLUG: "thiếu slug.",
   MISSING_DATA: "Vui lòng nhập đầy đủ thông tin.",
@@ -74,7 +74,7 @@ const ERROR_MESSAGES={
   NOT_FOUND: 'Không tìm thấy sự kiện.',
 };
 
-const SUCCESS_MESSAGES={
+const SUCCESS_MESSAGES = {
   REQUEST_OK: 'Gửi yêu cầu thành công.',
   POST_OK: 'Gửi thành công.',
   VERIFY_OK: 'Hợp lệ.',
@@ -82,7 +82,7 @@ const SUCCESS_MESSAGES={
   DELETED: 'Xoá thành công.'
 };
 
-const CONTENT_MESSAGES={
+const CONTENT_MESSAGES = {
   ORDER_UPDATED: 'Cập nhật thứ tự thành công.'
 };
 

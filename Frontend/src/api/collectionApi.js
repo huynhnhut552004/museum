@@ -12,18 +12,18 @@ const collectionApi = {
     },
 
     getDetail: (id) => {
-        const url = `/colelction/${id}`;
-        return apiClient.get(url);
+        const url = `/collection/${id}`;
+        return apiClient.get(url, { id });
     },
 
     add: (collectionId, id) => {
-        const url = `/colelction/add-art/${id}`;
-        return apiClient.post(url, {collectionId});
+        const url = `/collection/add-art/${id}`;
+        return apiClient.post(url, { collectionId });
     },
 
     remove: (id, artworkId) => {
         const url = `/collection/${id}/remove`;
-        return apiClient.delete(url, {data:{artworkId}});
+        return apiClient.delete(url, { data: { artworkId } });
     },
 
     delete: (id) => {
@@ -33,7 +33,7 @@ const collectionApi = {
 
     update: (id, name, rawPublic) => {
         const url = `/collection/${id}`;
-        return apiClient.patch(url, {name, rawPublic});
+        return apiClient.patch(url, { name, rawPublic });
     }
 };
 

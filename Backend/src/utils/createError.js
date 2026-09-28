@@ -4,4 +4,4 @@ const createError = (message, statusCode) => {
   return err;
 };
 
-module.exports= createError;
+module.exports = createError;

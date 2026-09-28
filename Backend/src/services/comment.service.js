@@ -1,23 +1,24 @@
 const { pool } = require('../config/postgres');
 const HTTP_STATUS = require('../constants/httpStatus');
 const { ERROR_MESSAGES, COMMENT_MESSAGES } = require('../constants/message');
-const createError = require ('../utils/createError');
+const createError = require('../utils/createError');
 
 const CommentService = {
   createComment: async ({ userId, eventId, artworkId, content, parentId = null }) => {
     if (!eventId && !artworkId) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-    const values= [userId, eventId || null, artworkId || null, content, parentId || null];
-    const query = `
-      INSERT INTO comments (user_id, event_id, artwork_id, content, parent_id)
+    const values = [userId, eventId || null, artworkId || null, content, parentId || null];
+    const query =
+      `INSERT INTO comments (user_id, event_id, artwork_id, content, parent_id)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, content, created_at, parent_id, like_count
-    `;
+      RETURNING id, content, created_at, parent_id, like_count, user_id`;
     const res = await pool.query(query, values);
     const newComment = res.rows[0];
-    const userRes = await pool.query('SELECT full_name, avatar_url FROM users WHERE id = $1', [userId]);
+    const userRes = await pool.query('SELECT full_name, role FROM users WHERE id = $1', [userId]);
     return {
       ...newComment,
-      user: userRes.rows[0],
+      full_name: userRes.rows[0].full_name,
+      role: userRes.rows[0].role,
+      reply_count: 0,
       is_liked_by_me: false
     };
   },
@@ -27,15 +28,16 @@ const CommentService = {
     let condition = '';
     const params = [userId || null, limit, offset];
     if (eventId) {
-        condition = 'c.event_id = $4';
-        params.push(eventId);
+      condition = 'c.event_id = $4';
+      params.push(eventId);
     } else {
-        condition = 'c.artwork_id = $4';
-        params.push(artworkId);
+      condition = 'c.artwork_id = $4';
+      params.push(artworkId);
     }
-    const query = `
-      SELECT 
-        c.id, c.content, c.created_at, c.like_count, c.is_pinned,
+    const query =
+      `SELECT 
+        c.id, c.content, c.created_at, c.like_count, c.is_pinned, 
+        c.user_id,
         u.full_name, u.role,
         (SELECT COUNT(*) FROM comments r WHERE r.parent_id = c.id) as reply_count,
         CASE WHEN l.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_liked_by_me
@@ -43,25 +45,45 @@ const CommentService = {
       JOIN users u ON c.user_id = u.id
       LEFT JOIN comment_likes l ON c.id = l.comment_id AND l.user_id = $1
       WHERE ${condition} AND c.parent_id IS NULL
-      ORDER BY c.is_pinned DESC, c.created_at DESC
-      LIMIT $2 OFFSET $3
-    `;
+      ORDER BY 
+        CASE WHEN c.user_id = $1 THEN 0 ELSE 1 END ASC, -- Đưa comment của user hiện tại (0) lên trên người khác (1)
+        c.is_pinned DESC, 
+        c.created_at DESC
+      LIMIT $2 OFFSET $3`;
     const res = await pool.query(query, params);
     return res.rows;
   },
 
+  getTotalCommentCount: async ({ eventId, artworkId }) => {
+    if (!eventId && !artworkId) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+    let condition = '';
+    const params = [];
+    if (eventId) {
+      condition = 'event_id = $1';
+      params.push(eventId);
+    } else {
+      condition = 'artwork_id = $1';
+      params.push(artworkId);
+    }
+    const query =
+      `SELECT COUNT(*) AS total_count 
+      FROM comments 
+      WHERE ${condition}`;
+    const res = await pool.query(query, params);
+    return parseInt(res.rows[0].total_count, 10);
+  },
+
   getReplies: async ({ commentId, userId }) => {
-    const query = `
-      SELECT 
-        c.id, c.content, c.created_at, c.like_count,
+    const query =
+      `SELECT 
+        c.id, c.content, c.created_at, c.like_count, c.user_id,
         u.full_name, u.role,
         CASE WHEN l.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_liked_by_me
       FROM comments c
       JOIN users u ON c.user_id = u.id
       LEFT JOIN comment_likes l ON c.id = l.comment_id AND l.user_id = $2
       WHERE c.parent_id = $1
-      ORDER BY c.created_at ASC
-    `;
+      ORDER BY c.created_at ASC`;
     const res = await pool.query(query, [commentId, userId || null]);
     return res.rows;
   },
@@ -98,10 +120,7 @@ const CommentService = {
       await pool.query('DELETE FROM comments WHERE id = $1', [commentId]);
       return true;
     }
-    const res = await pool.query(
-      'DELETE FROM comments WHERE id = $1 AND user_id = $2 RETURNING id', 
-      [commentId, userId]
-    );
+    const res = await pool.query('DELETE FROM comments WHERE id = $1 AND user_id = $2 RETURNING id', [commentId, userId]);
     if (res.rowCount === 0) throw createError(COMMENT_MESSAGES.DELETE_ERR, HTTP_STATUS.INTERNAL_SERVER);
     return true;
   },
@@ -110,27 +129,15 @@ const CommentService = {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      const targetRes = await client.query(
-          'SELECT event_id, artwork_id FROM comments WHERE id = $1', 
-          [commentId]
-      );
+      const targetRes = await client.query('SELECT event_id, artwork_id FROM comments WHERE id = $1', [commentId]);
       if (targetRes.rows.length === 0) throw new Error('Comment không tồn tại');
       const { event_id, artwork_id } = targetRes.rows[0];
       if (event_id) {
-          await client.query(
-              'UPDATE comments SET is_pinned = FALSE WHERE event_id = $1', 
-              [event_id]
-          );
+        await client.query('UPDATE comments SET is_pinned = FALSE WHERE event_id = $1', [event_id]);
       } else if (artwork_id) {
-          await client.query(
-              'UPDATE comments SET is_pinned = FALSE WHERE artwork_id = $1', 
-              [artwork_id]
-          );
+        await client.query('UPDATE comments SET is_pinned = FALSE WHERE artwork_id = $1', [artwork_id]);
       }
-      await client.query(
-        'UPDATE comments SET is_pinned = TRUE WHERE id = $1', 
-        [commentId]
-      );
+      await client.query('UPDATE comments SET is_pinned = TRUE WHERE id = $1', [commentId]);
       await client.query('COMMIT');
       return true;
     } catch (e) {

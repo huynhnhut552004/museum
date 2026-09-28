@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import userApi from '../../../api/userApi';
 import { Link } from 'react-router-dom';
 import ErrorNoti from '../../comon/Noti/Error';
@@ -6,52 +6,64 @@ import ErrorNoti from '../../comon/Noti/Error';
 export default function UserLayout() {
     const [err, setErr] = useState('');
     const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [halgore, setHalgore] = useState(true);
     const [user, setUser] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [result, setResult] = useState(null);
-    const observer = useRef();
+    const [searchKeyword, setSearchKeyword] = useState('');
 
-    const lastRef = useCallback(node => {
-        if (loading) return;
-        if (observer.current) observer.current.disconnect();
-        if (result) return;
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && halgore) {
-                setPage(prev => prev + 1);
-            }
-        }, {
-            rootMargin: "200px"
-        });
-        if (node) observer.current.observe(node);
-    }, [loading, halgore, result]);
+    const searchKeywordMap = {
+        admin: [
+            'quản trị',
+            'quản lý',
+            'người quản lý',
+            'admin',
+        ],
+        user: [
+            'người dùng',
+            'user',
+            'người dùng thông thường'
+        ]
+    };
 
-    const getUser = async () => {
-        try {
-            setLoading(true);
-            const res = await userApi.getUser(page);
-            const newData = res.data.data;
-            if (newData.length === 0) {
-                setHalgore(false);
-            } else {
-                setUser(prev => {
-                    const uniqueData = newData.filter(
-                        (newUser) => !prev.some((existingUser) => existingUser.id === newUser.id)
-                    );
-                    return [...prev, ...uniqueData];
-                });
+    const normalizeSearchKeyword = (keyword) => {
+        const normalized = keyword.trim().toLowerCase();
+        for (const [canonical, keywords] of Object.entries(searchKeywordMap)) {
+            if (keywords.includes(normalized)) {
+                return canonical;
             }
-        } catch (error) {
-            handleApiError(error);
-        } finally {
-            setLoading(false);
         }
+        return normalized;
     };
 
     useEffect(() => {
-        getUser();
-    }, [page]);
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                let res;
+                const keyword = normalizeSearchKeyword(searchKeyword);
+                if (searchKeyword) {
+                    res = await userApi.searchByAdmin(
+                        page,
+                        20,
+                        keyword
+                    );
+                } else {
+                    res = await userApi.getUser(
+                        page,
+                        20
+                    );
+                }
+                setUser(res.data.data.data);
+                setTotalPages(res.data.data.pagination.totalPages);
+            } catch (error) {
+                handleApiError(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [page, searchKeyword]);
 
     const handleApiError = (error) => {
         if (error.response) {
@@ -65,63 +77,36 @@ export default function UserLayout() {
     };
 
     const handleOnchange = (e) => {
-        const value = e.target.value;
-        setSearchQuery(value);
-        if (value.trim() === '') {
-            setResult(null);
-            setErr('');
-        }
+        setSearchQuery(e.target.value);
     };
 
-    const removeAccentsAndSpaces = (str) => {
-        if (!str) return "";
-        return str
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/đ/g, 'd').replace(/Đ/g, 'D')
-            .replace(/\s+/g, '')
-            .toLowerCase();
-    };
-
-    const handleLocalSearch = (e) => {
+    const searchUser = (e) => {
         e.preventDefault();
-        const term = searchQuery.trim();
-        if (!term) {
-            setResult(null);
-            setErr('Vui lòng nhập từ khóa tìm kiếm!');
+        const keyword = searchQuery.trim();
+        if (!keyword) {
+            setSearchKeyword('');
+            setPage(1);
             return;
         }
-        const normalizedTerm = removeAccentsAndSpaces(term);
-        const filteredUsers = user.filter(u => {
-            const emailSearch = removeAccentsAndSpaces(u.email || "");
-            const nameSearch = removeAccentsAndSpaces(u.full_name || "");
-            const roleSearch = removeAccentsAndSpaces(u.role || "");
-            const banSearch = u.is_banned ? "bichanbanco" : "hoatdongunbankhong";
-            return emailSearch.includes(normalizedTerm) || nameSearch.includes(normalizedTerm) || roleSearch.includes(normalizedTerm) || banSearch.includes(normalizedTerm);
-        });
-        setResult(filteredUsers);
-        if (filteredUsers.length === 0) {
-            setErr("Không tìm thấy kết quả nào khớp chính xác!");
-        } else {
-            setErr("");
-        }
+        setErr('');
+        setPage(1);
+        setSearchKeyword(keyword);
     };
 
     const toggleBan = async (userId) => {
         try {
             await userApi.ban(userId);
-            const updateList = (list) =>
-                list.map(u => u.id === userId ? { ...u, is_banned: !u.is_banned } : u);
-            setUser(prev => updateList(prev));
-            if (result) {
-                setResult(prev => updateList(prev));
-            }
+            setUser(prev =>
+                prev.map(u => u.id === userId ? { ...u, is_banned: !u.is_banned } : u)
+            );
         } catch (error) {
             handleApiError(error);
         }
     };
 
-    const displayList = result ? result : user;
+    const displayList = user;
+
+    if (loading) return <div className="p-8 text-center text-gray-500">Đang kết nối...</div>;
 
     return (
         <section className="h-full max-w-[96%] mx-auto space-y-2">
@@ -133,11 +118,11 @@ export default function UserLayout() {
                     )}
                 </div>
                 <div className='lg:w-[50%] flex lg:gap-1 w-full lg:justify-normal'>
-                    <form onSubmit={handleLocalSearch} className='flex w-full'>
+                    <form onSubmit={searchUser} className='flex w-full'>
                         <button type='submit' disabled={loading} className='admin-button-search'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#fff" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5A6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14" /></svg></button>
-                        <input type='text' value={searchQuery} onChange={handleOnchange} placeholder='Tìm kiếm gì đó...' className='admin-input-search' />
+                        <input spellcheck="false" type='text' value={searchQuery} onChange={handleOnchange} placeholder='Tìm kiếm gì đó...' className='admin-input-search' />
                     </form>
-                    <Link to='/admin/classArtwork/custom' className='admin-add-button'><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="#fff" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z" /></svg></Link>
+                    <Link to='/admin/user/add' className='admin-add-button'><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="#fff" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z" /></svg></Link>
                 </div>
             </div>
             <div className='flex-1 text block lg:hidden'>
@@ -162,6 +147,7 @@ export default function UserLayout() {
                             <tr className="border-b border-black heading-body">
                                 <th className="p-2 text-left">Tên & Email</th>
                                 <th className="p-2 text-left hidden lg:table-cell">Ngày tạo</th>
+                                <th className="p-2 text-left hidden lg:table-cell">Ngày sửa đổi</th>
                                 <th className="p-2 text-left hidden lg:table-cell">Quyền</th>
                                 <th className="p-2 text-left">Trạng thái</th>
                                 <th className="p-2 text-center">Thao tác</th>
@@ -169,20 +155,19 @@ export default function UserLayout() {
                         </thead>
                         <tbody>
                             {displayList.map((item, index) => {
-                                const isLast = index === displayList.length - 1;
-                                const labelMap = {
-                                    'user': 'người dùng',
-                                    'admin': 'quản trị'
-                                }
+                                const labelMap = { 'user': 'người dùng', 'admin': 'quản trị' }
                                 return (
-                                    <tr key={item.id} ref={isLast ? lastRef : null} className="border-b text hover:bg-gray-50 transition-colors">
+                                    <tr key={item.id} className="border-b text hover:bg-gray-50 transition-colors">
                                         <td className="p-2">
-                                            <div className="font-medium">{item.full_name}</div>
+                                            <div className="font-medium">{item.full_name} <span className='text-gray-600 lg:text-base text-sm'>#{item.user_tag}</span></div>
                                             <div className="text-xs text-gray-500 lg:hidden">{item.email}</div>
                                             <div className="hidden lg:block text-xs text-gray-400">{item.email}</div>
                                         </td>
                                         <td className="p-2 hidden lg:table-cell">
                                             {new Date(item.created_at).toLocaleDateString("vi-VN")}
+                                        </td>
+                                        <td className="p-2 hidden lg:table-cell">
+                                            {new Date(item.updated_at).toLocaleDateString("vi-VN")}
                                         </td>
                                         <td className="p-2 hidden lg:table-cell">
                                             <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] uppercase font-bold">
@@ -202,6 +187,48 @@ export default function UserLayout() {
                             })}
                         </tbody>
                     </table>
+                    <div className="flex justify-center items-center gap-1 py-4">
+                        <button disabled={page === 1} onClick={() => setPage(prev => prev - 1)} className="px-3 py-2 border rounded disabled:opacity-30">‹</button>
+                        {(() => {
+                            const pages = [];
+                            if (totalPages <= 7) {
+                                for (let i = 1; i <= totalPages; i++) {
+                                    pages.push(i);
+                                }
+                            } else if (page <= 4) {
+                                pages.push(1, 2, 3, 4, 5, 6, '...', totalPages);
+                            } else if (page >= totalPages - 3) {
+                                pages.push(
+                                    1,
+                                    '...',
+                                    totalPages - 5,
+                                    totalPages - 4,
+                                    totalPages - 3,
+                                    totalPages - 2,
+                                    totalPages - 1,
+                                    totalPages
+                                );
+                            } else {
+                                pages.push(
+                                    1,
+                                    '...',
+                                    page - 1,
+                                    page,
+                                    page + 1,
+                                    '...',
+                                    totalPages
+                                );
+                            }
+                            return pages.map((item, index) =>
+                                item === '...' ? (
+                                    <span key={`dots-${index}`} className="px-2 py-2">...</span>
+                                ) : (
+                                    <button key={item} onClick={() => setPage(item)} className={`px-3 py-2 border rounded ${page === item ? 'bg-[#4A67ED] text-white' : 'bg-white hover:bg-gray-100'}`}>{item}</button>
+                                )
+                            );
+                        })()}
+                        <button disabled={page === totalPages} onClick={() => setPage(prev => prev + 1)} className="px-3 py-2 border rounded disabled:opacity-30">›</button>
+                    </div>
                 </div>
             )}
         </section>

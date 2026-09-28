@@ -6,7 +6,7 @@ const animations = {
   exit: { opacity: 0, y: -20 },
 };
 
-export default function PageTransition({ children }) {
+export default function PageTransition({ children, className = "" }) {
   return (
     <motion.div
       variants={animations}
@@ -15,6 +15,7 @@ export default function PageTransition({ children }) {
       exit="exit"
       transition={{ duration: 0.5, ease: "easeOut" }}
       style={{ width: "100%" }}
+      className={`${className}`}
     >
       {children}
     </motion.div>

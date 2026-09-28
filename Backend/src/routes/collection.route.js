@@ -1,6 +1,6 @@
-const express = require ('express');
+const express = require('express');
 const router = express.Router();
-const controller = require ('../controllers/collection.controller');
+const controller = require('../controllers/collection.controller');
 const { verifyToken, verifyTokenOption } = require('../middlewares/auth.middleware');
 
 router.post('/', verifyToken, controller.create);

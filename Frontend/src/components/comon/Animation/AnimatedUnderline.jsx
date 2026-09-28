@@ -3,8 +3,6 @@ import { underlineScale } from "./AnimationVariants";
 
 export default function AnimatedUnderline() {
   return (
-    <motion.div
-      variants={underlineScale}
-    />
+    <motion.div variants={underlineScale} />
   );
 }

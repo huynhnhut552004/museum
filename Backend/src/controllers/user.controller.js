@@ -1,80 +1,108 @@
-const {HTTP_STATUS} = require ('../constants/httpStatus');
-const asyncHandler = require ('../utils/asyncHandle');
-const createError = require ('../utils/createError');
-const {AUTH_MESSAGES, SUCCESS_MESSAGES, ERROR_MESSAGES} = require ('../constants/message');
+const { HTTP_STATUS } = require('../constants/httpStatus');
+const asyncHandler = require('../utils/asyncHandler');
+const createError = require('../utils/createError');
+const { AUTH_MESSAGES, SUCCESS_MESSAGES, ERROR_MESSAGES } = require('../constants/message');
 const UserService = require('../services/user.service');
 const { EMAIL, PASSWORD_STRONG, UUID } = require('../constants/regex');
 
 const UserController = {
-    get: asyncHandler (async (req, res) => {
-        const userId= req.user.id;
-        const result= await UserService.getProfile(userId);
-        return res.status(HTTP_STATUS.OK).json({data: result});
+    get: asyncHandler(async (req, res) => {
+        const userId = req.user.id;
+        const result = await UserService.getProfile(userId);
+        return res.status(HTTP_STATUS.OK).json({ data: result });
     }),
 
-    getByEmail: asyncHandler (async (req, res) => {
-        const {email} = req.body;
-        if(!email) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+    getByEmail: asyncHandler(async (req, res) => {
+        const { email } = req.body;
+        if (!email) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const result = await UserService.getUserByEmail(email);
-        return res.status(HTTP_STATUS.OK).json({data: result});
+        return res.status(HTTP_STATUS.OK).json({ data: result });
     }),
 
-    update: asyncHandler (async (req, res) => {
-        const userId = req.user.id;
-        const {full_name} = req.body;
-        const result = await UserService.updateProfile(userId, {full_name});
-        return res.status(HTTP_STATUS.OK).json({message: AUTH_MESSAGES.UPDATED, data: result});
+    getByTag: asyncHandler(async (req, res) => {
+        const { userName } = req.query;
+        if (!userName) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        const match = userName.trim().match(/^(.+?)\s?#(\d{5})$/);
+        if (!match) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const [, name, tag] = match;
+        const result = await UserService.getUserByTag(name.trim(), tag);
+        return res.status(HTTP_STATUS.OK).json({ data: result });
     }),
 
-    changeEmail: asyncHandler (async (req, res) => {
+    update: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const {newEmail} = req.body;
-        if(!newEmail) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!EMAIL.test(newEmail)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const { full_name } = req.body;
+        if (full_name.length > 20) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const result = await UserService.updateProfile(userId, { full_name });
+        return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.UPDATED, data: result });
+    }),
+
+    updateInfo: asyncHandler(async (req, res) => {
+        const userId = req.user.id;
+        const { data } = req.body;
+        if (!data) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        const result = await UserService.updateInfo(data, userId);
+        return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.UPDATED, data: result });
+    }),
+
+    changeEmail: asyncHandler(async (req, res) => {
+        const userId = req.user.id;
+        const { newEmail } = req.body;
+        if (!newEmail) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!EMAIL.test(newEmail)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         await UserService.requestEmailChange(userId, newEmail);
-        return res.status(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.REQUEST_OK});
+        return res.status(HTTP_STATUS.OK).json({ message: SUCCESS_MESSAGES.REQUEST_OK });
     }),
 
-    verifyChangeEmail: asyncHandler (async (req, res) => {
+    verifyChangeEmail: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const {inputOtp} = req.body;
-        if(!inputOtp) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        const { inputOtp } = req.body;
+        if (!inputOtp) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
         await UserService.verifyEmailChange(userId, inputOtp);
-        return res.status(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.VERIFY_OK});
+        return res.status(HTTP_STATUS.OK).json({ message: SUCCESS_MESSAGES.VERIFY_OK });
     }),
 
-    changePassword: asyncHandler (async (req, res) => {
+    changePassword: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const {oldPass, newPass} = req.body;
-        if(!oldPass || !newPass) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!PASSWORD_STRONG.test(newPass)) throw createError(AUTH_MESSAGES.WEAK_PASS, HTTP_STATUS.BAD_REQUEST);
+        const { oldPass, newPass } = req.body;
+        if (!oldPass || !newPass) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!PASSWORD_STRONG.test(newPass)) throw createError(AUTH_MESSAGES.WEAK_PASS, HTTP_STATUS.BAD_REQUEST);
         await UserService.changePassword(userId, oldPass, newPass);
-        return res.status(HTTP_STATUS.OK).json({message: AUTH_MESSAGES.CHANGED_PASS});
+        return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.CHANGED_PASS });
     }),
 
-    getUser: asyncHandler(async (req, res) =>{
+    getUser: asyncHandler(async (req, res) => {
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 20;
-        const result = await UserService.getUser({page, limit});
-        return res.status(HTTP_STATUS.OK).json({data: result});
+        const result = await UserService.getUser({ page, limit });
+        return res.status(HTTP_STATUS.OK).json({ data: result });
+    }),
+
+    searchByAdmin: asyncHandler(async (req, res) => {
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 20;
+        const keyword = req.query.keyword || '';
+        const result = await UserService.searchUsersForAdmin({ page, limit, keyword });
+        return res.status(HTTP_STATUS.OK).json({ data: result })
     }),
 
     createUser: asyncHandler(async (req, res) => {
-        const {email, password, full_name, role, ban} = req.body;
+        const { email, password, full_name, role, ban } = req.body;
         if (!email || !password || !full_name || !role || ban === undefined) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
-        if(!PASSWORD_STRONG.test(password)) throw createError(AUTH_MESSAGES.WEAK_PASS, HTTP_STATUS.BAD_REQUEST);
+        if (full_name.length > 20) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if (!EMAIL.test(email)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        if (!PASSWORD_STRONG.test(password)) throw createError(AUTH_MESSAGES.WEAK_PASS, HTTP_STATUS.BAD_REQUEST);
         const result = await UserService.createUser(email, password, full_name, role, ban);
-        return res.status(HTTP_STATUS.CREATED).json({message: AUTH_MESSAGES.CREATED, data: result});
+        return res.status(HTTP_STATUS.CREATED).json({ message: AUTH_MESSAGES.CREATED, data: result });
     }),
 
     Ban: asyncHandler(async (req, res) => {
-        const {id} = req.params;
-        if(!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
-        if(!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const { id } = req.params;
+        if (!id) throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
+        if (!UUID.test(id)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
         const result = await UserService.toggleBan(id);
-        return res.status(HTTP_STATUS.OK).json({message: SUCCESS_MESSAGES.SUCCESS, data: result});
+        return res.status(HTTP_STATUS.OK).json({ message: SUCCESS_MESSAGES.SUCCESS, data: result });
     })
 };
 

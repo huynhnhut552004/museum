@@ -1,7 +1,7 @@
 import EventLayout from "../../../components/admin/event/Event";
 
-export default function AdminEvent(){
-    return(
-        <EventLayout/>
+export default function AdminEvent() {
+    return (
+        <EventLayout />
     )
 }
