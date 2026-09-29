@@ -43,7 +43,7 @@ const ArtworkDetailDigital = lazy(() => import('../pages/digital/ArtworkDetailDi
 const EditInfoDigital = lazy(() => import('../pages/digital/EditInfoDigi'));
 const UserProfileDigital = lazy(() => import('../pages/digital/UserProfileDigi'));
 
-const IndexAdmin = lazy(() => import('../pages/admin/Index'));
+const IndexAdmin = lazy(() => import('../pages/admin/index'));
 const StatisticsArtwork = lazy(() => import('../pages/admin/statistics/StatisticsArtwork'));
 const StatisticsEvent = lazy(() => import('../pages/admin/statistics/StatisticsEvent'));
 const StatisticsUser = lazy(() => import('../pages/admin/statistics/StatisticsUser'));
