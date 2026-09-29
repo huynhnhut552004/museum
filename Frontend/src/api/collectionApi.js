@@ -11,6 +11,11 @@ const collectionApi = {
         return apiClient.get(url);
     },
 
+    getByUser: (userId) => {
+        const url = `/collection/user/${userId}`;
+        return apiClient.get(url);
+    },
+
     getDetail: (id) => {
         const url = `/collection/${id}`;
         return apiClient.get(url, { id });

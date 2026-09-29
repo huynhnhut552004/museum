@@ -194,7 +194,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
             setLoading(true);
             setErr('');
             setSucc('');
-            await userApi.changeEmail(form.oldPass, form.newPass);
+            await userApi.changePassword(form.oldPass, form.newPass);
             setSucc(noti.successpass);
             await getInfor();
             resetForm();
@@ -254,7 +254,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                         {view === 'updateName' && (
                             <MotionDiv key="updateName" {...slideAnimation} className="">
                                 <div className={style.heading}>{content.changename}</div>
-                                <div className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
+                                <form onSubmit={changeName} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="">
                                         <div className={`${style.heading} text-base lg:text-2xl`}>{content.newname}</div>
                                         <input type="text" name="name" value={form.name} onChange={handleOnchange} placeholder={content.yourname2} className={style.input} />
@@ -265,16 +265,16 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                             {succ && (<SuccessNoti succ={succ} />)}
                                         </div>
                                         <div className="lg:w-36">
-                                            <button type="button" disabled={loading} onClick={changeName} className={`${style.heading} text-base lg:text-xl font-bold ${style.text_color} ${style.bg_button} p-2 rounded-md`}>{content.confirm}</button>
+                                            <button type="submit" disabled={loading} className={`${style.heading} text-base lg:text-xl font-bold ${style.text_color} ${style.bg_button} p-2 rounded-md`}>{content.confirm}</button>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             </MotionDiv>
                         )}
                         {view === 'updateEmail' && (
                             <MotionDiv key="updateEmail" {...slideAnimation} className="">
                                 <div className={style.heading}>{content.changeemail}</div>
-                                <div className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
+                                <form onSubmit={visible ? changeEmail : sendOtp} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="lg:flex items-end justify-between lg:space-y-0 space-y-2">
                                         <div className="flex-1">
                                             <div className={`${style.heading} text-base lg:text-2xl`}>{content.newemail}</div>
@@ -298,18 +298,18 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                                     {succ && (<SuccessNoti succ={succ} />)}
                                                 </div>
                                                 <div className="lg:w-36 text-right">
-                                                    <button type="button" disabled={loading} onClick={changeEmail} className={`${style.heading} text-base lg:text-xl font-bold ${style.text_color} ${style.bg_button} p-2 rounded-md`}>{content.confirm}</button>
+                                                    <button type="submit" disabled={loading} className={`${style.heading} text-base lg:text-xl font-bold ${style.text_color} ${style.bg_button} p-2 rounded-md`}>{content.confirm}</button>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
-                                </div>
+                                </form>
                             </MotionDiv>
                         )}
                         {view === 'updatePass' && (
                             <MotionDiv key="updatePass" {...slideAnimation} className="">
                                 <div className={style.heading}>{content.changepass2}</div>
-                                <div className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
+                                <form onSubmit={changPass} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="relative">
                                         <div className={`${style.heading} text-base lg:text-2xl`}>{content.oldpass1}</div>
                                         <input type={showPass.oldPass ? "text" : "password"} name="oldPass" value={form.oldPass} onChange={handleOnchange} placeholder={content.oldpass2} className={style.input} />
@@ -319,7 +319,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                     </div>
                                     <div className="relative">
                                         <div className={`${style.heading} text-base lg:text-2xl`}>{content.newpass}</div>
-                                        <input type={showPass.newPass ? "text" : "password"} name="newPass" value={form.newPass} onChange={handleOnchange} placeholder={content.newPass} className={style.input} />
+                                        <input type={showPass.newPass ? "text" : "password"} name="newPass" value={form.newPass} onChange={handleOnchange} placeholder={content.newpass} className={style.input} />
                                         <button onClick={() => toggleShowPass('newPass')} className=" rounded-md p-1 absolute lg:left-[92%] left-[80%] top-[55%]" type="button">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
                                         </button>
@@ -337,10 +337,10 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                             {succ && (<SuccessNoti succ={succ} />)}
                                         </div>
                                         <div className="lg:w-36 ">
-                                            <button type="button" disabled={loading} onClick={changPass} className={`${style.heading} text-base lg:text-xl font-bold ${style.text_color} ${style.bg_button} p-2 rounded-md`}>{content.confirm}</button>
+                                            <button type="submit" disabled={loading} className={`${style.heading} text-base lg:text-xl font-bold ${style.text_color} ${style.bg_button} p-2 rounded-md`}>{content.confirm}</button>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             </MotionDiv>
                         )}
                     </AnimatePresence>

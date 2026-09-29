@@ -23,7 +23,7 @@ export default function UserProfileLayout({ style, content, lang }) {
             setErrLoadInfo(false);
             const user = state?.infoUser || (await userApi.getByTag(userName))?.data?.data;
             setInfo(user);
-            const res = await collectionApi.getMine(user.id);
+            const res = await collectionApi.getByUser(user.id);
             setCollection(res?.data?.data);
         } catch {
             setErrLoadInfo(true);

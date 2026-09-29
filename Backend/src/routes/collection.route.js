@@ -5,6 +5,7 @@ const { verifyToken, verifyTokenOption } = require('../middlewares/auth.middlewa
 
 router.post('/', verifyToken, controller.create);
 router.get('/mine', verifyToken, controller.getMine);
+router.get('/user/:userId', verifyTokenOption, controller.getUserCollections);
 router.get('/:id', verifyTokenOption, controller.getDetail);
 router.post('/add-art/:id', verifyToken, controller.add);
 router.delete('/:id/remove', verifyToken, controller.remove);

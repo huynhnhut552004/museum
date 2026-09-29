@@ -430,7 +430,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                     </div>
                 </div>
                 {menu && (
-                    <div className="bg-[#191B1D] border overflow-y-auto z-10 p-2 lg:w-[30vw] w-[90vw] h-[50vh] lg:h-[60vh] absolute top-[8%] left-1/2 -translate-x-1/2 lg:top-[20%] lg:left-[78%] rounded-xl">
+                    <div className="bg-[#191B1D] border overflow-y-auto no-scrollbar z-10 p-2 lg:w-[30vw] w-[90vw] h-[50vh] lg:h-[60vh] absolute top-[8%] left-1/2 -translate-x-1/2 lg:top-[20%] lg:left-[78%] rounded-xl">
                         <div className="sticky space-y-2 inset-0 z-10 -top-2">
                             <div className="flex justify-between items-center">
                                 <div className="Digital-Heading text-2xl pb-2">

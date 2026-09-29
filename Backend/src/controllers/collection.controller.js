@@ -21,6 +21,13 @@ const CollectionController = {
         return res.status(HTTP_STATUS.OK).json({ data: result });
     }),
 
+    getUserCollections: asyncHandler(async (req, res) => {
+        const { userId } = req.params;
+        if (!UUID.test(userId)) throw createError(ERROR_MESSAGES.WRONG_FORMAT, HTTP_STATUS.BAD_REQUEST);
+        const result = await CollectionService.getUserCollections(userId, req.user?.id);
+        return res.status(HTTP_STATUS.OK).json({ data: result });
+    }),
+
     getDetail: asyncHandler(async (req, res) => {
         const { id } = req.params;
         const userId = req.user ? req.user.id : null;

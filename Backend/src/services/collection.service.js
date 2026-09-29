@@ -35,6 +35,28 @@ const CollectionService = {
     return res.rows;
   },
 
+  getUserCollections: async (userId, currentUserId) => {
+    const query =
+      `SELECT
+        c.id, c.name, c.is_public, c.created_at,
+        COUNT(ci.artwork_id)::int as item_count,
+        (
+          SELECT a.media_url
+          FROM collection_items ci2
+          JOIN artworks a ON ci2.artwork_id = a.id
+          WHERE ci2.collection_id = c.id
+          ORDER BY ci2.added_at DESC
+          LIMIT 1
+        ) as cover_image
+      FROM collections c
+      LEFT JOIN collection_items ci ON c.id = ci.collection_id
+      WHERE c.user_id = $1 AND (c.is_public = TRUE OR c.user_id = $2)
+      GROUP BY c.id
+      ORDER BY c.created_at DESC;`;
+    const res = await pool.query(query, [userId, currentUserId]);
+    return res.rows;
+  },
+
   getCollectionDetail: async (collectionId, currentUserId) => {
     const colRes = await pool.query('SELECT * FROM collections WHERE id = $1', [collectionId]);
     const collection = colRes.rows[0];

@@ -53,11 +53,11 @@ const EventService = {
             OFFSET $2`;
             let countQuery = `SELECT COUNT(*) FROM events e`;
             if (type === 'happening') {
-                countQuery += `WHERE start_time <= $1 AND end_time >= $1`;
+                countQuery += ` WHERE start_time <= $1 AND end_time >= $1`;
             } else if (type === 'upcoming') {
-                countQuery += `WHERE start_time > $1`;
+                countQuery += ` WHERE start_time > $1`;
             } else if (type === 'ended') {
-                countQuery += `WHERE end_time < $1`;
+                countQuery += ` WHERE end_time < $1`;
             }
             const [dataRes, countRes] = await Promise.all([
                 pool.query(query, mainParams),

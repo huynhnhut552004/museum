@@ -16,6 +16,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
     const [previewUrl, setPreviewUrl] = useState('');
     const [isVideo, setIsVideo] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isLiking, setIsLiking] = useState(false);
     const { slug } = useParams();
     const [loadingComment, setLoadingComment] = useState(false);
     const [socketInstance, setSocketInstance] = useState(null);
@@ -197,7 +198,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
     }, [event?.id]);
 
     const like = async (id) => {
-        setLoading(true);
+        setIsLiking(true);
         try {
             const res = await likeApi.likeEvent(id);
             if (res?.data?.is_liked !== undefined) {
@@ -208,7 +209,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
         } catch {
             setErr(lang === "vi" ? "Không thể cập nhật lượt thích." : "Could not update the like.");
         } finally {
-            setLoading(false);
+            setIsLiking(false);
         }
     };
 
@@ -306,7 +307,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
                 {getLangText(event?.title)}
             </AnimatedTitle>
             <AnimatedTitle className="flex justify-end lg:gap-2 items-center">
-                <button type="button" disabled={loading} onClick={() => like(event?.id)} className="lg:hover:bg-black/20 transition-all duration-300 ease-out p-2 rounded-full">{liked ?
+                <button type="button" disabled={isLiking} onClick={() => like(event?.id)} className="lg:hover:bg-black/20 transition-all duration-300 ease-out p-2 rounded-full">{liked ?
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="#f70000" d="M11.566 21.112L12 20.5za.75.75 0 0 0 .867 0L12 20.5l.434.612l.008-.006l.021-.015l.08-.058q.104-.075.295-.219a38.5 38.5 0 0 0 4.197-3.674c1.148-1.168 2.315-2.533 3.199-3.981c.88-1.44 1.516-3.024 1.516-4.612c0-1.885-.585-3.358-1.62-4.358c-1.03-.994-2.42-1.439-3.88-1.439c-1.725 0-3.248.833-4.25 2.117C10.998 3.583 9.474 2.75 7.75 2.75c-3.08 0-5.5 2.639-5.5 5.797c0 1.588.637 3.171 1.516 4.612c.884 1.448 2.051 2.813 3.199 3.982a38.5 38.5 0 0 0 4.492 3.892l.08.058l.021.015z" /></svg>
                     :
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="none" stroke={style.like} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7.75 3.5C5.127 3.5 3 5.76 3 8.547C3 14.125 12 20.5 12 20.5s9-6.375 9-11.953C21 5.094 18.873 3.5 16.25 3.5c-1.86 0-3.47 1.136-4.25 2.79c-.78-1.654-2.39-2.79-4.25-2.79" /></svg>
