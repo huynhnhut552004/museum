@@ -26,47 +26,71 @@ const aiRoute = require('./src/routes/ai.route');
 const uploadArray = require('./src/routes/uploadArray.route');
 
 require('./src/queues/ai.worker');
+
 const app = express();
 const server = http.createServer(app);
 
-console.log('--- Connecting to Databases ---');
-connectMongo();
-connectPostgres();
+async function startServer() {
+  console.log('--- Connecting to Databases ---');
+  await connectMongo();
+  await connectPostgres();
 
-app.use(cookieParser());
-app.use(morgan('dev'));
-app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
-app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  app.use(morgan('dev'));
+  app.use(cors({
+    origin: [process.env.FRONTEND_URL],
+    credentials: true
+  }));
 
-// 5. SOCKET.IO
-const io = new Server(server, { cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] } });
-socketHandle(io);
-global.io = io;
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
+  }));
 
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/artwork', artworkRoute);
-app.use('/api/statistics', statisticsRoute);
-app.use('/api/auth', authRoute);
-app.use('/api/collection', collectionRoute);
-app.use('/api/comment', commentRoute);
-app.use('/api/content', contentRoute);
-app.use('/api/event', eventRoute);
-app.use('/api/like', likeRoute);
-app.use('/api/search', searchRoute);
-app.use('/api/submission', submissionRoute);
-app.use('/api/user', userRoute);
-app.use('/api/ai', aiRoute);
-app.use('/api/uploadArray', uploadArray);
-app.use(errorHandler);
+  const io = new Server(server, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"]
+    }
+  });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`\n Server chạy tại cổng ${PORT}`);
-  console.log(`➜  Local: http://localhost:${PORT}`);
+  socketHandle(io);
+  global.io = io;
+
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
+
+  app.use('/api/artwork', artworkRoute);
+  app.use('/api/statistics', statisticsRoute);
+  app.use('/api/auth', authRoute);
+  app.use('/api/collection', collectionRoute);
+  app.use('/api/comment', commentRoute);
+  app.use('/api/content', contentRoute);
+  app.use('/api/event', eventRoute);
+  app.use('/api/like', likeRoute);
+  app.use('/api/search', searchRoute);
+  app.use('/api/submission', submissionRoute);
+  app.use('/api/user', userRoute);
+  app.use('/api/ai', aiRoute);
+  app.use('/api/uploadArray', uploadArray);
+
+  app.use(errorHandler);
+
+  const PORT = process.env.PORT || 5000;
+
+  server.listen(PORT, () => {
+    console.log(`\n Server chạy tại cổng ${PORT}`);
+    console.log(`➜  Local: http://localhost:${PORT}`);
+  });
+
+}
+
+startServer().catch((error) => {
+  console.error('Lỗi khởi chạy server:', error);
+  process.exit(1);
 });

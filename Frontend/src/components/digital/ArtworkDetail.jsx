@@ -101,7 +101,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
 
     useEffect(() => {
         if (!artwork?.id) return;
-        const socket = io("http://localhost:5000");
+        const socket = io(import.meta.env.VITE_BACKEND_URL);
         setSocketInstance(socket);
         socket.emit("join_artwork", artwork.id);
         socket.on("update_like_realtime", (data) => {

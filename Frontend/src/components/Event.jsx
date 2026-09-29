@@ -56,7 +56,7 @@ export default function EventLayout({ Content, Style, lang }) {
     useEffect(() => {
         const allVisibleEvents = [...happeningEvents, ...upcomingEvents, ...endedEvents];
         if (allVisibleEvents.length === 0) return;
-        const socket = io("http://localhost:5000");
+        const socket = io(import.meta.env.VITE_BACKEND_URL);
         allVisibleEvents.forEach(ev => {
             socket.emit("listen_event", ev.id);
         });

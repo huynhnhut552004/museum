@@ -53,7 +53,8 @@ export default function EditInfo() {
         bg_button: "bg-[#0F3A32]",
         text_color: "text-white",
         border: "border-gray-600"
-    }
+    };
+    
     return (
         <PageTransition>
             <EditInfoLayout noti={lang === "vi" ? noti.vi : noti.en} style={style} lang={lang} content={lang === "vi" ? content.vi : content.en} />

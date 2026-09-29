@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import ProtectedRoute from './ProtectedRoute';
@@ -6,65 +7,65 @@ import ClassicLayout from '../layouts/ClassicLayout';
 import DigitalLayout from '../layouts/DigitalLayout';
 import AdminLayout from '../layouts/adminLayout';
 
-import Home from '../pages/classic/Home';
-import Rule from '../pages/classic/Rule';
-import Feedback from '../pages/classic/Feedback';
-import About from '../pages/classic/About';
-import Contact from '../pages/classic/Contact';
-import Search from '../pages/classic/Search';
-import Explore from '../pages/classic/Explore';
-import Event from '../pages/classic/Event';
-import Account from '../pages/classic/Account';
-import Interacted from '../pages/classic/Interacted';
-import EditAccount from '../pages/classic/EditAccount';
-import DetailCollection from '../pages/classic/DetailCollection';
-import ArtworkDetail from '../pages/classic/ArtworkDetail';
-import EventDetail from '../pages/classic/EventDetail';
-import List from '../pages/classic/List';
-import EditInfo from '../pages/classic/EditInfo';
-import UserProfile from '../pages/classic/UserProfile';
+const Home = lazy(() => import('../pages/classic/Home'));
+const Rule = lazy(() => import('../pages/classic/Rule'));
+const Feedback = lazy(() => import('../pages/classic/Feedback'));
+const About = lazy(() => import('../pages/classic/About'));
+const Contact = lazy(() => import('../pages/classic/Contact'));
+const Search = lazy(() => import('../pages/classic/Search'));
+const Explore = lazy(() => import('../pages/classic/Explore'));
+const Event = lazy(() => import('../pages/classic/Event'));
+const Account = lazy(() => import('../pages/classic/Account'));
+const Interacted = lazy(() => import('../pages/classic/Interacted'));
+const EditAccount = lazy(() => import('../pages/classic/EditAccount'));
+const DetailCollection = lazy(() => import('../pages/classic/DetailCollection'));
+const ArtworkDetail = lazy(() => import('../pages/classic/ArtworkDetail'));
+const EventDetail = lazy(() => import('../pages/classic/EventDetail'));
+const List = lazy(() => import('../pages/classic/List'));
+const EditInfo = lazy(() => import('../pages/classic/EditInfo'));
+const UserProfile = lazy(() => import('../pages/classic/UserProfile'));
 
-import HomeDigital from '../pages/digital/HomeDigital';
-import AboutDigital from '../pages/digital/AboutDigi';
-import RuleDigital from '../pages/digital/RuleDigi';
-import FeedbackDigital from '../pages/digital/FeedbackDigi';
-import ContactDigital from '../pages/digital/ContactDigi';
-import SearchDigital from '../pages/digital/SearchDigi';
-import ExploreDigital from '../pages/digital/ExploreDigi';
-import EventDigital from '../pages/digital/EventDigi';
-import EventDetailDigiatal from '../pages/digital/EventDetailDigi';
-import AccountDigital from '../pages/digital/AccountDigi';
-import InteractedDigital from '../pages/digital/InteractedDigi';
-import EditAccountDigital from '../pages/digital/EditAccountDigi';
-import DetailCollectionDigital from '../pages/digital/DetailCollectionDigi';
-import ListDigital from '../pages/digital/ListDigi';
-import ArtworkDetailDigital from '../pages/digital/ArtworkDetailDigi';
-import EditInfoDigital from '../pages/digital/EditInfoDigi';
-import UserProfileDigital from '../pages/digital/UserProfileDigi';
+const HomeDigital = lazy(() => import('../pages/digital/HomeDigital'));
+const AboutDigital = lazy(() => import('../pages/digital/AboutDigi'));
+const RuleDigital = lazy(() => import('../pages/digital/RuleDigi'));
+const FeedbackDigital = lazy(() => import('../pages/digital/FeedbackDigi'));
+const ContactDigital = lazy(() => import('../pages/digital/ContactDigi'));
+const SearchDigital = lazy(() => import('../pages/digital/SearchDigi'));
+const ExploreDigital = lazy(() => import('../pages/digital/ExploreDigi'));
+const EventDigital = lazy(() => import('../pages/digital/EventDigi'));
+const EventDetailDigiatal = lazy(() => import('../pages/digital/EventDetailDigi'));
+const AccountDigital = lazy(() => import('../pages/digital/AccountDigi'));
+const InteractedDigital = lazy(() => import('../pages/digital/InteractedDigi'));
+const EditAccountDigital = lazy(() => import('../pages/digital/EditAccountDigi'));
+const DetailCollectionDigital = lazy(() => import('../pages/digital/DetailCollectionDigi'));
+const ListDigital = lazy(() => import('../pages/digital/ListDigi'));
+const ArtworkDetailDigital = lazy(() => import('../pages/digital/ArtworkDetailDigi'));
+const EditInfoDigital = lazy(() => import('../pages/digital/EditInfoDigi'));
+const UserProfileDigital = lazy(() => import('../pages/digital/UserProfileDigi'));
 
-import IndexAdmin from '../pages/admin/Index';
-import StatisticsArtwork from '../pages/admin/statistics/StatisticsArtwork';
-import StatisticsEvent from '../pages/admin/statistics/StatisticsEvent';
-import StatisticsUser from '../pages/admin/statistics/StatisticsUser';
-import StatisticsSubmission from '../pages/admin/statistics/StatisticsSubmission';
-import AdminUser from '../pages/admin/user/User';
-import AdminAddUser from '../pages/admin/user/Add';
-import AdminSubmission from '../pages/admin/submisstion/Submission';
-import AdminArtwork from '../pages/admin/artwork/Artwork';
-import AdminCustomArtwork from '../pages/admin/artwork/Custom';
-import AdminEvent from '../pages/admin/event/Event';
-import AdminCustomEvent from '../pages/admin/event/Custom';
-import AdminHomeClassicCMS from '../pages/admin/cms/HomeClassicCMS';
-import AdminPolicyCMS from '../pages/admin/cms/PolicyCMS';
-import AdminAboutCMS from '../pages/admin/cms/AboutCMS';
-import AdminContactCMS from '../pages/admin/cms/ContactCMS';
-import AdminExploreClassicCMS from '../pages/admin/cms/ExploreClassicCMS';
-import AdminHomeDigitalCMS from '../pages/admin/cms/HomeDigiCMS';
-import AdminExploreDigitalCMS from '../pages/admin/cms/ExploreDigi';
+const IndexAdmin = lazy(() => import('../pages/admin/Index'));
+const StatisticsArtwork = lazy(() => import('../pages/admin/statistics/StatisticsArtwork'));
+const StatisticsEvent = lazy(() => import('../pages/admin/statistics/StatisticsEvent'));
+const StatisticsUser = lazy(() => import('../pages/admin/statistics/StatisticsUser'));
+const StatisticsSubmission = lazy(() => import('../pages/admin/statistics/StatisticsSubmission'));
+const AdminUser = lazy(() => import('../pages/admin/user/User'));
+const AdminAddUser = lazy(() => import('../pages/admin/user/Add'));
+const AdminSubmission = lazy(() => import('../pages/admin/submisstion/Submission'));
+const AdminArtwork = lazy(() => import('../pages/admin/artwork/Artwork'));
+const AdminCustomArtwork = lazy(() => import('../pages/admin/artwork/Custom'));
+const AdminEvent = lazy(() => import('../pages/admin/event/Event'));
+const AdminCustomEvent = lazy(() => import('../pages/admin/event/Custom'));
+const AdminHomeClassicCMS = lazy(() => import('../pages/admin/cms/HomeClassicCMS'));
+const AdminPolicyCMS = lazy(() => import('../pages/admin/cms/PolicyCMS'));
+const AdminAboutCMS = lazy(() => import('../pages/admin/cms/AboutCMS'));
+const AdminContactCMS = lazy(() => import('../pages/admin/cms/ContactCMS'));
+const AdminExploreClassicCMS = lazy(() => import('../pages/admin/cms/ExploreClassicCMS'));
+const AdminHomeDigitalCMS = lazy(() => import('../pages/admin/cms/HomeDigiCMS'));
+const AdminExploreDigitalCMS = lazy(() => import('../pages/admin/cms/ExploreDigi'));
 
-import LoginDigital from '../pages/digital/LoginDigi';
-import Login from '../pages/classic/Login';
-import NotFound from '../pages/NotFound';
+const LoginDigital = lazy(() => import('../pages/digital/LoginDigi'));
+const Login = lazy(() => import('../pages/classic/Login'));
+const NotFound = lazy(() => import('../pages/NotFound'));
 
 
 export default function Index() {
@@ -72,7 +73,8 @@ export default function Index() {
   return (
     <>
       <AnimatePresence mode='wait'>
-        <Routes location={location} key={location.pathname}>
+        <Suspense key={location.pathname} fallback={<div className="min-h-screen flex items-center justify-center" role="status">Loading...</div>}>
+          <Routes location={location} key={location.pathname}>
           <Route element={<ClassicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/rule" element={<Rule />} />
@@ -150,7 +152,8 @@ export default function Index() {
           <Route path="/digital/login" element={<LoginDigital />} />
           <Route path="/admin/preview-3d" element={<ExploreDigital />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </AnimatePresence>
     </>
   );

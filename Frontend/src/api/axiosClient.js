@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiClient = axios.create({ baseURL: 'http://localhost:5000/api', withCredentials: true });
+const apiClient = axios.create({ baseURL: `${import.meta.env.VITE_BACKEND_URL}/api`, withCredentials: true });
 const getAccessToken = () => localStorage.getItem('token');
 
 apiClient.interceptors.request.use(
@@ -30,7 +30,7 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const res = await axios.post('http://localhost:5000/api/auth/refreshToken', {},
+                const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refreshToken`, {},
                     {
                         withCredentials: true
                     }

@@ -15,6 +15,7 @@ const connectPostgres = async () => {
         client.release();
     } catch (error) {
         console.error(`❌ Lỗi kết nối PostgreSQL:`, error.message);
+        throw error;
     }
 };
 

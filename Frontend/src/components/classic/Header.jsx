@@ -14,7 +14,7 @@ export default function HeaderClass() {
       const token = localStorage.getItem("token");
       try {
         const res = await apiClient.get(
-          "http://localhost:5000/api/user",
+          `${import.meta.env.VITE_BACKEND_URL}/api/user`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }

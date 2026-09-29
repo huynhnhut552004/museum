@@ -9,7 +9,7 @@ export default function AdminLayout() {
     const [mobie, setMobile] = useState(false);
 
     useEffect(() => {
-        const socket = io('http://localhost:5000');
+        const socket = io(import.meta.env.VITE_BACKEND_URL);
         socket.on('ai-alert', (data) => {
             if (data.status === 'success') {
                 toast.success(data.message);

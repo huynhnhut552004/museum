@@ -156,7 +156,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
             sessionId = Math.random().toString(36).substring(2) + Date.now();
             sessionStorage.setItem(`event_session:${event.id}`, sessionId);
         }
-        const socket = io("http://localhost:5000");
+        const socket = io(import.meta.env.VITE_BACKEND_URL);
         setSocketInstance(socket);
         socket.emit("watch_event", { eventId: event.id, sessionId });
         socket.on("update_viewer_count", (data) => {
