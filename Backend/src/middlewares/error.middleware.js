@@ -1,7 +1,9 @@
 const { HTTP_STATUS } = require('../constants/httpStatus');
 
 const errorHandler = (err, req, res, _next) => {
-  console.error('Error Logic:', err);
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Error Logic:', err);
+  }
   const statusCode = err.statusCode || HTTP_STATUS.INTERNAL_SERVER;
   const message = err.message || 'Lỗi hệ thống, vui lòng thử lại sau.';
   if (err?.status === 503) return res.status(503).json({ errorCode: "AI_OVERLOADED", message: "AI đang quá tải, vui lòng thử lại sau.", });
