@@ -1,6 +1,6 @@
 const { HTTP_STATUS } = require('../constants/httpStatus');
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   console.error('Error Logic:', err);
   const statusCode = err.statusCode || HTTP_STATUS.INTERNAL_SERVER;
   const message = err.message || 'Lỗi hệ thống, vui lòng thử lại sau.';

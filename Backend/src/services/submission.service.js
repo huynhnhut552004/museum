@@ -1,18 +1,10 @@
 const { pool } = require('../config/postgres');
-const { HTTP_STATUS } = require('../constants/httpStatus');
-const { ERROR_MESSAGES } = require('../constants/message');
-const createError = require('../utils/createError');
 
 const SubmissionService = {
     postSubmission: async (data) => {
-        try {
-            const query = `INSERT INTO submission(name, email, purpose, description, status) VALUES ($1, $2, $3, $4, $5)`;
-            const values = [data.name, data.email, data.purpose, data.desc, data.status];
-            await pool.query(query, values);
-        }
-        catch (err) {
-            throw err;
-        }
+        const query = `INSERT INTO submission(name, email, purpose, description, status) VALUES ($1, $2, $3, $4, $5)`;
+        const values = [data.name, data.email, data.purpose, data.desc, data.status];
+        await pool.query(query, values);
     },
 
     getSubmission: async ({ page = 1, limit = 20, status, email }) => {

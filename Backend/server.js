@@ -83,7 +83,7 @@ async function startServer() {
 
   const PORT = process.env.PORT || 5000;
 
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`\n Server chạy tại cổng ${PORT}`);
     console.log(`➜  Local: http://localhost:${PORT}`);
   });

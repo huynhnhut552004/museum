@@ -130,7 +130,7 @@ const ArtworkController = {
     return res.status(HTTP_STATUS.OK).json({ data: result });
   }),
 
-  update: asyncHandler(async (req, res, next) => {
+  update: asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
     const validLayouts = ['classic', 'digital', 'both'];

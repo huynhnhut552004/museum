@@ -13,7 +13,7 @@ const verifyTokenOption = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
   }
 };
@@ -26,7 +26,7 @@ const verifyToken = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'Token không hợp lệ hoặc đã hết hạn.' });
   }
 };

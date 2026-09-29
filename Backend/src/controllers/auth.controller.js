@@ -27,7 +27,8 @@ const AuthController = {
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-        const { refreshToken, ...loginData } = result;
+        const loginData = { ...result };
+        delete loginData.refreshToken;
         return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.LOGIN_SUCCESS, data: loginData });
     }),
 

@@ -146,7 +146,7 @@ const ArtworkService = {
     if (cachedData) return JSON.parse(cachedData);
     let mongoArtworkIds = [];
     if (keyword) {
-      const mongoResults = await ArtworkDetail.find({ $text: { $search: `\"${keyword}\"` } }, { score: { $meta: "textScore" } })
+      const mongoResults = await ArtworkDetail.find({ $text: { $search: `"${keyword}"` } }, { score: { $meta: "textScore" } })
         .sort({ score: { $meta: "textScore" } })
         .limit(200)
         .select('artwork_id')

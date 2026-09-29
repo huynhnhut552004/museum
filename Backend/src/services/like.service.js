@@ -84,7 +84,7 @@ const LikeService = {
     try {
       const { rows } = await pool.query(finalQuery, [userId]);
       return rows;
-    } catch (error) {
+    } catch {
       throw createError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   }

@@ -114,7 +114,11 @@ async function restorePostgresSnapshot(artworkId, snapshot) {
       ]);
     await client.query('COMMIT');
   } catch (error) {
-    try { await client.query('ROLLBACK'); } catch (_) { }
+    try {
+      await client.query('ROLLBACK');
+    } catch (rollbackError) {
+      console.error('Failed to roll back artwork transaction:', rollbackError);
+    }
     throw error;
   } finally {
     client.release();
@@ -262,7 +266,11 @@ async function saveArtworkWithRollbackRetry({ artworkId, title, finalTitleVi, fi
           ]);
         await client.query('COMMIT');
       } catch (error) {
-        try { await client.query('ROLLBACK'); } catch (_) { }
+        try {
+          await client.query('ROLLBACK');
+        } catch (rollbackError) {
+          console.error('Failed to roll back artwork transaction:', rollbackError);
+        }
         throw error;
       } finally {
         client.release();
@@ -432,7 +440,7 @@ const processArtworkAI = async (jobData) => {
         try {
           const parsedDesc = JSON.parse(generatedDescriptionVi);
           generatedDescriptionVi = parsedDesc.description || Object.values(parsedDesc)[0] || generatedDescriptionVi;
-        } catch (_) {
+        } catch {
           console.log('[AI Pipeline] Không thể bóc tách JSON mô tả, dùng chuỗi gốc.');
         }
       }

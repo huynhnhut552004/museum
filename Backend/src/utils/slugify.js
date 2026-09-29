@@ -8,8 +8,8 @@ const slugify = (text) => {
     .replace(/[\u0300-\u036f]/g, '') // Xóa các dấu vừa tách
     .replace(/[đĐ]/g, 'd') // Chuyển đ -> d
     .replace(/\s+/g, '-') // Thay khoảng trắng bằng dấu -
-    .replace(/[^\w\-]+/g, '') // Xóa hết các ký tự đặc biệt còn sót lại
-    .replace(/\-\-+/g, '-') // Xóa các dấu - trùng nhau
+    .replace(/[^\w-]+/g, '') // Xóa hết các ký tự đặc biệt còn sót lại
+    .replace(/--+/g, '-') // Xóa các dấu - trùng nhau
     .replace(/^-+/, '') // Xóa dấu - ở đầu
     .replace(/-+$/, ''); // Xóa dấu - ở cuối
 };

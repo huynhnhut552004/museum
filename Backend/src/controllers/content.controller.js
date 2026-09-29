@@ -1,6 +1,5 @@
 const { HTTP_STATUS } = require('../constants/httpStatus');
 const { ERROR_MESSAGES, SUCCESS_MESSAGES, CONTENT_MESSAGES } = require('../constants/message');
-const { UUID } = require('../constants/regex');
 const ContentService = require('../services/content.service');
 const asyncHandler = require('../utils/asyncHandler');
 const createError = require('../utils/createError');
@@ -20,7 +19,7 @@ const ContentController = {
         if (req.body.data) {
             try {
                 parsedData = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body.data;
-            } catch (err) {
+            } catch {
                 throw createError(ERROR_MESSAGES.MISSING_DATA, HTTP_STATUS.BAD_REQUEST);
             }
         }

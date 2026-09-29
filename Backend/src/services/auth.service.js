@@ -81,7 +81,7 @@ const AuthService = {
     if (!storedToken || storedToken !== tokenFromClient) throw createError(AUTH_MESSAGES.INVALID_SESSION, HTTP_STATUS.UNAUTHORIZED);
     try {
       jwt.verify(storedToken, REFRESH_SECRET);
-    } catch (err) {
+    } catch {
       throw createError(AUTH_MESSAGES.SESSION_EXPIRED, HTTP_STATUS.UNAUTHORIZED);
     }
     const userRes = await pool.query('SELECT role, is_banned FROM users WHERE id = $1', [userId]);
