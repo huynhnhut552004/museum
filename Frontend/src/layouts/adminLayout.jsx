@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Nav from '../components/admin/navbar/Navigation';
+import Nav from '../components/admin/navbar/navigation';
 import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
