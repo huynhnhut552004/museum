@@ -1,8 +1,8 @@
 import userApi from "../api/userApi";
 import authApi from "../api/authApi";
 import collectionApi from "../api/collectionApi";
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from "react";
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ErrorNoti from "./comon/Noti/Error";
 import SuccessNoti from "./comon/Noti/Success";
 import AnimatedSection from "./comon/Animation/AnimatedSection";
@@ -29,8 +29,8 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
     const [mobile, setMobile] = useState(false);
     const [lock, setLock] = useState(null);
     const navigate = useNavigate();
+    const { pathname: path } = useLocation();
     const [user, setUser] = useState("");
-    const [path, setPath] = useState(window.location.pathname);
 
     const toggleMenu = () => {
         setMore(!more);
@@ -49,22 +49,29 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
                 navigate('/digital');
             }
         } catch (error) {
+            if (error.response?.status === 401) {
+                setErr(noti.expired);
+            } else if (error.request) {
+                setErr(noti.server);
+            } else {
+                setErr(noti.undef);
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchCollection = async () => {
+    const fetchCollection = useCallback(async () => {
         const res = await collectionApi.getMine();
         setCollection(res?.data?.data);
-    };
+    }, []);
 
-    const getInfo = async () => {
+    const getInfo = useCallback(async () => {
         const res = await userApi.get();
         setName(res?.data?.data?.full_name);
         setTag(res?.data?.data?.user_tag);
         setInfo(res?.data?.data?.info);
-    };
+    }, []);
 
     const validateUser = (user) => {
         const value = user.trim();
@@ -92,14 +99,14 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
             } else if (path === '/digital/account') {
                 navigate(`/digital/user/${encodeURIComponent(`${name}#${tag}`)}`, { state: { infoUser: data } });
             }
-        } catch (error) {
+        } catch {
             setErrUser(noti.usernotfound);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoadUI(true);
             setErrLoadInfo(false);
@@ -109,12 +116,12 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
                     getInfo()
                 ]
             )
-        } catch (err) {
+        } catch {
             setErrLoadInfo(true);
         } finally {
             setLoadUI(false);
         }
-    };
+    }, [fetchCollection, getInfo]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -124,7 +131,7 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    }, [fetchData]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('vi-VN');
@@ -238,7 +245,7 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
             await collectionApi.delete(id);
             setEditing(false);
             await fetchCollection();
-        } catch (error) {
+        } catch {
             setErr(noti.undelete);
         } finally {
             setLoading(false);

@@ -48,11 +48,11 @@ export default function EditInfo() {
         heading: "Style-Heading2",
         text: "Style-Text1",
         border: "border-gray-800",
+        borderSection: "border-gray-600",
         hover_div: "lg:hover:bg-black/20",
         input: "Classic-Login-Input",
         bg_button: "bg-[#0F3A32]",
-        text_color: "text-white",
-        border: "border-gray-600"
+        text_color: "text-white"
     };
     
     return (

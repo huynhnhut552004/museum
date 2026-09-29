@@ -145,7 +145,7 @@ export default function List() {
             }
         };
         fetchAlgoliaData();
-    }, [facetKey, facetValue, lang]);
+    }, [facetKey, facetValue, lang, passedState]);
 
     const style = { heading: 'Style-Heading2', text: 'Style-Text1' };
 

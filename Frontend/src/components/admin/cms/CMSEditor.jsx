@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useEffectEvent } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { BLOCK_SETTINGS, BlockRegistry } from './blocks/Index';
 import contentApi from '../../../api/contentApi';
 import SuccessNoti from '../../comon/Noti/Success';
@@ -50,8 +50,9 @@ export default function CMSEditor({ pageName, title }) {
   const [deleteObject, setDeleteObject] = useState({ id: "", name: "" });
   const [succPopup, setSuccPopup] = useState(null);
   const [warn, setWarn] = useState(null);
-  const [path, setPath] = useState(window.location.pathname);
+  const { pathname: path } = useLocation();
   const [nav, setNav] = useState(null);
+  const requestBlocks = useEffectEvent(() => fetchBlocks());
 
   useEffect(() => {
     if (path === '/admin/cms/exploreDigital' || path === '/admin/cms/homeDigital') {
@@ -59,8 +60,8 @@ export default function CMSEditor({ pageName, title }) {
     } else {
       setNav('classic');
     }
-    fetchBlocks();
-  }, [pageName]);
+    requestBlocks();
+  }, [pageName, path]);
 
   const fetchBlocks = async (isRetry = false) => {
     if (isRetry) {
@@ -95,7 +96,7 @@ export default function CMSEditor({ pageName, title }) {
 
       setFetchError(null);
       setRetryCount(0);
-    } catch (error) {
+    } catch {
       if (retryCount >= 2) {
         setFetchError("Có vẻ như đã xảy ra lỗi server, hãy thử tải lại trang và kiểm tra lại dữ liệu!");
       } else {
@@ -138,7 +139,7 @@ export default function CMSEditor({ pageName, title }) {
         setSuccPopup(null);
         fetchBlocks();
       }, 2000)
-    } catch (error) {
+    } catch {
       setErrPopup('Lỗi xoá khối!');
       return;
     }
@@ -154,7 +155,7 @@ export default function CMSEditor({ pageName, title }) {
     setWarn(null);
     try {
       await contentApi.order(pageName, orderedIds);
-    } catch (error) {
+    } catch {
       setWarn("Lỗi lưu thứ tự!");
       setTimeout(() => {
         setWarn(null);

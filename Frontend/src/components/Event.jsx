@@ -1,6 +1,6 @@
 import PageTransition from "./comon/Animation/AnimatedPage";
-import { useEffect, useRef, useLayoutEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useLayoutEffect, useState, useEffectEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import eventApi from "../api/eventApi";
 import AnimatedSection from "./comon/Animation/AnimatedSection";
 import AnimatedTitle from "./comon/Animation/AnimatedTitle";
@@ -15,7 +15,7 @@ export default function EventLayout({ Content, Style, lang }) {
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [err, setErr] = useState(null);
-    const [path, setPath] = useState(window.location.pathname);
+    const { pathname: path } = useLocation();
 
     const isNoEvent = !isLoading && happeningEvents.length === 0 && upcomingEvents.length === 0 && endedEvents.length === 0;
 
@@ -24,12 +24,12 @@ export default function EventLayout({ Content, Style, lang }) {
         if (typeof textData === 'object' && textData[lang]) return textData[lang];
         if (typeof textData === 'string') {
             try { return JSON.parse(textData)[lang] || textData; }
-            catch (e) { return textData; }
+            catch { return textData; }
         }
         return "";
     };
 
-    const getEvent = async (type) => {
+    const getEvent = async () => {
         setIsLoading(true);
         setErr(null);
         try {
@@ -42,7 +42,7 @@ export default function EventLayout({ Content, Style, lang }) {
             setHappeningEvents(happeningRes.data.data.data || []);
             setUpcomingEvents(upcomingRes.data.data.data || []);
             setEndedEvents(endedRes.data.data.data || []);
-        } catch (error) {
+        } catch {
             setErr('Lỗi lấy dữ liệu Event!');
         } finally {
             setIsLoading(false);
@@ -53,15 +53,17 @@ export default function EventLayout({ Content, Style, lang }) {
         getEvent();
     }, []);
 
+    const getVisibleEvents = useEffectEvent(() => [...happeningEvents, ...upcomingEvents, ...endedEvents]);
+
     useEffect(() => {
-        const allVisibleEvents = [...happeningEvents, ...upcomingEvents, ...endedEvents];
+        const allVisibleEvents = getVisibleEvents();
         if (allVisibleEvents.length === 0) return;
         const socket = io(import.meta.env.VITE_BACKEND_URL);
         allVisibleEvents.forEach(ev => {
             socket.emit("listen_event", ev.id);
         });
         socket.on("update_viewer_count", (data) => {
-            const { eventId, count } = data;
+            const { eventId } = data;
             const updateViewer = (list) => list.map(ev => ev.id === eventId ? { ...ev, viewer_count: data.count } : ev);
             setHappeningEvents(prev => updateViewer(prev));
             setUpcomingEvents(prev => updateViewer(prev));

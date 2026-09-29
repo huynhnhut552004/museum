@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip} from "recharts";
 import statisticsApi from "../../../../api/statistics";
 import ErrorNoti from "../../../comon/Noti/Error";
@@ -9,23 +9,23 @@ export default function UserGrowth() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchGrowth = async () => {
+    const fetchGrowth = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
             const res = await statisticsApi.user.growthUser(period);
             setData(res?.data?.items || res?.data?.data?.items || res?.items || []);
-        } catch (error) {
+        } catch {
             setError("Không thể tải dữ liệu thống kê.");
             setData([]);
         } finally {
             setLoading(false);
         }
-    };
+    }, [period]);
 
     useEffect(() => {
         fetchGrowth();
-    }, [period]);
+    }, [fetchGrowth]);
 
     const formatDate = (date) => {
         if (period === "year") {

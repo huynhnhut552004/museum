@@ -6,18 +6,16 @@ import Explore from "./Explore";
 
 export default function Scene3D({ lang }) {
     const { active } = useProgress();
-    const [ready, setReady] = useState(false);
+    const ready = !active;
     const [headingText, setHeadingText] = useState(null);
 
     useEffect(() => {
         if (active) {
             document.body.style.overflow = "hidden";
             document.documentElement.style.overflow = "hidden";
-            setReady(false);
         } else {
             document.body.style.overflow = "";
             document.documentElement.style.overflow = "";
-            setReady(true);
         }
         return () => {
             document.body.style.overflow = "";

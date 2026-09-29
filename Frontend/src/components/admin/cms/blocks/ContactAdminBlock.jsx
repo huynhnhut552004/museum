@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import contentApi from '../../../../api/contentApi';
 import TranslationFields from '../../../comon/cms/TranslationFields';
 import ErrorNoti from '../../../comon/Noti/Error';
@@ -16,8 +16,8 @@ const parseParaArrayToText = (paraArray) => {
 
 export default function ContactAdminBlock({ blockData, pageName, onSaveSuccess }) {
     const initialContent = blockData.content || {};
-    const [viData, setViData] = useState({ ...initialContent.vi, hotline: parseParaArrayToText(initialContent.vi?.hotline) } || {});
-    const [enData, setEnData] = useState({ ...initialContent.en, hotline: parseParaArrayToText(initialContent.en?.hotline) } || {});
+    const [viData, setViData] = useState({ ...(initialContent.vi || {}), hotline: parseParaArrayToText(initialContent.vi?.hotline) });
+    const [enData, setEnData] = useState({ ...(initialContent.en || {}), hotline: parseParaArrayToText(initialContent.en?.hotline) });
     const [isSaving, setIsSaving] = useState(false);
     const [err, setErr] = useState(null);
     const [succ, setSucc] = useState(null);
@@ -50,7 +50,7 @@ export default function ContactAdminBlock({ blockData, pageName, onSaveSuccess }
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!');
         } finally {
             setIsSaving(false);

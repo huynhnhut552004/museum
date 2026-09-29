@@ -108,7 +108,7 @@ export default function ExploreGridAdminBlock({ blockData, pageName, onSaveSucce
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!');
         } finally {
             setIsSaving(false);

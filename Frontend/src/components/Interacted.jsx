@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import AnimatedSection from "./comon/Animation/AnimatedSection";
 import AnimatedTitle from "./comon/Animation/AnimatedTitle";
 import likeApi from "../api/likeApi";
@@ -9,21 +9,34 @@ export default function InteractedLayout({ style, content, lang }) {
     const [data, setData] = useState([]);
     const [filter, setfilter] = useState('');
     const [errLoad, setErrLoad] = useState(false);
-    const [path, setPath] = useState(window.location.pathname);
+    const { pathname: path } = useLocation();
 
     const getInterac = async (filter) => {
         try {
-            setErrLoad(false);
             const res = await likeApi.getLikeByMe(filter);
+            setErrLoad(false);
             setData(res?.data?.data);
-            console.log(res.data.data)
-        } catch (error) {
+        } catch {
             setErrLoad(true);
         }
     };
 
     useEffect(() => {
-        getInterac(filter);
+        let cancelled = false;
+        const fetchInteractions = async () => {
+            try {
+                const res = await likeApi.getLikeByMe(filter);
+                if (cancelled) return;
+                setErrLoad(false);
+                setData(res?.data?.data);
+            } catch {
+                if (!cancelled) setErrLoad(true);
+            }
+        };
+        fetchInteractions();
+        return () => {
+            cancelled = true;
+        };
     }, [filter]);
 
     const handleOnChange = (e) => {

@@ -69,7 +69,7 @@ export default function ExploreColorAdminBlock({ blockData, pageName, onSaveSucc
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!')
         } finally {
             setIsSaving(false);

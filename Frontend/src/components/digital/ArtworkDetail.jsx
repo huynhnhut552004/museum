@@ -13,6 +13,8 @@ import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LostConnection from '../LostConnection';
 
+const MotionDiv = motion.div;
+
 export default function ArtworkDetailDigitalLayout({ noti, content, input, button, lang, style }) {
     const { slug } = useParams();
     const [view, setView] = useState('artworkDetail');
@@ -52,16 +54,16 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         }
     };
 
-    const TotalComment = async () => {
+    const TotalComment = useCallback(async () => {
         if (!artwork?.id) return;
         const id = artwork?.id;
         try {
             const res = await commentApi.getTotalArtwork(id);
             setTotalComment(res?.data?.data);
-        } catch (error) {
+        } catch {
             console.log('Lỗi lấy tổng bình luận artwork!');
         }
-    };
+    }, [artwork?.id]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -70,40 +72,45 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 setCurrentUserId(payload.id || payload.userId);
                 setCurrentUserRole(payload.role);
-            } catch (error) {
+            } catch {
+                console.warn("Ignoring invalid artwork-page auth token.");
             }
         }
     }, []);
 
-    const getArtwork = async (slugArtwork) => {
+    const getArtwork = useCallback(async (slugArtwork) => {
         setLoadArtwork(true);
         setNoGetArtwork(null);
         try {
             const res = await artworkApi.getBySlug(slugArtwork);
             setArtwork(res?.data?.data);
-        } catch (error) {
+        } catch {
             setNoGetArtwork("Lỗi lấy tác phẩm!");
         } finally {
             setLoadArtwork(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         getArtwork(slug);
-    }, [slug]);
+    }, [getArtwork, slug]);
 
     useEffect(() => {
         TotalComment();
         setPage(1);
         setHalgore(true);
         setComment([]);
-    }, [artwork?.id]);
+    }, [artwork?.id, TotalComment]);
+
+    const artworkId = artwork?.id;
+    const artistName = artwork?.artist_display_name;
+    const artworkLayout = artwork?.layout_type;
 
     useEffect(() => {
-        if (!artwork?.id) return;
+        if (!artworkId) return;
         const socket = io(import.meta.env.VITE_BACKEND_URL);
         setSocketInstance(socket);
-        socket.emit("join_artwork", artwork.id);
+        socket.emit("join_artwork", artworkId);
         socket.on("update_like_realtime", (data) => {
             const { commentId, newLikeCount } = data;
             setComment(prevComments => prevComments.map(c => {
@@ -131,10 +138,10 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
             setTotalComment(prev => Math.max(0, prev - 1));
         });
         return () => {
-            socket.emit("leave_artwork", artwork.id);
+            socket.emit("leave_artwork", artworkId);
             socket.disconnect();
         };
-    }, [artwork?.id]);
+    }, [artworkId]);
 
     const pgAttributes = artwork?.attributes?.[lang] || {};
     const mongoAttributes = artwork?.extended_info?.attributes?.[lang] || {};
@@ -146,20 +153,21 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
 
     useEffect(() => {
         const fetchRecommendations = async () => {
-            if (!artwork || !artwork.id) return;
+            if (!artworkId) return;
             try {
                 const res = await artworkApi.recommended(
-                    artwork.id,
-                    artwork.artist_display_name,
-                    artwork.layout_type,
+                    artworkId,
+                    artistName,
+                    artworkLayout,
                     undefined
                 );
                 setRecommendations(res?.data?.data || []);
-            } catch (error) {
+            } catch {
+                setRecommendations([]);
             }
         }
         fetchRecommendations();
-    }, [artwork?.id]);
+    }, [artworkId, artistName, artworkLayout]);
 
     const like = async (id) => {
         setLoading(true);
@@ -170,7 +178,8 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
             } else {
                 setLiked((prev) => !prev);
             }
-        } catch (error) {
+        } catch {
+            setErr(noti.err);
         } finally {
             setLoading(false);
         }
@@ -178,21 +187,22 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
 
     useEffect(() => {
         const checkInitialLikeStatus = async () => {
-            if (!artwork || !artwork.id) return;
+            if (!artworkId) return;
             try {
-                const res = await likeApi.checkLikeArtwork(artwork.id);
+                const res = await likeApi.checkLikeArtwork(artworkId);
                 setLiked(Boolean(res?.data));
-            } catch (error) {
+            } catch {
+                setLiked(false);
             }
         };
         checkInitialLikeStatus();
-    }, [artwork?.id]);
+    }, [artworkId]);
 
     const getCollection = async () => {
         try {
             const res = await collectionApi.getMine();
             setCollection(res?.data?.data || []);
-        } catch (error) {
+        } catch {
             setCollection([]);
         }
     };
@@ -230,7 +240,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         try {
             await collectionApi.add(collecId, artwork.id);
             await getCollection();
-        } catch (error) {
+        } catch {
             setErr(noti.errArt);
         } finally {
             setLoading(false);
@@ -289,7 +299,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         if (node) observer.current.observe(node);
     }, [loadingComment, halgore]);
 
-    const getComment = async () => {
+    const getComment = useCallback(async () => {
         if (!artwork?.id) return;
         setLoadingComment(true);
         const params = { limit: 10, page };
@@ -305,22 +315,24 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
             if (newComments.length < 10) {
                 setHalgore(false);
             }
-        } catch (error) {
+        } catch {
+            setErr(noti.errComment);
         } finally {
             setLoadingComment(false);
         }
-    };
+    }, [artwork?.id, page, noti.errComment]);
 
     useEffect(() => {
         if (artwork?.id) getComment();
-    }, [artwork?.id, page]);
+    }, [artwork?.id, page, getComment]);
 
     const createComment = async (content, parentId) => {
         try {
             await commentApi.createArtwork(artwork.id, content, parentId);
             setCommentWrite('');
             setPage(1);
-        } catch (error) {
+        } catch {
+            setErr(noti.errComment);
         }
     };
 
@@ -350,7 +362,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                     return c;
                 }));
             }
-        } catch (error) {
+        } catch {
             setComment(prevComments => prevComments.map(c => {
                 if (c.id === commentId) {
                     const isCurrentlyLiked = c.is_liked_by_me;
@@ -370,7 +382,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         setComment(prevComments => prevComments.filter(c => c.id !== commentId));
         try {
             await commentApi.delete(commentId, { artworkId: artwork.id });
-        } catch (error) {
+        } catch {
             setComment(previousComments);
             setErr(noti.errComment);
             setTimeout(() => setErr(''), 3000);
@@ -439,7 +451,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                             {filteredCollections.length === 0 ?
                                 <div className="Digital-Text1 text-center">{content.create}</div>
                                 :
-                                filteredCollections?.map((item, index) => (
+                                filteredCollections?.map((item) => (
                                     <div key={item.id} className="flex items-center">
                                         <div className="flex items-center flex-1">
                                             <div className="w-[30%] relative h-[10vh]">
@@ -463,7 +475,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                     <div className='flex-1 self-stretch min-w-0 min-h-0 lg:order-1 order-2'>
                         <AnimatePresence mode='wait'>
                             {view === "artworkDetail" && (
-                                <motion.div key="artworkDetail" {...slideAnimation} className='rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 h-full overflow-y-auto no-scrollbar'>
+                                <MotionDiv key="artworkDetail" {...slideAnimation} className='rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 h-full overflow-y-auto no-scrollbar'>
                                     <AnimatedSection>
                                         <AnimatedTitle className='Digital-Heading text-2xl'>
                                             {artwork?.artist_id ? (<Link className="underline" to={`/user/${artwork?.artist_display_name.split(" #")[1]}`}>{artwork?.artist_display_name}</Link>) : (artwork?.artist_display_name)} - {getDisplayYear(artwork?.year)}
@@ -487,10 +499,10 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                                             ))}
                                         </AnimatedText>
                                     </AnimatedSection>
-                                </motion.div >
+                                </MotionDiv >
                             )}
                             {view === "comment" && (
-                                <motion.div key="comment" {...slideAnimation} className="rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden">
+                                <MotionDiv key="comment" {...slideAnimation} className="rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden">
                                     <AnimatedSection className="flex justify-between items-center shrink-0">
                                         <AnimatedTitle className="Digital-Heading lg:text-3xl text-xl lg:py-6 py-4">
                                             {content.comment}
@@ -548,10 +560,10 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                                             </div>
                                         )}
                                     </AnimatedSection>
-                                </motion.div>
+                                </MotionDiv>
                             )}
                             {view === "recommend" && (
-                                <motion.div key="recommend" {...slideAnimation} className="w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-4 lg:px-14">
+                                <MotionDiv key="recommend" {...slideAnimation} className="w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-4 lg:px-14">
                                     <AnimatedSection className="flex justify-between items-center shrink-0 lg:py-6 py-4">
                                         <AnimatedTitle className="Digital-Heading lg:text-3xl text-xl">
                                             {content.same}
@@ -578,7 +590,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                                             </div>
                                         </AnimatedTitle>
                                     </AnimatedSection>
-                                </motion.div>
+                                </MotionDiv>
                             )}
                         </AnimatePresence>
                     </div>
@@ -586,19 +598,19 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                         <div className=" flex lg:flex-col gap-2 p-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/30 shadow-2x">
                             <button onClick={() => setView("artworkDetail")} className=" relative w-11 h-11 flex items-center justify-center rounded-full transition-colors duration-300">
                                 {view === "artworkDetail" && (
-                                    <motion.div layoutId="active-navigation" className="absolute inset-0 rounded-full bg-white" transition={{ type: "spring", stiffness: 500, damping: 35, }} />
+                                    <MotionDiv layoutId="active-navigation" className="absolute inset-0 rounded-full bg-white" transition={{ type: "spring", stiffness: 500, damping: 35, }} />
                                 )}
                                 <svg className={`relative z-10 w-5 h-5 transition-colors duration-300 ${view === "artworkDetail" ? "text-black" : "text-white/60"}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2M5 19V5h14v14z" /><path fill="currentColor" d="M7 7h10v2H7zm0 4h10v2H7zm0 4h10v2H7z" /></svg>
                             </button>
                             <button onClick={() => setView("comment")} className="relative w-11 h-11 flex items-center justify-center rounded-full transition-colors duration-300">
                                 {view === "comment" && (
-                                    <motion.div layoutId="active-navigation" className="absolute inset-0 rounded-full bg-white" transition={{ type: "spring", stiffness: 500, damping: 35, }} />
+                                    <MotionDiv layoutId="active-navigation" className="absolute inset-0 rounded-full bg-white" transition={{ type: "spring", stiffness: 500, damping: 35, }} />
                                 )}
                                 <svg className={`relative z-10 w-5 h-5 transition-colors duration-300 ${view === "comment" ? "text-black" : "text-white/60"}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2"><path strokeLinejoin="round" d="M14 19c3.771 0 5.657 0 6.828-1.172S22 14.771 22 11s0-5.657-1.172-6.828S17.771 3 14 3h-4C6.229 3 4.343 3 3.172 4.172S2 7.229 2 11s0 5.657 1.172 6.828c.653.654 1.528.943 2.828 1.07" /><path d="M14 19c-1.236 0-2.598.5-3.841 1.145c-1.998 1.037-2.997 1.556-3.489 1.225s-.399-1.355-.212-3.404L6.5 17.5" /></g></svg>
                             </button>
                             <button onClick={() => setView("recommend")} className="relative w-11 h-11 flex items-center justify-center rounded-full transition-colors duration-300">
                                 {view === "recommend" && (
-                                    <motion.div layoutId="active-navigation" className="absolute inset-0 rounded-full bg-white" transition={{ type: "spring", stiffness: 500, damping: 35, }} />
+                                    <MotionDiv layoutId="active-navigation" className="absolute inset-0 rounded-full bg-white" transition={{ type: "spring", stiffness: 500, damping: 35, }} />
                                 )}
                                 <svg className={`relative z-10 w-5 h-5 transition-colors duration-300 ${view === "recommend" ? "text-black" : "text-white/60"}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M0 0h2048v2048H0z" fill="none" /><path fill="currentColor" d="M1792 640h256v1152H512v-256H256v-256H0V128h1536v256h256zM128 256v896h1280V256zm256 1024v128h1280V512h-128v768zm1536 384V768h-128v768H640v128z" /></svg>
                             </button>

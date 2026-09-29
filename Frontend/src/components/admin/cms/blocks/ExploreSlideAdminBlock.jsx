@@ -26,7 +26,8 @@ export default function ExploreSlideAdminBlock({ blockData, pageName, onSaveSucc
         if (oldPublicId) {
             try {
                 await contentApi.deleteImage({ public_id: oldPublicId });
-            } catch (e) {
+            } catch {
+                console.warn("Could not delete the previous CMS image; continuing upload.");
             }
         }
         setUploadingIndex(itemIndex);
@@ -40,7 +41,7 @@ export default function ExploreSlideAdminBlock({ blockData, pageName, onSaveSucc
                 updateItem(itemIndex, 'imgUrl', result.data[0].url);
                 updateItem(itemIndex, 'publicId', result.data[0].public_id);
             }
-        } catch (error) {
+        } catch {
             setImgErrors(prev => ({ ...prev, [itemIndex]: 'Tải ảnh thất bại!' }));
         } finally {
             setUploadingIndex(null);
@@ -102,7 +103,7 @@ export default function ExploreSlideAdminBlock({ blockData, pageName, onSaveSucc
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!')
         } finally {
             setIsSaving(false);

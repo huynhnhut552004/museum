@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useLanguage } from "../../routes/LanguageContext";
+import useContactDetails from "../../hooks/useContactDetails";
 
 export default function FooterDigi() {
   const location = useLocation();
   const isHomePage = location.pathname === "/digital";
   const { lang } = useLanguage();
+  const { phones, emails } = useContactDetails(lang);
   return (
     <footer className={`bg-[#F5F5F3] text-[#191B1D] lg:py-12 py-6 lg:px-6 px-4 ${isHomePage ? "snap-end snap-always" : ""}`}>
       <div className={`max-w-7xl font-oswald lg:text-lg mx-auto grid grid-cols-[1fr_45%] grid-rows-[1fr_1fr] lg:grid-cols-[40%_40%_1fr] lg:grid-rows-[30px_1fr]`}>
@@ -26,10 +28,12 @@ export default function FooterDigi() {
           <Link to='#' target="_blank" rel="noopener noreferrer"><img src='/User/icon/Youtube.png' alt='Youtube' className='invert lg:w-10 lg:h-10 w-8 h-8' /></Link>
         </div>
         <div className="lg:order-5 order-3 lg:border-none border-t mt-4 pt-4 lg:mt-0 lg:pt-0">
-          <p>070698xxxx</p>
-          <p>094618xxxx</p>
-          <p>mosaicmuseum@gmail.com</p>
-          <p>mosaic2025@gmail.com</p>
+          {phones.map((phone, index) => (
+            <p key={`phone-${index}`}><a href={`tel:${phone.replace(/[^\d+]/g, "")}`}>{phone}</a></p>
+          ))}
+          {emails.map((email, index) => (
+            <p key={`email-${index}`}><a href={`mailto:${email.trim()}`}>{email}</a></p>
+          ))}
         </div>
       </div>
       <div className="text-center text-gray-500 mt-8 lg:mt-10 text-sm">

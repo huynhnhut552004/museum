@@ -36,7 +36,7 @@ export default function Home() {
         setErr(null);
         contentApi.get('home')
             .then(res => setBlocks(res.data.data || []))
-            .catch(error => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
+            .catch(() => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
             .finally(() => setIsLoading(false));
     };
 

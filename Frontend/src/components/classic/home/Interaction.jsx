@@ -3,13 +3,17 @@ import useAnimatedSlide from "../../comon/Animation/AnimatedSlide";
 import AnimatedSection from "../../comon/Animation/AnimatedSection";
 
 export default function Interaction({ Data = [] }) {
+    if (!Data || Data.length === 0) return null;
+    return <InteractionSlides Data={Data} />;
+}
+
+function InteractionSlides({ Data }) {
     const containerRef = useRef(null);
     const bgImgRef = useRef(null);
     const textRef = useRef(null);
     const thisImgRef = useRef(null);
     const nextImgRef = useRef(null);
     const frameRef = useRef(null);
-    if (!Data || Data.length === 0) return null;
     const { activeIndex, changeSlide } = useAnimatedSlide({ containerRef, bgImgRef, textRef, thisImgRef, nextImgRef, frameRef, content: Data });
     const currentSlide = Data[activeIndex];
     

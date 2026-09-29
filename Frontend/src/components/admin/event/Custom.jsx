@@ -2,7 +2,7 @@ import ErrorNoti from "../../comon/Noti/Error";
 import SuccessNoti from "../../comon/Noti/Success";
 import eventApi from "../../../api/eventApi";
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import TranslationFields from '../../comon/cms/TranslationFields';
 
 export default function CustomEventkLayout() {
@@ -41,14 +41,14 @@ export default function CustomEventkLayout() {
         if (typeof data === 'string') {
             try {
                 return JSON.parse(data);
-            } catch (e) {
+            } catch {
                 return { vi: data, en: "" };
             }
         }
         return data;
     };
 
-    const getEventBySlug = async (EventSlug) => {
+    const getEventBySlug = useCallback(async (EventSlug) => {
         if (!EventSlug) return;
         setLoading(true);
         setErrGetSlug('');
@@ -85,11 +85,11 @@ export default function CustomEventkLayout() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         getEventBySlug(slug);
-    }, [slug]);
+    }, [slug, getEventBySlug]);
 
     useEffect(() => {
         return () => {

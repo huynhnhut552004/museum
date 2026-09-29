@@ -48,11 +48,11 @@ export default function EditInfoDigital() {
         heading: "Digital-Heading",
         text: "Digital-Text1",
         border: "border-white",
+        borderSection: "border-gray-400",
         hover_div: "lg:hover:bg-gray-600",
         input: "Digital-Login-Input",
         bg_button: "bg-[#f5f5f3]",
-        text_color: "text-black",
-        border: "border-gray-400"
+        text_color: "text-black"
     }
 
     return (

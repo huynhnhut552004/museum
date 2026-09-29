@@ -1,5 +1,3 @@
-import { easeInOut } from "framer-motion";
-
 export const sectionVariants = {
   hidden: { opacity: 0 },
   visible: {

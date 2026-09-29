@@ -100,7 +100,7 @@ export default function AboutOutroAdminBlock({ blockData, pageName, onSaveSucces
                 </div>
 
                 <div className="space-y-4">
-                    {team.map((item, index) => (
+                        {team.map((item) => (
                         <div key={item.id} className="bg-white border border-gray-800 p-4 rounded shadow-sm">
                             <div className='flex justify-end'>
                                 <button onClick={() => handleRemoveRole(item.id)} className="text-red-500 hover:bg-red-200 p-2 rounded font-inter text-sm font-bold">Xóa</button>

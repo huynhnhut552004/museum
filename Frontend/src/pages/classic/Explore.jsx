@@ -48,11 +48,12 @@ export default function Explore() {
     };
 
     const fetchData = () => {
-        setIsLoading(true);
-        setErr(null);
         contentApi.get('explore')
-            .then(res => setBlocks(res.data.data || []))
-            .catch(error => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
+            .then(res => {
+                setErr(null);
+                setBlocks(res.data.data || []);
+            })
+            .catch(() => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
             .finally(() => setIsLoading(false));
     };
 
@@ -75,7 +76,7 @@ export default function Explore() {
                     linkStateR: { titleVi: "vi".title2, titleEn: "en".title2 },
                 }
             case 'exploreTheme_block':
-            case 'exploreTradition_block':
+            case 'exploreTradition_block': {
                 const newItems = content.items.map((item) => ({
                     img: item.imgUrl,
                     title: lang === 'vi' ? item.viTitle : item.enTitle,
@@ -88,6 +89,7 @@ export default function Explore() {
                     hero: lang === 'vi' ? content.heading.viHeading : content.heading.enHeading,
                     items: newItems
                 }
+            }
             case 'exploreStory_block':
             case 'exploreMore_block':
                 return {
@@ -97,7 +99,7 @@ export default function Explore() {
                     img: content.media_url,
                     nav: langData.nav
                 }
-            case 'exploreGrid_block':
+            case 'exploreGrid_block': {
                 const itemst = {
                     link: resolveBlockLink(content.itemst.targetLink?.target_type, content.itemst.targetLink?.target_data),
                     img: content.itemst.imgUrl,
@@ -113,13 +115,14 @@ export default function Explore() {
                     itemst: itemst,
                     items: items
                 }
+            }
             case 'explorevideo_block':
                 return {
                     title: langData.title,
                     video: content.media_url,
                     link: resolveBlockLink(content.targetLink?.target_type, content.targetLink?.target_data),
                 }
-            case 'exploreZoomImage_block':
+            case 'exploreZoomImage_block': {
                 const newHotspots = content.hotspots.map((item) => ({
                     id: item.id,
                     top: `${item.position.top}%`,
@@ -138,6 +141,7 @@ export default function Explore() {
                     hotspots: newHotspots,
                     more: lang === "vi" ? "Khám phá thêm" : "Explore more"
                 }
+            }
             case 'exploreSlide_block': {
                 const newItems = content.items.map((item) => ({
                     id: item.id,

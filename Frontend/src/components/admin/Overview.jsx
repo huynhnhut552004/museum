@@ -1,5 +1,5 @@
 import statisticsApi from "../../api/statistics";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useEffectEvent } from "react";
 import ErrorNoti from "../comon/Noti/Error";
 import { Link } from 'react-router-dom';
 
@@ -57,14 +57,16 @@ export default function Overview({ state, color }) {
         }
     }
 
+    const getOverview = useEffectEvent(() => config[state].overview());
+
     useEffect(() => {
         const getData = async () => {
             try {
                 setErr(null);
                 setLoading(true);
-                const res = await config[state].overview();
+                const res = await getOverview();
                 setData(res?.data?.data || res?.data || []);
-            } catch (error) {
+            } catch {
                 setErr('Không thể lấy dữ liệu!');
             } finally {
                 setLoading(false);

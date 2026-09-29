@@ -19,12 +19,12 @@ export default function SearchLayout({ content, lang }) {
                 const rawData = response.data?.data || response.data;
                 const finalData = Array.isArray(rawData) ? rawData : [];
                 setHotKeys(finalData);
-            } catch (error) {
+            } catch {
                 setHotKeys([]);
             }
         };
         fetchHotKeys();
-    }, []);
+    }, [digital]);
 
     const handleSearch = async (searchWord) => {
         if (!searchWord.trim()) return;
@@ -33,7 +33,7 @@ export default function SearchLayout({ content, lang }) {
             const response = await artworkApi.get(1, 20, null, searchWord, null, layoutType, lang);
             const results = response.data?.data || response.data || [];
             setSearchResults(Array.isArray(results) ? results : []);
-        } catch (error) {
+        } catch {
             setSearchResults([]);
         }
     };
@@ -60,7 +60,8 @@ export default function SearchLayout({ content, lang }) {
         const layoutType = digital ? 'digital' : 'classic';
         try {
             if (clickedText && clickedText.trim()) await searchApi.click(clickedText, layoutType);
-        } catch (error) {
+        } catch {
+            console.warn("Search click tracking failed.");
         } finally {
             if (layoutType === "classic") {
                 navigate(`/artwork/${slug}`);

@@ -38,7 +38,7 @@ function CameraRig({ selectedArtwork }) {
                 controls.target.lerp(DEFAULT_TARGET_POS, 0.04)
                 controls.update()
             }
-            camera.rotation.z = THREE.MathUtils.degToRad(-0.4);
+            camera.rotation.set(camera.rotation.x, camera.rotation.y, THREE.MathUtils.degToRad(-0.4));
         }
     })
     return null
@@ -53,11 +53,13 @@ export function WaterProjectorLight() {
         video.loop = true
         video.muted = true
         video.setAttribute('playsinline', 'true')
-        video.play().catch(e => console.error("Lỗi phát video:", e))
         const texture = new THREE.VideoTexture(video)
         texture.colorSpace = THREE.SRGBColorSpace
-        setVideoTexture(texture)
+        const handleLoadedData = () => setVideoTexture(texture);
+        video.addEventListener('loadeddata', handleLoadedData, { once: true });
+        video.play().catch(e => console.error("Lỗi phát video:", e))
         return () => {
+            video.removeEventListener('loadeddata', handleLoadedData);
             video.pause();
             video.removeAttribute('src');
             video.load();

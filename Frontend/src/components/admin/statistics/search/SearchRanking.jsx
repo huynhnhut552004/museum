@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import statisticsApi from "../../../../api/statistics";
 import ErrorNoti from "../../../comon/Noti/Error";
 
@@ -9,7 +9,7 @@ export default function SearchRanking() {
   const [error, setError] = useState(null);
   const [layout, setLayout] = useState('classic');
 
-  const fetchRanking = async () => {
+  const fetchRanking = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -23,11 +23,11 @@ export default function SearchRanking() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [layout, period]);
 
   useEffect(() => {
     fetchRanking();
-  }, [period, layout]);
+  }, [fetchRanking]);
 
   const getMovement = (item) => {
     if (item.isNew || item.previousRank === null || item.previousRank === undefined) return { type: "new", label: "NEW" };

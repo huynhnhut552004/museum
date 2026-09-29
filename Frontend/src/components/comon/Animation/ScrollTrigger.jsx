@@ -4,7 +4,7 @@ import { useLayoutEffect } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function usescrolltrigger({ text1Ref, text2Ref, text3Ref, textEnd, pbarRef, imgRef, containerRef, config }) {
+export default function useScrollTrigger({ text1Ref, text2Ref, text3Ref, textEnd, pbarRef, imgRef, containerRef, config }) {
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
             if (!containerRef.current) return;
@@ -57,5 +57,5 @@ export default function usescrolltrigger({ text1Ref, text2Ref, text3Ref, textEnd
                 }, "<").to(textEnd.current, { opacity: 1, y: 0 });
         }, containerRef);
         return () => ctx.revert();
-    }, [config]);
+    }, [config, containerRef, imgRef, pbarRef, text1Ref, text2Ref, text3Ref, textEnd]);
 };

@@ -36,7 +36,7 @@ export default function useAnimatedSlide({ containerRef, frameRef, bgImgRef, tex
             gsap.set(frameRef.current, { width: initialSize.with, height: initialSize.height });
         }, containerRef);
         return () => cxt.revert();
-    }, [containerRef, nextImgRef]);
+    }, [containerRef, frameRef, nextImgRef, content]);
 
     const changeSlide = (direction) => {
         if (animating) return;

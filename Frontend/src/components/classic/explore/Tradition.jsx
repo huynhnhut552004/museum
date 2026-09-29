@@ -34,7 +34,7 @@ export default function Tradition({ hero, items = [] }) {
                         const handleClick = (e) => {
                             if (index !== activeIndex) {
                                 e.preventDefault();
-                                onHover(index);
+                                setActiveIndex(index);
                             }
                         };
                         return (

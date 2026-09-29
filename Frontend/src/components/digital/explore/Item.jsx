@@ -36,13 +36,13 @@ const ImgContent = ({ url, loaded }) => {
     return (<meshBasicMaterial map={texture} transparent side={THREE.DoubleSide} />);
 };
 
-export default function Item({ id, keyWord, url, type = "image", state, position, title, ...props }) {
+export default function Item({ keyWord, url, type = "image", state, position, title, ...props }) {
     const ref = useRef();
     const navigate = useNavigate();
     const [width, setWidth] = useState(4);
     const [hover, setHover] = useState(false);
 
-    useFrame((state, delta) => {
+    useFrame(() => {
         const Scale = hover ? 1.05 : 1;
         ref.current.scale.lerp(new THREE.Vector3(Scale, Scale, Scale), 0.1);
     });

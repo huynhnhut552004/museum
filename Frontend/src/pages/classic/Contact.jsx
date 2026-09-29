@@ -12,11 +12,13 @@ export default function Contact() {
     const [err, setErr] = useState(null);
 
     const fetchData = () => {
-        setIsLoading(true);
-        setErr(null);
         contentApi.get('contact')
-            .then(res => { const blocksArrays = res.data.data; setBlock(blocksArrays.length > 0 ? blocksArrays[0] : null) })
-            .catch(error => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
+            .then(res => {
+                const blocksArrays = res.data.data;
+                setErr(null);
+                setBlock(blocksArrays.length > 0 ? blocksArrays[0] : null);
+            })
+            .catch(() => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
             .finally(() => setIsLoading(false));
     };
 

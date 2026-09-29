@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import authApi from "../api/authApi";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,7 +19,7 @@ export default function LoginLayout({ style, animate, content, noti }) {
     const [succ, setSucc] = useState(null);
     const [mobile, setMobile] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [path, setPath] = useState(window.location.pathname);
+    const { pathname: path } = useLocation();
 
     useEffect(() => {
         const handleResize = () => {

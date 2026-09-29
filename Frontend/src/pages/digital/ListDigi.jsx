@@ -41,7 +41,7 @@ export default function ListDigital() {
             }));
 
             setItem(formatItems);
-        } catch (error) {
+        } catch {
             setNoGetArtwork('Lỗi dữ liệu!');
         } finally {
             setIsLoading(false);

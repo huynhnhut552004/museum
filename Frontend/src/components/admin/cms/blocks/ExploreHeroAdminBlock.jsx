@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import contentApi from '../../../../api/contentApi';
 import TranslationFields from '../../../comon/cms/TranslationFields';
 import ErrorNoti from '../../../comon/Noti/Error';
@@ -48,7 +48,7 @@ export default function ExploreHeroAdminblock({ blockData, pageName, onSaveSucce
                     [publicIdKey]: result.data[0].public_id
                 }));
             }
-        } catch (error) {
+        } catch {
             setImgErrors(prev => ({ ...prev, [imgKey]: 'Tải ảnh thất bại!' }));
         } finally {
             setUploadingIndex(null);

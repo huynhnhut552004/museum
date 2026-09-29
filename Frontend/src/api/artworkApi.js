@@ -6,11 +6,6 @@ const artworkApi = {
         return apiClient.post(url, formData);
     },
 
-    retryAI: (artworkId, media_url, title, artist_name, artistId, desc) => {
-        const url = `/artwork/retryAI/${artworkId}`;
-        return apiClient.post(url, media_url, title, artist_name, artistId, desc);
-    },
-
     retryAI: (artworkId, media_url, title, artist_name, layout_type, artistId, desc) => {
         const url = `/artwork/retryAI/${artworkId}`;
         return apiClient.post(url, { media_url, title, artist_name, layout_type, artistId, desc });

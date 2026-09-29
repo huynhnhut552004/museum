@@ -9,6 +9,7 @@ import AnimatedSection from "./comon/Animation/AnimatedSection";
 import AnimatedTitle from "./comon/Animation/AnimatedTitle";
 import AnimatedText from "./comon/Animation/AnimatedText";
 import LostConnection from "./LostConnection";
+import ErrorNoti from "./comon/Noti/Error";
 
 export default function EventDetailLayout({ lang, content, input, button, style, type }) {
     const [event, setEvent] = useState(null);
@@ -39,7 +40,8 @@ export default function EventDetailLayout({ lang, content, input, button, style,
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 setCurrentUserId(payload.id || payload.userId);
                 setCurrentUserRole(payload.role);
-            } catch (error) {
+            } catch {
+                console.warn("Ignoring invalid event-page auth token.");
             }
         }
     }, []);
@@ -49,7 +51,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
         if (typeof textData === 'object' && textData[lang]) return textData[lang];
         if (typeof textData === 'string') {
             try { return JSON.parse(textData)[lang] || textData; }
-            catch (e) { return textData; }
+            catch { return textData; }
         }
         return "";
     };
@@ -59,7 +61,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
         if (typeof data === 'string') {
             try {
                 return JSON.parse(data);
-            } catch (e) {
+            } catch {
                 return { vi: data, en: "" };
             }
         }
@@ -79,7 +81,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
         if (node) observer.current.observe(node);
     }, [loadingComment, halgore]);
 
-    const getComment = async () => {
+    const getComment = useCallback(async () => {
         if (!event?.id) return;
         setLoadingComment(true);
         const data = { limit: 10, page };
@@ -95,24 +97,25 @@ export default function EventDetailLayout({ lang, content, input, button, style,
             if (newComments.length < 10) {
                 setHalgore(false);
             }
-        } catch (error) {
+        } catch {
+            setErr(lang === "vi" ? "Không thể tải bình luận." : "Could not load comments.");
         } finally {
             setLoadingComment(false);
         }
-    };
+    }, [event?.id, page, lang]);
 
-    const TotalComment = async () => {
+    const TotalComment = useCallback(async () => {
         if (!event?.id) return;
         const id = event?.id;
         try {
             const res = await commentApi.getTotalEvent(id);
             setTotalComment(res?.data?.data);
-        } catch (error) {
+        } catch {
             console.log('Lỗi lấy tổng bình luận event!');
         }
-    };
+    }, [event?.id]);
 
-    const getEventBySlug = async (slugEvent) => {
+    const getEventBySlug = useCallback(async (slugEvent) => {
         setLoading(true);
         setErrEvent(null);
         try {
@@ -131,23 +134,23 @@ export default function EventDetailLayout({ lang, content, input, button, style,
                 setPreviewUrl(data.banner_url);
                 setIsVideo(Boolean(data.banner_url.match(/\.(mp4|mov|webm)$/i)));
             }
-        } catch (error) {
+        } catch {
             setErrEvent("Lỗi lấy Event!");
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         getEventBySlug(slug);
-    }, [slug]);
+    }, [getEventBySlug, slug]);
 
     useEffect(() => {
         TotalComment();
         setPage(1);
         setHalgore(true);
         setComment([]);
-    }, [event?.id]);
+    }, [TotalComment, event?.id]);
 
     useEffect(() => {
         if (!event?.id) return;
@@ -202,7 +205,8 @@ export default function EventDetailLayout({ lang, content, input, button, style,
             } else {
                 setLiked((prev) => !prev);
             }
-        } catch (error) {
+        } catch {
+            setErr(lang === "vi" ? "Không thể cập nhật lượt thích." : "Could not update the like.");
         } finally {
             setLoading(false);
         }
@@ -214,7 +218,8 @@ export default function EventDetailLayout({ lang, content, input, button, style,
             try {
                 const res = await likeApi.checkLikeEvent(event?.id);
                 setLiked(Boolean(res?.data));
-            } catch (error) {
+            } catch {
+                setLiked(false);
             }
         };
         checkInitialLikeStatus();
@@ -224,14 +229,15 @@ export default function EventDetailLayout({ lang, content, input, button, style,
         if (event?.id) {
             getComment();
         }
-    }, [event?.id, page]);
+    }, [event?.id, getComment]);
 
     const createComment = async (content, parentId) => {
         try {
             await commentApi.createEvent(event?.id, content, parentId);
             setCommentWrite('');
             setPage(1);
-        } catch (error) {
+        } catch {
+            setErr(lang === "vi" ? "Không thể gửi bình luận." : "Could not send the comment.");
         }
     };
 
@@ -261,7 +267,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
                     return c;
                 }));
             }
-        } catch (error) {
+        } catch {
             setComment(prevComments => prevComments.map(c => {
                 if (c.id === commentId) {
                     const isCurrentlyLiked = c.is_liked_by_me;
@@ -281,9 +287,9 @@ export default function EventDetailLayout({ lang, content, input, button, style,
         setComment(prevComments => prevComments.filter(c => c.id !== commentId));
         try {
             await commentApi.delete(commentId, { eventId: event?.id });
-        } catch (error) {
+        } catch {
             setComment(previousComments);
-            setErr(noti.errComment);
+            setErr(lang === "vi" ? "Không thể xóa bình luận." : "Could not delete the comment.");
             setTimeout(() => setErr(''), 3000);
         }
     };
@@ -328,6 +334,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
                 </div>
             </AnimatedText>
             <AnimatedText className="border-t border-gray-400">
+                {err && <ErrorNoti err={err} />}
                 <div className="flex justify-between items-center lg:px-0 px-2">
                     <div className={`${style.heading} lg:text-3xl text-xl lg:py-6 py-4`}>
                         {content.comment}

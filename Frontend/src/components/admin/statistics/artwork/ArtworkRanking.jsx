@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import statisticsApi from "../../../../api/statistics";
 import ErrorNoti from "../../../comon/Noti/Error";
 
@@ -8,24 +8,24 @@ export default function ArtworkRanking() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchRanking = async () => {
+  const fetchRanking = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await statisticsApi.artwork.rankingArtwork(period);
       const items = res?.data?.data?.items || res?.data?.items || res?.items || [];
       setData(items);
-    } catch (error) {
+    } catch {
       setError("Không thể tải dữ liệu xếp hạng.");
       setData([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
 
   useEffect(() => {
     fetchRanking();
-  }, [period]);
+  }, [fetchRanking]);
 
   const getMovement = (item) => {
     if (item.isNew || item.previousRank === null) return { type: "new", label: "NEW" };

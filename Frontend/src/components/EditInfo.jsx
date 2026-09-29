@@ -25,7 +25,7 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
             const userInfo = { email: data.email, nickName: data.nickName, birthday: data.birthday, hobby: data.hobby, description: data.description };
             setForm(userInfo);
             initialForm.current = userInfo;
-        } catch (error) {
+        } catch {
             setErrLoadInfo(true);
         } finally {
             setLoadUI(false);
@@ -59,7 +59,7 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
             resetForm();
             setForm({ email: data.email, nickName: data.nickName, birthday: data.birthday, hobby: data.hobby, description: data.description });
             setSucc(noti.succes);
-        } catch (error) {
+        } catch {
             setSucc(null);
             setErr(noti.err);
         } finally {
@@ -88,13 +88,13 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
                 </AnimatedText>
             </div>
             <div className={`border ${style.border} rounded-lg p-4`}>
-                <div className={`grid lg:grid-cols-2 lg:gap-x-4 gap-2 border-b ${style.border} p-4`}>
+                <div className={`grid lg:grid-cols-2 lg:gap-x-4 gap-2 border-b ${style.borderSection} p-4`}>
                     <AnimatedTitle className="lg:order-1 order-1"><label className={`${style.heading} lg:text-2xl text-xl `}>{content.nickName}</label></AnimatedTitle>
                     <AnimatedTitle className="lg:order-2 order-3"><label className={`${style.heading} lg:text-2xl text-xl `}>{content.birthday}</label></AnimatedTitle>
                     <AnimatedText className="lg:order-3 order-2"><input type='text' name="nickName" placeholder={content.inputNickName} value={form.nickName} onChange={handleOnchange} className={style.input} /></AnimatedText>
                     <AnimatedText className="lg:order-4 order-4"><input type='text' name="birthday" placeholder={content.inputBirthday} value={form.birthday} onChange={handleOnchange} className={style.input} /></AnimatedText>
                 </div>
-                <div className={`grid lg:grid-cols-2 lg:gap-x-4 gap-2 2 border-b ${style.border} p-4`}>
+                <div className={`grid lg:grid-cols-2 lg:gap-x-4 gap-2 2 border-b ${style.borderSection} p-4`}>
                     <AnimatedTitle className="lg:order-1 order-1"><label className={`${style.heading} lg:text-2xl text-xl `}>Email</label></AnimatedTitle>
                     <AnimatedTitle className="lg:order-2 order-3"><label className={`${style.heading} lg:text-2xl text-xl `}>{content.hobby}</label></AnimatedTitle>
                     <AnimatedText className="lg:order-3 order-2"><input type='text' name="email" placeholder={content.inputEmail} value={form.email} onChange={handleOnchange} className={style.input} /></AnimatedText>

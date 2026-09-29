@@ -40,16 +40,16 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
     const [noGetArtwork, setNoGetArtwork] = useState(null);
     const [loadArtwork, setLoadArtwork] = useState(false);
 
-    const TotalComment = async () => {
+    const TotalComment = useCallback(async () => {
         if (!artwork?.id) return;
         const id = artwork?.id;
         try {
             const res = await commentApi.getTotalArtwork(id);
             setTotalComment(res?.data?.data);
-        } catch (error) {
+        } catch {
             console.log('Lỗi lấy tổng bình luận artwork!');
         }
-    };
+    }, [artwork?.id]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -58,40 +58,45 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 setCurrentUserId(payload.id || payload.userId);
                 setCurrentUserRole(payload.role);
-            } catch (error) {
+            } catch {
+                console.warn("Ignoring invalid artwork-page auth token.");
             }
         }
     }, []);
 
-    const getArtwork = async (slugArtwork) => {
+    const getArtwork = useCallback(async (slugArtwork) => {
         setLoadArtwork(true);
         setNoGetArtwork(null);
         try {
             const res = await artworkApi.getBySlug(slugArtwork);
             setArtwork(res?.data?.data);
-        } catch (error) {
+        } catch {
             setNoGetArtwork("Lỗi lấy tác phẩm!");
         } finally {
             setLoadArtwork(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         getArtwork(slug);
-    }, [slug]);
+    }, [getArtwork, slug]);
 
     useEffect(() => {
         TotalComment();
         setPage(1);
         setHalgore(true);
         setComment([]);
-    }, [artwork?.id]);
+    }, [artwork?.id, TotalComment]);
+
+    const artworkId = artwork?.id;
+    const artistName = artwork?.artist_display_name;
+    const artworkLayout = artwork?.layout_type;
 
     useEffect(() => {
-        if (!artwork?.id) return;
+        if (!artworkId) return;
         const socket = io(import.meta.env.VITE_BACKEND_URL);
         setSocketInstance(socket);
-        socket.emit("join_artwork", artwork.id);
+        socket.emit("join_artwork", artworkId);
         socket.on("update_like_realtime", (data) => {
             const { commentId, newLikeCount } = data;
             setComment(prevComments => prevComments.map(c => {
@@ -119,10 +124,10 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
             setTotalComment(prev => Math.max(0, prev - 1));
         });
         return () => {
-            socket.emit("leave_artwork", artwork.id);
+            socket.emit("leave_artwork", artworkId);
             socket.disconnect();
         };
-    }, [artwork?.id]);
+    }, [artworkId]);
 
     const getDisplayYear = (year) => {
         if (!year) return noti.undef;
@@ -144,20 +149,21 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
 
     useEffect(() => {
         const fetchRecommendations = async () => {
-            if (!artwork || !artwork.id) return;
+            if (!artworkId) return;
             try {
                 const res = await artworkApi.recommended(
-                    artwork.id,
-                    artwork.artist_display_name,
-                    artwork.layout_type,
+                    artworkId,
+                    artistName,
+                    artworkLayout,
                     undefined
                 );
                 setRecommendations(res?.data?.data || []);
-            } catch (error) {
+            } catch {
+                setRecommendations([]);
             }
         }
         fetchRecommendations();
-    }, [artwork?.id]);
+    }, [artworkId, artistName, artworkLayout]);
 
     const like = async (id) => {
         setLoading(true);
@@ -168,7 +174,8 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
             } else {
                 setLiked((prev) => !prev);
             }
-        } catch (error) {
+        } catch {
+            setErr(noti.err);
         } finally {
             setLoading(false);
         }
@@ -176,21 +183,22 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
 
     useEffect(() => {
         const checkInitialLikeStatus = async () => {
-            if (!artwork || !artwork.id) return;
+            if (!artworkId) return;
             try {
-                const res = await likeApi.checkLikeArtwork(artwork.id);
+                const res = await likeApi.checkLikeArtwork(artworkId);
                 setLiked(Boolean(res?.data));
-            } catch (error) {
+            } catch {
+                setLiked(false);
             }
         };
         checkInitialLikeStatus();
-    }, [artwork?.id]);
+    }, [artworkId]);
 
     const getCollection = async () => {
         try {
             const res = await collectionApi.getMine();
             setCollection(res?.data?.data || []);
-        } catch (error) {
+        } catch {
             setCollection([]);
         }
     };
@@ -230,7 +238,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
         try {
             await collectionApi.add(collecId, artwork.id);
             await getCollection();
-        } catch (error) {
+        } catch {
             setErr(noti.errArt);
         } finally {
             setLoading(false);
@@ -287,7 +295,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
         if (node) observer.current.observe(node);
     }, [loadingComment, halgore]);
 
-    const getComment = async () => {
+    const getComment = useCallback(async () => {
         if (!artwork?.id) return;
         setLoadingComment(true);
         const data = { limit: 10, page };
@@ -303,22 +311,24 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
             if (newComments.length < 10) {
                 setHalgore(false);
             }
-        } catch (error) {
+        } catch {
+            setErr(noti.errComment);
         } finally {
             setLoadingComment(false);
         }
-    };
+    }, [artwork?.id, page, noti.errComment]);
 
     useEffect(() => {
         if (artwork?.id) getComment();
-    }, [artwork?.id, page]);
+    }, [artwork?.id, page, getComment]);
 
     const createComment = async (content, parentId) => {
         try {
             await commentApi.createArtwork(artwork.id, content, parentId);
             setCommentWrite('');
             setPage(1);
-        } catch (error) {
+        } catch {
+            setErr(noti.errComment);
         }
     };
 
@@ -348,7 +358,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
                     return c;
                 }));
             }
-        } catch (error) {
+        } catch {
             setComment(prevComments => prevComments.map(c => {
                 if (c.id === commentId) {
                     const isCurrentlyLiked = c.is_liked_by_me;
@@ -368,7 +378,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
         setComment(prevComments => prevComments.filter(c => c.id !== commentId));
         try {
             await commentApi.delete(commentId, { artworkId: artwork.id });
-        } catch (error) {
+        } catch {
             setComment(previousComments);
             setErr(noti.errComment);
             setTimeout(() => setErr(''), 3000);
@@ -454,7 +464,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
                                 {filteredCollections.length === 0 ?
                                     <div className="Style-Text1 text-center">{content.create}</div>
                                     :
-                                    filteredCollections?.map((item, index) => (
+                                    filteredCollections?.map((item) => (
                                         <div key={item.id} className="flex items-center">
                                             <div className="flex items-center flex-1">
                                                 <div className="w-[30%] relative h-[10vh]">
@@ -545,7 +555,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
                     <AnimatedText>
                         <div ref={scrollRef} className="flex gap-4 overflow-x-auto items-center scroll-smooth no-scrollbar" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
                             <style dangerouslySetInnerHTML={{ __html: `.no-scrollbar::-webkit-scrollbar { display: none; }` }} />
-                            {recommendations.map((item, index) => (
+                            {recommendations.map((item) => (
                                 <Link to={`/artwork/${item.slug}`} key={item.id} className="w-[60vw] md:w-[30vw] lg:w-[20vw] flex-none flex flex-col justify-center">
                                     <div className="overflow-hidden rounded-lg shadow-lg" title={item.title}>
                                         <img src={item.media_url} alt={item.title} className="w-full h-auto object-contain max-h-[60vh]" />

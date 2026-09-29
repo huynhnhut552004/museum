@@ -11,7 +11,7 @@ import Section5 from '../../../digital/home/Section5';
 
 export default function HomeDigitalAdminBlock({ blockData, pageName, onSaveSuccess }) {
     const initialContent = blockData.content || {};
-    const [id, setId] = useState(initialContent.id || Date.now());
+    const id = initialContent.id || Date.now();
     const [viData, setViData] = useState(initialContent.vi || {});
     const [enData, setEnData] = useState(initialContent.en || {});
     const [img, setImg] = useState(initialContent.img || { img1: { imgUrl: "", publicId: "" }, img2: { imgUrl: "", publicId: "" } });
@@ -105,7 +105,7 @@ export default function HomeDigitalAdminBlock({ blockData, pageName, onSaveSucce
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!')
         } finally {
             setIsSaving(false);

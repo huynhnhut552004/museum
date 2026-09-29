@@ -1,6 +1,6 @@
 import userApi from "../api/userApi";
 import collectionApi from "../api/collectionApi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useLocation } from 'react-router-dom';
 import AnimatedSection from "./comon/Animation/AnimatedSection";
 import AnimatedText from "./comon/Animation/AnimatedText";
@@ -17,31 +17,20 @@ export default function UserProfileLayout({ style, content, lang }) {
     const { state } = useLocation();
     const [info, setInfo] = useState(state?.infoUser || null);
 
-    const getUser = async () => {
-        if (info) return info;
-        const res = await userApi.getByTag(userName);
-        const data = res?.data?.data;
-        setInfo(data);
-        return data;
-    };
-
-    const fetchCollection = async (user) => {
-        const res = await collectionApi.getMine(user.id);
-        setCollection(res?.data?.data);
-    };
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoadUI(true);
             setErrLoadInfo(false);
-            const user = await getUser();
-            await fetchCollection(user);
-        } catch (err) {
+            const user = state?.infoUser || (await userApi.getByTag(userName))?.data?.data;
+            setInfo(user);
+            const res = await collectionApi.getMine(user.id);
+            setCollection(res?.data?.data);
+        } catch {
             setErrLoadInfo(true);
         } finally {
             setLoadUI(false);
         }
-    };
+    }, [state?.infoUser, userName]);
 
     useEffect(() => {
         const handleResize = () => { setMobile(window.innerWidth < 1024); };
@@ -49,7 +38,7 @@ export default function UserProfileLayout({ style, content, lang }) {
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    }, [fetchData]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('vi-VN');

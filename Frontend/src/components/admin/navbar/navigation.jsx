@@ -1,14 +1,18 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import authApi from "../../../api/authApi";
 
 export default function Nav() {
     const [mobile, setMobile] = useState(false);
     const [menu, setMenu] = useState(false);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const [nav, setNav] = useState(null);
-    const [path, setPath] = useState(window.location.pathname);
+    const { pathname: path } = useLocation();
+    const nav = path === '/admin/artwork' ? 'artwork'
+        : path === '/admin/user' ? 'user'
+            : path === '/admin/submission' ? 'submission'
+                : path === '/admin/event' ? 'event'
+                    : path === '/admin/cms' || path.startsWith('/admin/cms/') ? 'cms'
+                        : null;
 
     useEffect(() => {
         const handleResize = () => {
@@ -25,24 +29,6 @@ export default function Nav() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    useEffect(() => {
-        if (path === '/admin/artwork') {
-            setNav('artwork');
-        } else if (path === '/admin/user') {
-            setNav('user');
-        } else if (path === '/admin/submission') {
-            setNav('submission');
-        } else if (path === '/admin/event') {
-            setNav('event');
-        } else if (path === '/admin/cms' || path.startsWith('/admin/cms/')) {
-            setNav('cms');
-        }
-        else {
-            setNav(null);
-        }
-    }, []);
-
-
     const toggleMenu = (e) => {
         e.preventDefault();
         setMenu(!menu);
@@ -50,7 +36,6 @@ export default function Nav() {
 
     const logout = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
             await authApi.logout();
             localStorage.removeItem('token');
@@ -59,8 +44,6 @@ export default function Nav() {
             navigate('/');
         } catch (error) {
             console.log('Có lỗi khi đăng xuất!', error.response?.data || error.message);
-        } finally {
-            setLoading(false);
         }
     };
 

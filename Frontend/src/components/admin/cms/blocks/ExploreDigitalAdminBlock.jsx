@@ -41,7 +41,11 @@ export default function ExploreDigitalAdminBlock({ blockData, pageName, onSaveSu
         const fileType = file.type.startsWith('video/') ? 'video' : 'image';
         const oldPublicId = items[itemIndex].publicId;
         if (oldPublicId) {
-            try { await contentApi.deleteImage({ public_id: oldPublicId }); } catch (e) { }
+            try {
+                await contentApi.deleteImage({ public_id: oldPublicId });
+            } catch {
+                console.warn("Could not delete the previous CMS image; continuing upload.");
+            }
         }
         setUploadingIndex(itemIndex);
         setImgErrors(prev => ({ ...prev, [itemIndex]: null }));
@@ -59,7 +63,7 @@ export default function ExploreDigitalAdminBlock({ blockData, pageName, onSaveSu
                 setItems(newItems);
                 syncToIframe(newItems, itemIndex);
             }
-        } catch (error) {
+        } catch {
             setImgErrors(prev => ({ ...prev, [itemIndex]: 'Tải ảnh thất bại!' }));
         } finally {
             setUploadingIndex(null);
@@ -132,7 +136,7 @@ export default function ExploreDigitalAdminBlock({ blockData, pageName, onSaveSu
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!')
         } finally {
             setIsSaving(false);

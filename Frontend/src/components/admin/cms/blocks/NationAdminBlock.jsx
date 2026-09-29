@@ -28,7 +28,8 @@ export default function NationAdminBlock({ blockData, pageName, onSaveSuccess })
         if (oldPublicId) {
             try {
                 await contentApi.deleteImage({ public_id: oldPublicId });
-            } catch (e) {
+            } catch {
+                console.warn("Could not delete the previous CMS image; continuing upload.");
             }
         }
         isMainImage ? setIsUploadingMain(true) : setUploadingIndex(itemIndex);
@@ -103,7 +104,7 @@ export default function NationAdminBlock({ blockData, pageName, onSaveSuccess })
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!');
         } finally {
             setIsSaving(false);

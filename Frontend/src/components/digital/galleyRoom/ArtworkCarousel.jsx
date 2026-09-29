@@ -35,7 +35,7 @@ function CurvedArtwork({ artwork, radius, angle, yOffset, baseHeight = 2.0, onSe
     }
   }
 
-  const handlePointerOut = (e) => {
+  const handlePointerOut = () => {
     setHovered(false)
     document.body.style.cursor = 'auto'
   }

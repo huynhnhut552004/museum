@@ -3,10 +3,12 @@ import AnimatedTitle from "./comon/Animation/AnimatedTitle";
 import AnimatedText from "./comon/Animation/AnimatedText";
 import { useState } from "react";
 import submissionApi from "../api/submissionApi";
+import ErrorNoti from "./comon/Noti/Error";
 
 export default function RuleLayout({ items, style, contact, noti }) {
     const [form, setForm] = useState({ name: "", email: "", desc: "", purpose: "", status: "rule" });
     const [loading, setLoading] = useState(false);
+    const [err, setErr] = useState('');
 
     const HandleOnchange = (e) => {
         setForm({
@@ -69,6 +71,7 @@ export default function RuleLayout({ items, style, contact, noti }) {
                                     <input type="text" name="purpose" value={form.purpose} onChange={HandleOnchange} placeholder={contact.purpose} className={`${style.input}`} />
                                     <input type="text" name="desc" value={form.desc} onChange={HandleOnchange} placeholder={contact.content} className={`${style.input}`} />
                                 </div>
+                                {err && <ErrorNoti err={err} />}
                                 <button type="submit" disabled={loading} className={`font-josefin ${style.button} text-xl lg:text-lg p-2 lg:mt-16 mt-8 underline lg:no-underline lg:hover:underline duration-300 ease-in-out`}>{contact.button}→</button>
                             </form>
                         </AnimatedText>

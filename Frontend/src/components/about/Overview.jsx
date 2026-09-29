@@ -26,7 +26,7 @@ export default function Overview({ state }) {
                     return;
                 }
                 setData(res?.data?.data || res?.data || []);
-            } catch (error) {
+            } catch {
                 setErr('Không thể lấy dữ liệu!');
             } finally {
                 setLoading(false);
@@ -35,13 +35,9 @@ export default function Overview({ state }) {
         getData();
     }, [state]);
 
-    if (loading) {
-        return <div className="p-8 text-center text-gray-500">Đang kết nối...</div>;
-    }
+    if (loading) return (<div className="p-8 text-center text-gray-500">Đang kết nối...</div>);
 
-    if (err) {
-        return <ErrorNoti err={err} />;
-    }
+    if (err) return (<ErrorNoti err={err} />);
 
     if (!data) return null;
 

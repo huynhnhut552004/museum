@@ -24,11 +24,12 @@ export default function HomeDigital() {
   const [err, setErr] = useState(null);
 
   const fetchData = () => {
-    setIsLoading(true);
-    setErr(null);
     contentApi.get('homeDigital')
-      .then(res => setBlocks(res.data.data || []))
-      .catch(error => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
+      .then(res => {
+        setErr(null);
+        setBlocks(res.data.data || []);
+      })
+      .catch(() => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
       .finally(() => setIsLoading(false));
   };
 

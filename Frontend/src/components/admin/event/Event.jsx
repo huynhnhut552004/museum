@@ -105,7 +105,7 @@ export default function EventLayout() {
             try {
                 const parsed = JSON.parse(textData);
                 return parsed.vi || textData;
-            } catch (e) {
+            } catch {
                 return textData;
             }
         }
@@ -170,7 +170,7 @@ export default function EventLayout() {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayList?.map((item, index) => {
+                            {displayList?.map((item) => {
                                 return (
                                     <tr key={item.id} onClick={() => toggleMore(item.title, item.description, item.content, item.banner_url, item.start_time, item.end_time, item.computed_status)} className="border-b text hover:bg-gray-50 cursor-pointer transition-colors">
                                         <td className="p-2">

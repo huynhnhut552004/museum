@@ -2,7 +2,7 @@ import AnimatedSection from "./comon/Animation/AnimatedSection";
 import AnimatedTitle from "./comon/Animation/AnimatedTitle";
 import AnimatedText from "./comon/Animation/AnimatedText";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import collectionApi from "../api/collectionApi";
 import LostConnection from "./LostConnection";
 
@@ -14,7 +14,7 @@ export default function DetailCollectionLayout({ style, lang, noti }) {
     const [err, setErr] = useState(null);
     const navigate = useNavigate();
 
-    const getArtwork = async () => {
+    const getArtwork = useCallback(async () => {
         try {
             setErrLoad(false);
             setLoading(true);
@@ -39,11 +39,11 @@ export default function DetailCollectionLayout({ style, lang, noti }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, noti.private, navigate]);
 
     useEffect(() => {
         getArtwork();
-    }, [id]);
+    }, [getArtwork]);
 
     if (errLoad) return (<LostConnection lang={lang} click={getArtwork} />);
     if (loading) return (<div className={`h-screen -mt-4 ${style.heading} flex items-center justify-center`}>{lang === "vi" ? "Đang tải..." : "Loading..."}</div>)
@@ -62,7 +62,7 @@ export default function DetailCollectionLayout({ style, lang, noti }) {
                             <div className={`${style.text} flex items-center justify-center`}>{lang === "vi" ? "Bộ sưu tập này rỗng." : "This collection is empty."}</div>
                         ) : (
                             <div className=" columns-2 md:columns-3 lg:columns-4 gap-2">
-                                {data?.items?.map((item, index) => (
+                                {data?.items?.map((item) => (
                                     <Link key={item.id} to={`/artwork/${item.slug}`}>
                                         <div className="relative mb-2 break-inside-avoid" title={item.title}>
                                             <img src={item.media_url} alt="Img" className="w-full h-auto block rounded-sm" />

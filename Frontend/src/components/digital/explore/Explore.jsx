@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useScroll } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import contentApi from "../../../api/contentApi";
@@ -9,7 +9,7 @@ export default function Explore({ lang, onHeadingLoad }) {
     const groupRef = useRef();
     const [content, setContent] = useState([]);
 
-    const formatPropsforContent = (data) => {
+    const formatPropsforContent = useCallback((data) => {
         return {
             id: data.id,
             type: data.type || "image",
@@ -19,7 +19,7 @@ export default function Explore({ lang, onHeadingLoad }) {
             keyWord: data.keyWord,
             state: { vi: data.viTitle, en: data.enTitle }
         }
-    };
+    }, [lang]);
 
     useEffect(() => {
         contentApi.get('exploreDigital').then(res => {
@@ -33,7 +33,7 @@ export default function Explore({ lang, onHeadingLoad }) {
                 if (text) onHeadingLoad(text);
             }
         }).catch(err => console.error("Lỗi fetch API Explore:", err));
-    }, [lang]);
+    }, [formatPropsforContent, lang, onHeadingLoad]);
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -57,7 +57,7 @@ export default function Explore({ lang, onHeadingLoad }) {
         return () => window.removeEventListener('message', handleMessage);
     }, [scroll.el]);
 
-    useFrame((state, delta) => {
+    useFrame(() => {
         if (content.length === 0) return;
         const lastItem = Math.abs(content[content.length - 1].position[2]);
         const depth = lastItem + 5;
@@ -69,7 +69,6 @@ export default function Explore({ lang, onHeadingLoad }) {
             {content.map((art) => (
                 <Item
                     key={art.id}
-                    id={art.id}
                     type={art.type}
                     keyWord={art.keyWord}
                     url={art.url}

@@ -26,7 +26,7 @@ export default function ArtworkOverview() {
                 setError("");
                 const res = await statisticsApi.artwork.overviewArtwork();
                 setData(res?.data?.data);
-            } catch (error) {
+            } catch {
                 setError("Không thể tải thống kê tác phẩm.");
             } finally {
                 setLoading(false);

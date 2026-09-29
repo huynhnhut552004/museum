@@ -8,6 +8,8 @@ import AnimatedText from "./comon/Animation/AnimatedText";
 import AnimatedTitle from "./comon/Animation/AnimatedTitle";
 import LostConnection from "./LostConnection";
 
+const MotionDiv = motion.div;
+
 export default function EditAccountLayout({ style, content, noti, lang }) {
     const [infor, setInfor] = useState({ name: "", userTag: "", email: "", emailSuffix: "", ban: false });
     const [succ, setSucc] = useState('');
@@ -40,7 +42,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                 emailSuffix: suffix,
                 ban: data.is_ban
             });
-        } catch (error) {
+        } catch {
             setErrLoadInfo(true);
             setInfor({ name: "", email: "", emailSuffix: "", ban: false });
         }
@@ -137,11 +139,18 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
         }
         try {
             setLoading(true);
-            setVisible(true);
             setErr('');
             setSucc('');
-            await userApi.changeEmail(form.email);
+            await userApi.changeEmail(form.Email);
+            setVisible(true);
         } catch (error) {
+            if (error.response) {
+                setErr(error.response.status === 400 ? noti.wrongdata : noti.undef);
+            } else if (error.request) {
+                setErr(noti.server);
+            } else {
+                setErr(noti.undef);
+            }
         } finally {
             setLoading(false)
 
@@ -154,7 +163,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
             setErr(noti.wrongdata);
             return;
         }
-        if (form.Email === infor.email) return;
+        if (form.Email === `${infor.email}${infor.emailSuffix || ""}`) return;
         try {
             setLoading(true);
             setErr('');
@@ -163,7 +172,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
             setSucc(noti.successemail);
             await getInfor();
             resetForm();
-        } catch (error) {
+        } catch {
             setSucc('');
             setErr(noti.unchangeemail);
         } finally {
@@ -243,7 +252,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                 <section className="flex-1">
                     <AnimatePresence mode="wait">
                         {view === 'updateName' && (
-                            <motion.div key="updateName" {...slideAnimation} className="">
+                            <MotionDiv key="updateName" {...slideAnimation} className="">
                                 <div className={style.heading}>{content.changename}</div>
                                 <div className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="">
@@ -260,10 +269,10 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </MotionDiv>
                         )}
                         {view === 'updateEmail' && (
-                            <motion.div key="updateEmail" {...slideAnimation} className="">
+                            <MotionDiv key="updateEmail" {...slideAnimation} className="">
                                 <div className={style.heading}>{content.changeemail}</div>
                                 <div className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="lg:flex items-end justify-between lg:space-y-0 space-y-2">
@@ -295,10 +304,10 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                         </div>
                                     )}
                                 </div>
-                            </motion.div>
+                            </MotionDiv>
                         )}
                         {view === 'updatePass' && (
-                            <motion.div key="updatePass" {...slideAnimation} className="">
+                            <MotionDiv key="updatePass" {...slideAnimation} className="">
                                 <div className={style.heading}>{content.changepass2}</div>
                                 <div className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="relative">
@@ -332,7 +341,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </MotionDiv>
                         )}
                     </AnimatePresence>
                 </section>

@@ -2,6 +2,43 @@ import submissionApi from "../../../api/submissionApi";
 import { useState, useEffect } from 'react';
 import ErrorNoti from '../../comon/Noti/Error';
 
+const searchKeywordMap = {
+    feedback: [
+        'góp ý',
+        'góp ý kiến',
+        'đóng góp',
+        'đóng góp ý kiến',
+        'phản hồi',
+        'feedback',
+    ],
+    contact: [
+        'liên hệ',
+        'liên lạc',
+        'cộng tác',
+        'hợp tác',
+        'liên hệ hợp tác',
+        'contact',
+    ],
+    rule: [
+        'nội quy',
+        'quy định',
+        'quy tắc',
+        'luật lệ',
+        'rule',
+        'rules',
+    ],
+};
+
+const normalizeSearchKeyword = (keyword) => {
+    const normalized = keyword.trim().toLowerCase();
+    for (const [canonical, keywords] of Object.entries(searchKeywordMap)) {
+        if (keywords.includes(normalized)) {
+            return canonical;
+        }
+    }
+    return normalized;
+};
+
 export default function SubmissionLayout() {
     const [submission, setSubmission] = useState([]);
     const [status, setStatus] = useState(undefined);
@@ -14,42 +51,6 @@ export default function SubmissionLayout() {
     const [err, setErr] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [popup, setPopup] = useState({ name: "", email: "", purpose: "", desc: "" });
-
-    const searchKeywordMap = {
-        feedback: [
-            'góp ý',
-            'góp ý kiến',
-            'đóng góp',
-            'đóng góp ý kiến',
-            'phản hồi',
-            'feedback',
-        ],
-        contact: [
-            'liên hệ',
-            'liên lạc',
-            'cộng tác',
-            'hợp tác',
-            'liên hệ hợp tác',
-            'contact',
-        ],
-        rule: [
-            'nội quy',
-            'quy định',
-            'quy tắc',
-            'luật lệ',
-            'rule',
-            'rules',
-        ],
-    };
-
-    const normalizeSearchKeyword = (keyword) => {
-        const normalized = keyword.trim().toLowerCase();
-        for (const [canonical, keywords] of Object.entries(searchKeywordMap)) {
-            if (keywords.includes(normalized)) {
-                return canonical;
-            }
-            return normalized;
-        };
 
         useEffect(() => {
             const fetchData = async () => {
@@ -195,7 +196,7 @@ export default function SubmissionLayout() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {displayList?.map((item, index) => {
+                                    {displayList?.map((item) => {
                                     const labelMap = {
                                         'rule': 'Nội quy',
                                         'contact': 'Liên hệ',
@@ -306,5 +307,4 @@ export default function SubmissionLayout() {
                 )}
             </section>
         );
-    }
 }

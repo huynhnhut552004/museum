@@ -3,6 +3,30 @@ import userApi from '../../../api/userApi';
 import { Link } from 'react-router-dom';
 import ErrorNoti from '../../comon/Noti/Error';
 
+const searchKeywordMap = {
+    admin: [
+        'quản trị',
+        'quản lý',
+        'người quản lý',
+        'admin',
+    ],
+    user: [
+        'người dùng',
+        'user',
+        'người dùng thông thường'
+    ]
+};
+
+const normalizeSearchKeyword = (keyword) => {
+    const normalized = keyword.trim().toLowerCase();
+    for (const [canonical, keywords] of Object.entries(searchKeywordMap)) {
+        if (keywords.includes(normalized)) {
+            return canonical;
+        }
+    }
+    return normalized;
+};
+
 export default function UserLayout() {
     const [err, setErr] = useState('');
     const [page, setPage] = useState(1);
@@ -11,30 +35,6 @@ export default function UserLayout() {
     const [user, setUser] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchKeyword, setSearchKeyword] = useState('');
-
-    const searchKeywordMap = {
-        admin: [
-            'quản trị',
-            'quản lý',
-            'người quản lý',
-            'admin',
-        ],
-        user: [
-            'người dùng',
-            'user',
-            'người dùng thông thường'
-        ]
-    };
-
-    const normalizeSearchKeyword = (keyword) => {
-        const normalized = keyword.trim().toLowerCase();
-        for (const [canonical, keywords] of Object.entries(searchKeywordMap)) {
-            if (keywords.includes(normalized)) {
-                return canonical;
-            }
-        }
-        return normalized;
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -154,7 +154,7 @@ export default function UserLayout() {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayList.map((item, index) => {
+                            {displayList.map((item) => {
                                 const labelMap = { 'user': 'người dùng', 'admin': 'quản trị' }
                                 return (
                                     <tr key={item.id} className="border-b text hover:bg-gray-50 transition-colors">

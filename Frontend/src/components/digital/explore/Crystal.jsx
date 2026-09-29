@@ -26,17 +26,17 @@ const CrystalSetup = ({ position, rotation, scale }) => {
     )
 }
 
-export default function Crystal() {
-    const crystals = Array.from({ length: 15 }, (_, i) => ({
-        position: [
-            (Math.random() - 0.5) * 30,
-            (Math.random() - 0.5) * 20,
-            (Math.random() - 0.5) * 40 - 10
-        ],
-        rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0],
-        scale: Math.random() + 0.5,
-    }));
+const crystals = Array.from({ length: 15 }, () => ({
+    position: [
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 40 - 10
+    ],
+    rotation: [Math.random() * Math.PI, Math.random() * Math.PI, 0],
+    scale: Math.random() + 0.5,
+}));
 
+export default function Crystal() {
     return (
         <group>
             {crystals.map((c, i) => (

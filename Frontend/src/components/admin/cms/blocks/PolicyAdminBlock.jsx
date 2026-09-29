@@ -79,7 +79,7 @@ export default function PolicyAdminBlock({ blockData, pageName, onSaveSuccess })
             if (onSaveSuccess) {
                 setTimeout(() => onSaveSuccess(), 1500);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!');
         } finally {
             setIsSaving(false);

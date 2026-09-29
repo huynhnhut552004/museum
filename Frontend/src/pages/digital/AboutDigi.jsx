@@ -25,11 +25,12 @@ export default function About() {
   const [err, setErr] = useState(null);
 
   const fetchData = () => {
-    setIsLoading(true);
-    setErr(null);
     contentApi.get('about')
-      .then(res => setBlocks(res.data.data || []))
-      .catch(error => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
+      .then(res => {
+        setErr(null);
+        setBlocks(res.data.data || []);
+      })
+      .catch(() => setErr('Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.'))
       .finally(() => setIsLoading(false));
   };
 

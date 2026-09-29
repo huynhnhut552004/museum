@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import commentApi from "../api/commentApi";
+import ErrorNoti from "./comon/Noti/Error";
 
 export default function CommentThread({ rootComment, artworkId, eventId, currentUserId, currentUserRole, onDeleteRoot, onLikeRoot, socket, lang, type, style }) {
     const [replies, setReplies] = useState([]);
@@ -8,6 +9,7 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyWrite, setReplyWrite] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [replyError, setReplyError] = useState("");
 
     useEffect(() => {
         if (!socket) return;
@@ -16,7 +18,9 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
                 try {
                     const res = await commentApi.getRep(rootComment.id);
                     setReplies(res?.data?.data || res?.data || []);
-                } catch (error) { }
+                } catch {
+                    setReplyError(lang === "vi" ? "Không thể tải phản hồi." : "Could not load replies.");
+                }
             }
         };
         const handleUpdateLike = (data) => {
@@ -34,16 +38,18 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
             socket.off("update_like_realtime", handleUpdateLike);
             socket.off("delete_comment_realtime", handleDeleteComment);
         };
-    }, [socket, rootComment.id, showReplies]);
+    }, [socket, rootComment.id, showReplies, lang]);
 
     const toggleReplies = async () => {
         if (!showReplies) {
+            setReplyError("");
             if (replies.length === 0) {
                 setLoadingReplies(true);
                 try {
                     const res = await commentApi.getRep(rootComment.id);
                     setReplies(res?.data?.data || res?.data || []);
-                } catch (error) {
+                } catch {
+                    setReplyError(lang === "vi" ? "Không thể tải phản hồi." : "Could not load replies.");
                 } finally {
                     setLoadingReplies(false);
                 }
@@ -69,6 +75,7 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
         e.preventDefault();
         if (!replyWrite.trim()) return;
 
+        setReplyError("");
         setIsSubmitting(true);
         try {
             if (artworkId && !eventId) {
@@ -86,7 +93,8 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
                 setReplies(res?.data?.data || res?.data || []);
                 setShowReplies(true);
             }
-        } catch (error) {
+        } catch {
+            setReplyError(lang === "vi" ? "Không thể gửi phản hồi." : "Could not send the reply.");
         } finally {
             setIsSubmitting(false);
         }
@@ -101,7 +109,7 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
             } else {
                 await commentApi.delete(replyId, { eventId: eventId });
             }
-        } catch (error) {
+        } catch {
             setReplies(previousReplies);
         }
     };
@@ -141,7 +149,7 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
                     }));
                 }
             }
-        } catch (error) {
+        } catch {
             setReplies(prev => prev.map(r => {
                 if (r.id === replyId) {
                     const isLiked = r.is_liked_by_me;
@@ -223,6 +231,7 @@ export default function CommentThread({ rootComment, artworkId, eventId, current
                     </div>
                 </form>
             )}
+            {replyError && <ErrorNoti err={replyError} />}
             {rootComment.reply_count > 0 && (
                 <div className="pl-6 mt-1">
                     <button onClick={toggleReplies} className={`flex items-center gap-2 ${style.text2} ${type === 'classic' ? "lg:hover:bg-black/20" : "lg:hover:bg-white/20"} px-3 py-1 rounded-full transition-colors`}>

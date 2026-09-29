@@ -106,7 +106,7 @@ export default function CustomArtworkLayout() {
             setTimeout(() => {
                 setSuccRetryAI(null);
             }, 4000);
-        } catch (error) {
+        } catch {
             setErrAI('Có lỗi xảy ra, thử lại sau!');
         } finally {
             setLoadAI(false);

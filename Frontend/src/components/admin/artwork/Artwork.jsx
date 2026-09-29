@@ -161,7 +161,7 @@ export default function ArtworkLayout() {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayList.map((item, index) => {
+                            {displayList.map((item) => {
                                 const labelData = getArtworkLabel(item.layout_type);
                                 return (
                                     <tr key={item.id} onClick={() => toggleMore(item.title, item.media_url, item.artist_display_name, item.description, item.status, item.slug, item.year)} className="border-b text hover:bg-gray-50 cursor-pointer transition-colors">

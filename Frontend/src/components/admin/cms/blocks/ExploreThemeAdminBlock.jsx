@@ -42,7 +42,7 @@ export default function ExploreThemeAdminBlock({ blockData, pageName, onSaveSucc
         if (oldPublicId) {
             try {
                 await contentApi.deleteImage({ public_Id: oldPublicId });
-            } catch (error) {
+            } catch {
                 console.log("lỗi xoá ảnh!");
             }
         }
@@ -110,7 +110,7 @@ export default function ExploreThemeAdminBlock({ blockData, pageName, onSaveSucc
                     onSaveSuccess();
                 }, 2000);
             }
-        } catch (error) {
+        } catch {
             setErr('Lưu thất bại!');
         } finally {
             setIsSaving(false);

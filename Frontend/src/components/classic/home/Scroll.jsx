@@ -1,6 +1,31 @@
 import { useRef } from "react";
-import usescrolltrigger from "../../comon/Animation/ScrollTrigger";
+import useScrollTrigger from "../../comon/Animation/ScrollTrigger";
 import AnimatedSection from "../../comon/Animation/AnimatedSection";
+
+const ANIMATION_CONFIG = {
+    img: {
+        move1X: -35,
+        move1Y: 60,
+        zoom1: 2,
+        move2X: 10,
+        move2Y: -20,
+        zoom2: 1.5,
+        move3X: -38,
+        move3Y: -50,
+        zoom3: 2,
+        zoomend: 1,
+    },
+    timing: {
+        time1: 3,
+        time2: 5,
+        time3: 5,
+        end: 7
+    },
+    scroll: {
+        length: 4000,
+        scrub: 1
+    }
+};
 
 export default function Scroll({ img, desc1, desc2, desc3, desc4 }) {
     const ContainerRef = useRef(null);
@@ -10,31 +35,7 @@ export default function Scroll({ img, desc1, desc2, desc3, desc4 }) {
     const text2Ref = useRef(null);
     const text3Ref = useRef(null);
     const textEnd = useRef(null);
-    const ANIMATION_CONFIG = {
-        img: {
-            move1X: -35,
-            move1Y: 60,
-            zoom1: 2,
-            move2X: 10,
-            move2Y: -20,
-            zoom2: 1.5,
-            move3X: -38,
-            move3Y: -50,
-            zoom3: 2,
-            zoomend: 1,
-        },
-        timing: {
-            time1: 3,
-            time2: 5,
-            time3: 5,
-            end: 7
-        },
-        scroll: {
-            length: 4000,
-            scrub: 1
-        }
-    };
-    usescrolltrigger({ text1Ref, text2Ref, text3Ref, textEnd, pbarRef, imgRef, containerRef: ContainerRef, config: ANIMATION_CONFIG });
+    useScrollTrigger({ text1Ref, text2Ref, text3Ref, textEnd, pbarRef, imgRef, containerRef: ContainerRef, config: ANIMATION_CONFIG });
     return (
         <AnimatedSection ref={ContainerRef} className="relative mb-10 scroll-section bg-black w-full h-screen overflow-hidden flex items-center justify-center">
             <div className="absolute top-[10%] left-0 z-10 rounded-full overflow-hidden bg-none w-full h-1">
