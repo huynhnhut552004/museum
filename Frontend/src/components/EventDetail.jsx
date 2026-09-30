@@ -302,7 +302,7 @@ export default function EventDetailLayout({ lang, content, input, button, style,
     }
 
     return (
-        <AnimatedSection className="-mt-2 max-w-6xl space-y-4 mx-auto pb-10">
+        <AnimatedSection className="-mt-2 px-4 lg:px-0 max-w-6xl space-y-4 mx-auto pb-10">
             <AnimatedTitle className={`${style.heading} p-6`}>
                 {getLangText(event?.title)}
             </AnimatedTitle>

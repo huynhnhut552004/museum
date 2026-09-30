@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 export default function Intro({ title, desc, img, nav }) {
     return (
-        <AnimatedSection className="max-w-6xl mx-auto pb-10 lg:space-y-6 space-y-4">
+        <AnimatedSection className="max-w-6xl px-4 lg:px-0 mx-auto pb-10 lg:space-y-6 space-y-4">
             <AnimatedTitle className="Style-Heading2 lg:hidden">{title}</AnimatedTitle>
             <div className="flex lg:h-[90vh] lg:gap-6 gap-2 items-center justify-center">
                 <div className="flex-1 h-full flex flex-col justify-around ">

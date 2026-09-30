@@ -20,6 +20,16 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
     const [form, setForm] = useState({ name: "", Email: "", otp: "", oldPass: "", newPass: "", confPass: "" });
     const [view, setView] = useState('');
     const [errorloadInfo, setErrLoadInfo] = useState(false);
+    const [mobile, setMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setMobile(window.innerWidth < 1024);
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const slideAnimation = {
         initial: { y: 600, opacity: 0 },
@@ -27,6 +37,13 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
         exit: { y: -600, opacity: 0 },
         transition: { duration: 0.3, ease: "easeInOut" }
     };
+
+    const slideAnimationMobile = {
+        initial: { x: 600, opacity: 0 },
+        animate: { x: 0, opacity: 1 },
+        exit: { x: -600, opacity: 0 },
+        transition: { duration: 0.3, ease: "easeInOut" }
+    }
 
     const getInfor = async () => {
         try {
@@ -230,8 +247,8 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                         color: #6b7280;
                     }
                 `}</style>
-            <div className="max-w-6xl flex lg:gap-4 gap-2 mx-auto ">
-                <AnimatedSection className="w-[50%]">
+            <div className="lg:max-w-6xl px-4 lg:px-0 flex lg:flex-row flex-col gap-4 mx-auto ">
+                <AnimatedSection className="lg:w-[50%]">
                     <AnimatedTitle className={style.heading}>{content.heaing}</AnimatedTitle>
                     <AnimatedTitle className={`${!infor.email ? "block" : "hidden"} Style-Text1 lg:relative text-red-700 bg-red-300 p-2 rounded-md inline-block`}>{content.expired}</AnimatedTitle>
                     <div className={`p-2 border ${style.border} rounded-md space-y-2 mt-4 shadow-xl`}>
@@ -249,10 +266,10 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                         </AnimatedText>
                     </div>
                 </AnimatedSection>
-                <section className="flex-1">
+                <section className="flex-1 overflow-x-clip">
                     <AnimatePresence mode="wait">
                         {view === 'updateName' && (
-                            <MotionDiv key="updateName" {...slideAnimation} className="">
+                            <MotionDiv key="updateName" {...(mobile ? slideAnimationMobile : slideAnimation)} className="">
                                 <div className={style.heading}>{content.changename}</div>
                                 <form onSubmit={changeName} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="">
@@ -272,7 +289,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                             </MotionDiv>
                         )}
                         {view === 'updateEmail' && (
-                            <MotionDiv key="updateEmail" {...slideAnimation} className="">
+                            <MotionDiv key="updateEmail" {...(mobile ? slideAnimationMobile : slideAnimation)} className="">
                                 <div className={style.heading}>{content.changeemail}</div>
                                 <form onSubmit={visible ? changeEmail : sendOtp} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="lg:flex items-end justify-between lg:space-y-0 space-y-2">
@@ -307,7 +324,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                             </MotionDiv>
                         )}
                         {view === 'updatePass' && (
-                            <MotionDiv key="updatePass" {...slideAnimation} className="">
+                            <MotionDiv key="updatePass" {...(mobile ? slideAnimationMobile : slideAnimation)} className="">
                                 <div className={style.heading}>{content.changepass2}</div>
                                 <form onSubmit={changPass} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
                                     <div className="relative">

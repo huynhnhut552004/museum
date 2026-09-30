@@ -7,6 +7,17 @@ import AnimatedTitle from "./comon/Animation/AnimatedTitle";
 import AnimatedText from "./comon/Animation/AnimatedText";
 import LostConnection from "./LostConnection";
 
+const toForm = (data) => {
+    const info = data?.info ?? data ?? {};
+    return {
+        email: data?.email ?? info.email ?? "",
+        nickName: info.nickName ?? "",
+        birthday: info.birthday ?? "",
+        hobby: info.hobby ?? "",
+        description: info.description ?? ""
+    };
+};
+
 export default function EditInfoLayout({ lang, style, content, noti }) {
     const initialForm = useRef(null);
     const [succ, setSucc] = useState(null);
@@ -21,8 +32,7 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
             setLoadUI(true);
             setErrLoadInfo(false);
             const res = await userApi.get();
-            const data = res?.data?.data?.info;
-            const userInfo = { email: data.email, nickName: data.nickName, birthday: data.birthday, hobby: data.hobby, description: data.description };
+            const userInfo = toForm(res?.data?.data?.info);
             setForm(userInfo);
             initialForm.current = userInfo;
         } catch {
@@ -43,21 +53,16 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
         })
     };
 
-    const resetForm = () => {
-        setForm({ email: "", nickName: "", birthday: "", hobby: "", description: "" });
-    };
-
     const update = async () => {
-        if (!form) return;
-        if (JSON.stringify(form) === JSON.stringify(initialForm.current)) return;
+        if (!initialForm.current || Object.keys(form).every((key) => form[key] === initialForm.current[key])) return;
         try {
             setLoading(true);
             setErr(null);
             setSucc(null);
             const res = await userApi.updateInfo(form);
-            const data = res?.data?.data;
-            resetForm();
-            setForm({ email: data.email, nickName: data.nickName, birthday: data.birthday, hobby: data.hobby, description: data.description });
+            const savedForm = toForm(res?.data?.data);
+            setForm(savedForm);
+            initialForm.current = savedForm;
             setSucc(noti.succes);
         } catch {
             setSucc(null);
@@ -76,7 +81,7 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
     if (loadUI) return <div className={`h-screen -mt-4 ${style.heading} flex items-center justify-center`}>{lang === "vi" ? "Đang tải..." : "Loading..."}</div>;
 
     return (
-        <AnimatedSection className="max-w-6xl flex flex-col lg:gap-4 gap-2 mx-auto pb-10">
+        <AnimatedSection className="max-w-6xl px-4 lg:px-0 flex flex-col lg:gap-4 gap-2 mx-auto pb-10">
             <div className="flex justify-between">
                 <AnimatedTitle className={`flex-1 ${style.heading}`}>
                     {content.title}
@@ -91,18 +96,18 @@ export default function EditInfoLayout({ lang, style, content, noti }) {
                 <div className={`grid lg:grid-cols-2 lg:gap-x-4 gap-2 border-b ${style.borderSection} p-4`}>
                     <AnimatedTitle className="lg:order-1 order-1"><label className={`${style.heading} lg:text-2xl text-xl `}>{content.nickName}</label></AnimatedTitle>
                     <AnimatedTitle className="lg:order-2 order-3"><label className={`${style.heading} lg:text-2xl text-xl `}>{content.birthday}</label></AnimatedTitle>
-                    <AnimatedText className="lg:order-3 order-2"><input type='text' name="nickName" placeholder={content.inputNickName} value={form.nickName} onChange={handleOnchange} className={style.input} /></AnimatedText>
-                    <AnimatedText className="lg:order-4 order-4"><input type='text' name="birthday" placeholder={content.inputBirthday} value={form.birthday} onChange={handleOnchange} className={style.input} /></AnimatedText>
+                    <AnimatedText className="lg:order-3 order-2"><input spellCheck={false} type='text' name="nickName" placeholder={content.inputNickName} value={form.nickName} onChange={handleOnchange} className={style.input} /></AnimatedText>
+                    <AnimatedText className="lg:order-4 order-4"><input spellCheck={false} type='text' name="birthday" placeholder={content.inputBirthday} value={form.birthday} onChange={handleOnchange} className={style.input} /></AnimatedText>
                 </div>
                 <div className={`grid lg:grid-cols-2 lg:gap-x-4 gap-2 2 border-b ${style.borderSection} p-4`}>
                     <AnimatedTitle className="lg:order-1 order-1"><label className={`${style.heading} lg:text-2xl text-xl `}>Email</label></AnimatedTitle>
                     <AnimatedTitle className="lg:order-2 order-3"><label className={`${style.heading} lg:text-2xl text-xl `}>{content.hobby}</label></AnimatedTitle>
-                    <AnimatedText className="lg:order-3 order-2"><input type='text' name="email" placeholder={content.inputEmail} value={form.email} onChange={handleOnchange} className={style.input} /></AnimatedText>
-                    <AnimatedText className="lg:order-4 order-4"><input type='text' name="hobby" placeholder={content.inputHobby} value={form.hobby} onChange={handleOnchange} className={style.input} /></AnimatedText>
+                    <AnimatedText className="lg:order-3 order-2"><input spellCheck={false} type='text' name="email" placeholder={content.inputEmail} value={form.email} onChange={handleOnchange} className={style.input} /></AnimatedText>
+                    <AnimatedText className="lg:order-4 order-4"><input spellCheck={false} type='text' name="hobby" placeholder={content.inputHobby} value={form.hobby} onChange={handleOnchange} className={style.input} /></AnimatedText>
                 </div>
                 <div className="flex flex-col gap-2 p-4">
                     <AnimatedTitle><label className={`lg:text-2xl text-xl ${style.heading}`}>{content.desc}</label></AnimatedTitle>
-                    <AnimatedText><textarea type='text' name="description" placeholder={content.inputdesc} value={form.description} onChange={handleOnchange} className={`${style.input} h-[20vh] resize-none`} /></AnimatedText>
+                    <AnimatedText><textarea spellCheck={false} type='text' name="description" placeholder={content.inputdesc} value={form.description} onChange={handleOnchange} className={`${style.input} h-[20vh] resize-none`} /></AnimatedText>
                 </div>
             </div>
             <AnimatedText className=" text-right lg:hidden block pt-2">

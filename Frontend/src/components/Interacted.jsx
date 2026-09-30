@@ -47,7 +47,7 @@ export default function InteractedLayout({ style, content, lang }) {
     if (errLoad) return (<LostConnection lang={lang} click={getInterac} />)
 
     return (
-        <AnimatedSection className="max-w-6xl mx-auto pb-10">
+        <AnimatedSection className="max-w-6xl px-4 lg:px-0 mx-auto pb-10">
             <div className="border-b border-gray-400 pb-2 mb-4">
                 <AnimatedTitle className={`${style.heading} text-center`}>{content.heading}</AnimatedTitle>
                 <div className="text-right">
@@ -66,8 +66,8 @@ export default function InteractedLayout({ style, content, lang }) {
                             const title = item.type === 'event' ? JSON.parse(item.title)[lang] : item.title;
                             return (
                                 <Link key={item.id} to={`${isDigital ? '/digital' : ''}/${item.type}/${item.slug}`} className="flex gap-2">
-                                    <div className="lg:w-[20%] w-[40%] h-[20vh] rounded-md overflow-hidden">
-                                        <img src={item.image_url} alt={title} className="w-full h-full object-cover"/>
+                                    <div className="lg:w-[20%] w-[40%] h-[20vh] shrink-0 rounded-md overflow-hidden">
+                                        <img src={item.image_url} alt={title} className="block w-full h-full object-cover"/>
                                     </div>
                                     <div className={`flex lg:flex-row lg:justify-normal justify-evenly flex-col ${style.heading} lg:gap-2 gap-1 text-base lg:text-xl`}>
                                         <div>{title}</div>

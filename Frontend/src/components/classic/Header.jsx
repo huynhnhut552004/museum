@@ -71,20 +71,25 @@ export default function HeaderClass() {
             <Link to="/login" className={`lg:hidden text-white absolute text-lg right-6 ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'} `}>{lang === "vi" ? "Đăng  nhập" : "Login"}</Link>
           </div>
           <div className={token ? "block" : "hidden"}>
-            <Link to="/account" className={`lg:hidden text-white absolute text-lg right-6 ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'} `}>{lang === "vi" ? "Hồ sơ của bạn" : "Profile"}</Link>
+            <Link to="/account" className={`lg:hidden text-white absolute text-lg right-6 ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Hồ sơ của bạn" : "Profile"}</Link>
           </div>
         </div>
         <div className={admin ? "block" : "hidden"}>
-          <Link to="/admin" className={`lg:hidden text-white absolute text-lg right-6 ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'} `}>{lang === "vi" ? "Quản Trị" : "Admin"}</Link>
+          <Link to="/admin" className={`lg:hidden text-white absolute text-lg right-6 ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Quản Trị" : "Admin"}</Link>
         </div>
         <nav
-          className={`absolute transition-all duration-700 ease-in-out flex gap-2 lg:gap-8 text-white ${isScrolled
+          className={`absolute transition-all duration-700 ease-in-out flex gap-8 text-white ${isScrolled
             ? 'lg:top-1/2 lg:-translate-y-1/2 lg:right-6 lg:opacity-100 opacity-0 pointer-events-none lg:pointer-events-auto -translate-y-5 lg:flex'
             : 'lg:top-8 top-14 left-1/2 -translate-x-1/2 lg:text-xl'
             }`}>
           <Link to="/digital" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'>{lang === "vi" ? "Nghệ thuật số" : "Digital art"}</Link>
-          <Link to="/event" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'>{lang === "vi" ? "Diễn đàn & sự kiện" : "Forums & events"}</Link>
+          <Link to="/event" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'><span className="lg:hidden">{lang === "vi" ? "Sự kiện" : "Event"}</span><span className="hidden lg:inline">{lang === "vi" ? "Diễn đàn & sự kiện" : "Forums & events"}</span></Link>
           <Link to="/explore" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'>{lang === "vi" ? "Khám phá thêm" : "Explore more"}</Link>
+          {admin ? (
+            <Link to="/admin" className={`lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Quản Trị" : "Admin"}</Link>
+          ): (
+            <Link to="/account" className={`lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Hồ sơ của bạn" : "Profile"}</Link>
+          )}
         </nav>
         <div
           className={`absolute transition-all duration-700 ease-in-out font-bold text-white whitespace-nowrap ${isScrolled

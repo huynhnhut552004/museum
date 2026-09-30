@@ -46,7 +46,7 @@ export default function ContactLayout({ noti, content, style, contact }) {
     
     return (
         <div className="min-h-screen">
-            <AnimatedSection className="max-w-6xl lg:mx-auto lg:pb-10 pb-6 px-4">
+            <AnimatedSection className="max-w-6xl lg:mx-auto lg:pb-10 pb-6 px-4 lg:px-0">
                 <AnimatedTitle className={`${style.heading} lg:text-6xl text-3xl text-center lg:pb-6 pb-4`}>{content.heading}</AnimatedTitle>
                 <AnimatedTitle className={`${style.heading} lg:pb-4 pb-2`}>{content.title1}</AnimatedTitle>
                 <div className="space-y-2">

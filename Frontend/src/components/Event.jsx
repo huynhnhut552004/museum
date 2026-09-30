@@ -99,7 +99,7 @@ export default function EventLayout({ Content, Style, lang }) {
 
     const EventCard = ({ event, isLink = true }) => {
         const cardContent = (
-            <div className="lg:flex justify-between items-start w-full gap-4">
+            <div className="lg:flex px-2 lg:px-0 justify-between items-start w-full gap-4">
                 <div className="space-y-1 flex-1">
                     <div className={`${Style.text} font-bold`}>
                         {getLangText(event.title)}
@@ -181,7 +181,7 @@ export default function EventLayout({ Content, Style, lang }) {
                 )}
             </div>
             {!isLoading && !isNoEvent && (
-                <div className="max-w-6xl mx-auto overflow-y-auto">
+                <div className="max-w-6xl px-2 lg:px-0 mx-auto overflow-y-auto">
                     <section className="mb-12">
                         <div className={Style.heading}>{Content.end}</div>
                         {endedEvents.length === 0 ? (

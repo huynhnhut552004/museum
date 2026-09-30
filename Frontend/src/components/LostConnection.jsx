@@ -17,7 +17,7 @@ export default function LostConnection({ click, lang }) {
                     {lang === "vi" ? "Đã có lỗi xảy ra, vui lòng kiểm tra và thử lại sau." : "An error occurred, please check and try again later."}
                 </AnimatedText>
                 <AnimatedText>
-                    <button onClick={click} className="text-black font-inter text-xl lg:bg-gray-300 bg-inherit p-2 rounded-full border-black border-[2px] lg:hover:bg-gray-50 lg:hover:shadow-md lg:hover:shadow-slate-600">{lang === "vi" ? "Thử lại" : "try again"}</button>
+                    <button onClick={click} className="text-black font-inter text-xl lg:bg-gray-300 bg-inherit p-2 rounded-full border-black border-[2px] lg:hover:scale-[1.02] lg:hover:-translate-y-[2px] lg:hover:shadow-lg lg:hover:bg-gray-50 lg:hover:shadow-slate-600">{lang === "vi" ? "Thử lại" : "try again"}</button>
                 </AnimatedText>
             </AnimatedSection>
         </PageTransition>

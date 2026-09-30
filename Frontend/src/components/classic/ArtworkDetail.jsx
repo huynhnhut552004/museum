@@ -390,7 +390,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
 
     return (
         <div className="relative">
-            <div className="-mt-2 max-w-6xl mx-auto pb-10">
+            <div className="-mt-2 max-w-6xl px-4 lg:px-0 mx-auto pb-10">
                 <AnimatedSection className="pb-10 border-b border-gray-400 mb-10">
                     <AnimatedTitle className="lg:h-[60vh] w-full">
                         <img src={artwork?.media_url} alt={lang === 'en' ? (artwork?.title_en || artwork?.title) : artwork?.title} className="w-full h-full object-contain" />

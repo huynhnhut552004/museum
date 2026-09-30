@@ -48,7 +48,7 @@ export default function UserProfileLayout({ style, content, lang }) {
     if (loadUI) return <div className={`h-screen -mt-4 ${style.heading} flex items-center justify-center`}>{lang === "vi" ? "Đang tải..." : "Loading..."}</div>;
 
     return (
-        <div className="max-w-6xl flex flex-col mx-auto pb-10">
+        <div className="max-w-6xl px-4 lg:px-0 flex flex-col mx-auto pb-10">
             <AnimatedSection className="space-y-4 order-3 pt-6">
                 <AnimatedTitle className={style.heading}>
                     {content.title}

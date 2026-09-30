@@ -1,5 +1,4 @@
 const FORGOT_PASS = (email, username, otp) => ({
-    from: '"Mosaic Museum Support" <no-reply@mosaic.com>',
     to: `${email}`,
     subject: 'Khôi phục mật khẩu',
     html: `
@@ -11,7 +10,6 @@ const FORGOT_PASS = (email, username, otp) => ({
 });
 
 const CHANGE_EMAIL = (newEmail, otp) => ({
-    from: '"Mosaic Museum Security" <no-reply@mosaic.com>',
     to: `${newEmail}`,
     subject: 'Xác thực thay đổi Email',
     html: `

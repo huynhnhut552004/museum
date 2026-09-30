@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function ListLayout({ items, total, title, style, lang }) {
     return (
-        <AnimatedSection className="max-w-6xl mx-auto pb-10">
+        <AnimatedSection className="max-w-6xl px-4 lg:px-0 mx-auto pb-10">
             <AnimatedTitle className="h-[10vh] mb-4 border-b border-gray-400">
                 <AnimatedText className={`${style?.heading} text-center`}>{title}</AnimatedText>
                 <AnimatedText className={`${style?.text}`}>{total} {lang == "vi" ? "Kết quả" : "Result"}</AnimatedText>

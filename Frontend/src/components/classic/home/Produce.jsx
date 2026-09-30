@@ -6,7 +6,7 @@ import AnimatedText from "../../comon/Animation/AnimatedText";
 
 export default function Produce({ title, by, desc, img, nav }) {
     return (
-        <AnimatedSection className="max-w-6xl mx-auto pb-10 lg:space-y-6 space-y-4">
+        <AnimatedSection className="max-w-6xl px-4 lg:px-0 mx-auto pb-10 lg:space-y-6 space-y-4">
             <AnimatedTitle className="Style-Heading2 text-center">{title}</AnimatedTitle>
             <div className="relative w-full full">
                 <AnimatedMedia direction="left">

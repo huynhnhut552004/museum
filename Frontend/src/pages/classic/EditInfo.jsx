@@ -35,12 +35,12 @@ export default function EditInfo() {
 
     const noti = {
         vi: {
-            err: 'Cập nhật thông tin cá nhân thành công.',
-            succes: "Lỗi cập nhật thông tin!"
+            succes: 'Cập nhật thông tin cá nhân thành công.',
+            err: "Lỗi cập nhật thông tin!"
         },
         en: {
-            err: 'Personal information updated successfully.',
-            succes: "Error updating information!"
+            succes: 'Personal information updated successfully.',
+            err: "Error updating information!"
         }
     };
 

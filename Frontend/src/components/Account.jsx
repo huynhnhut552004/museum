@@ -256,7 +256,7 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
     if (loadUI) return (<div className={`h-screen -mt-4 ${style.heading} flex items-center justify-center`}>{lang === "vi" ? "Đang tải..." : "Loading..."}</div>);
 
     return (
-        <div className="max-w-6xl flex flex-col mx-auto pb-10">
+        <div className="max-w-6xl px-4 lg:px-0 flex flex-col mx-auto pb-10">
             <AnimatedSection className="space-y-4 order-3 pt-6">
                 <div className="flex justify-between">
                     <AnimatedTitle className={style.heading}>
@@ -323,7 +323,7 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
                     </div>
                 </AnimatedTitle>
                 {more && (
-                    <div className={`absolute z-10 lg:left-auto lg:right-0 lg:top-[60%] left-0 top-[45%] flex flex-col rounded-md gap-2 items-start py-4 px-6  border ${style.bg1} border-gray-800 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200`}>
+                    <div className={`absolute z-10 left-auto right-0 lg:top-[60%] top-[40%] flex flex-col rounded-md gap-2 items-start py-4 px-6  border ${style.bg1} border-gray-800 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200`}>
                         <Link to={link.edit} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link1}</Link>
                         <Link to={link.editInfo} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link4}</Link>
                         <Link to={link.interaction} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link2}</Link>

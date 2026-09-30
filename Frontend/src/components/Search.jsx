@@ -84,7 +84,7 @@ export default function SearchLayout({ content, lang }) {
             <div className="flex gap-2 lg:gap-8 lg:items-center flex-1 flex-col lg:flex-row ">
                 <div className="w-[80%] lg:w-[60%] flex gap-2 items-center">
                     <input type="text" value={keyword} onChange={handleInputChange} onKeyDown={handleKeyDown} placeholder={content.input} className={`flex-1 w-full ${digital ? "Digital-Login-Input" : "Classic-Login-Input"}`} />
-                    <button onClick={() => handleSearch(keyword)} className={` p-2 ${digital ? "Digital-Login-Button" : "Classic-Login-Button font-cabin"}`}>{content.button}</button>
+                    <button onClick={() => handleSearch(keyword)} className={` p-2 ${digital ? "Digital-Login-Button" : "Classic-Login-Button font-cabin"} transition-all duration-300 ease-out lg:hover:scale-[1.02] lg:hover:-translate-y-[2px] lg:hover:shadow-lg`}>{content.button}</button>
                 </div>
             </div>
             <div className="lg:w-[30vw]">

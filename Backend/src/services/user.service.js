@@ -51,11 +51,22 @@ const UserService = {
     requestEmailChange: async (userId, newEmail) => {
         const check = await pool.query('SELECT id FROM users WHERE email = $1', [newEmail]);
         if (check.rows.length > 0) throw createError(AUTH_MESSAGES.EMAIL_EXISTED, HTTP_STATUS.CONFLICT);
+        const isResendTestMode = process.env.RESEND_TEST_MODE === 'true';
+        const otpRecipient = isResendTestMode ? process.env.MAIL_USER : newEmail;
+        if (!otpRecipient) throw new Error('MAIL_USER is required when RESEND_TEST_MODE is enabled');
+
         const otp = generateUtils.randomOTP();
         const tempPayload = JSON.stringify({ newEmail, otp });
-        await redis.set(`email_change:${userId}`, tempPayload, 'EX', 300);
-        const mailOptions = CHANGE_EMAIL(newEmail, otp);
-        await transporter.sendMail(mailOptions);
+        const redisKey = `email_change:${userId}`;
+        await redis.set(redisKey, tempPayload, 'EX', 300);
+        // After verifying a sending domain, disable test mode to send OTPs to each requested email.
+        const mailOptions = CHANGE_EMAIL(otpRecipient, otp);
+        try {
+            await transporter.sendMail(mailOptions);
+        } catch (error) {
+            await redis.del(redisKey);
+            throw error;
+        }
         return true;
     },
 
