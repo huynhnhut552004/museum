@@ -63,7 +63,7 @@ const CollectionService = {
     if (!collection) throw createError(COLLECTION_MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
     if (!collection.is_public && collection.user_id !== currentUserId) throw createError(COLLECTION_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN);
     const query =
-      `SELECT a.id, a.title, a.slug, a.media_url, a.artist_display_name, ci.added_at
+      `SELECT a.id, a.title, a.slug, a.layout_type, a.media_url, a.artist_display_name, ci.added_at
       FROM collection_items ci
       JOIN artworks a ON ci.artwork_id = a.id
       WHERE ci.collection_id = $1
