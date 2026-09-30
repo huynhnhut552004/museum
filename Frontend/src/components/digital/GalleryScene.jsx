@@ -47,19 +47,30 @@ function CameraRig({ selectedArtwork }) {
 export function WaterProjectorLight() {
     const [videoTexture, setVideoTexture] = useState(null);
     useEffect(() => {
-        const video = document.createElement('video')
-        video.src = '/videos/water-caustics.mp4'
-        video.crossOrigin = 'Anonymous'
-        video.loop = true
-        video.muted = true
-        video.setAttribute('playsinline', 'true')
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.loop = true;
+        video.muted = true;
+        video.defaultMuted = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.src = '/videos/water-caustics.mp4';
         const texture = new THREE.VideoTexture(video)
         texture.colorSpace = THREE.SRGBColorSpace
         const handleLoadedData = () => setVideoTexture(texture);
+        const handleCanPlay = () => {
+            video.play().catch(error => console.error("Lỗi phát video:", error));
+        };
+        const handleVideoError = () => console.error("Lỗi tải video caustics:", video.error);
         video.addEventListener('loadeddata', handleLoadedData, { once: true });
-        video.play().catch(e => console.error("Lỗi phát video:", e))
+        video.addEventListener('canplay', handleCanPlay, { once: true });
+        video.addEventListener('error', handleVideoError, { once: true });
+        video.load();
         return () => {
             video.removeEventListener('loadeddata', handleLoadedData);
+            video.removeEventListener('canplay', handleCanPlay);
+            video.removeEventListener('error', handleVideoError);
             video.pause();
             video.removeAttribute('src');
             video.load();

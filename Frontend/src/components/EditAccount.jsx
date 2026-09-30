@@ -20,6 +20,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
     const [form, setForm] = useState({ name: "", Email: "", otp: "", oldPass: "", newPass: "", confPass: "" });
     const [view, setView] = useState('');
     const [errorloadInfo, setErrLoadInfo] = useState(false);
+    const [loadingInfo, setLoadingInfo] = useState(true);
     const [mobile, setMobile] = useState(false);
 
     useEffect(() => {
@@ -46,6 +47,8 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
     }
 
     const getInfor = async () => {
+        setLoadingInfo(true);
+        setErrLoadInfo(false);
         try {
             const res = await userApi.get();
             const data = res.data.data;
@@ -62,6 +65,8 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
         } catch {
             setErrLoadInfo(true);
             setInfor({ name: "", email: "", emailSuffix: "", ban: false });
+        } finally {
+            setLoadingInfo(false);
         }
     };
 
@@ -82,10 +87,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
         setErr('');
         setSucc('');
         const fullEmail = `${infor.email}${infor.emailSuffix || ""}`;
-        setForm(prevForm => ({
-            ...prevForm,
-            Email: fullEmail
-        }));
+        setForm(prevForm => ({...prevForm, Email: fullEmail}));
         setView('updateEmail');
     };
 
@@ -97,17 +99,11 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
     };
 
     const toggleShowPass = (field) => {
-        setShowPass(prevState => ({
-            ...prevState,
-            [field]: !prevState[field]
-        }));
+        setShowPass(prevState => ({...prevState, [field]: !prevState[field]}));
     };
 
     const handleOnchange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        })
+        setForm({...form, [e.target.name]: e.target.value})
     };
 
     const resetForm = () => {
@@ -234,7 +230,9 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
         }
     }
 
-    if (errorloadInfo) return (<LostConnection click={getInfor()} lang={lang} />);
+    if (errorloadInfo) return (<LostConnection click={getInfor} lang={lang} />);
+    
+    if (loadingInfo && !infor.email) return <div className="h-screen -mt-4 Style-Heading2 flex items-center justify-center">{lang === "vi" ? "Đang tải..." : "Loading..."}</div>;
 
     return (
         <div className="pb-10">
@@ -250,7 +248,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
             <div className="lg:max-w-6xl px-4 lg:px-0 flex lg:flex-row flex-col gap-4 mx-auto ">
                 <AnimatedSection className="lg:w-[50%]">
                     <AnimatedTitle className={style.heading}>{content.heaing}</AnimatedTitle>
-                    <AnimatedTitle className={`${!infor.email ? "block" : "hidden"} Style-Text1 lg:relative text-red-700 bg-red-300 p-2 rounded-md inline-block`}>{content.expired}</AnimatedTitle>
+                    <AnimatedTitle className={`${!loadingInfo && !infor.email ? "block" : "hidden"} Style-Text1 lg:relative text-red-700 bg-red-300 p-2 rounded-md inline-block`}>{content.expired}</AnimatedTitle>
                     <div className={`p-2 border ${style.border} rounded-md space-y-2 mt-4 shadow-xl`}>
                         <AnimatedText onClick={toggleName} className={`lg:flex items-center gap-2 lg:cursor-pointer ${style.hover_div} p-2 rounded-md`}>
                             <span className={`${style.heading} text-base lg:text-2xl`}>{content.yourname1}</span><span className={`${style.text} lg:text-xl flex items-center justify-between flex-1 gap-2`}>{infor.name} #{infor.userTag} <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 4L17 12L7 20" /></svg></span>
@@ -327,26 +325,32 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                             <MotionDiv key="updatePass" {...(mobile ? slideAnimationMobile : slideAnimation)} className="">
                                 <div className={style.heading}>{content.changepass2}</div>
                                 <form onSubmit={changPass} className={`border ${style.border} shadow-xl space-y-4 p-2 rounded-md mt-4`}>
-                                    <div className="relative">
+                                    <div>
                                         <div className={`${style.heading} text-base lg:text-2xl`}>{content.oldpass1}</div>
-                                        <input type={showPass.oldPass ? "text" : "password"} name="oldPass" value={form.oldPass} onChange={handleOnchange} placeholder={content.oldpass2} className={style.input} />
-                                        <button onClick={() => toggleShowPass('oldPass')} className="rounded-md p-1 absolute lg:left-[92%] left-[80%] top-[55%]" type="button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
-                                        </button>
+                                        <div className="relative">
+                                            <input type={showPass.oldPass ? "text" : "password"} name="oldPass" value={form.oldPass} onChange={handleOnchange} placeholder={content.oldpass2} className={style.input} />
+                                            <button onClick={() => toggleShowPass('oldPass')} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1" type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="relative">
+                                    <div>
                                         <div className={`${style.heading} text-base lg:text-2xl`}>{content.newpass}</div>
-                                        <input type={showPass.newPass ? "text" : "password"} name="newPass" value={form.newPass} onChange={handleOnchange} placeholder={content.newpass} className={style.input} />
-                                        <button onClick={() => toggleShowPass('newPass')} className=" rounded-md p-1 absolute lg:left-[92%] left-[80%] top-[55%]" type="button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
-                                        </button>
+                                        <div className="relative">
+                                            <input type={showPass.newPass ? "text" : "password"} name="newPass" value={form.newPass} onChange={handleOnchange} placeholder={content.newpass} className={style.input} />
+                                            <button onClick={() => toggleShowPass('newPass')} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1" type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="relative">
+                                    <div>
                                         <div className={`${style.heading} text-base lg:text-2xl`}>{content.confirmpass1}</div>
-                                        <input type={showPass.confPass ? "text" : "password"} name="confPass" value={form.confPass} onChange={handleOnchange} placeholder={content.confirmpass2} className={style.input} />
-                                        <button onClick={() => toggleShowPass('confPass')} className=" rounded-md p-1 absolute lg:left-[92%] left-[80%] top-[55%]" type="button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
-                                        </button>
+                                        <div className="relative">
+                                            <input type={showPass.confPass ? "text" : "password"} name="confPass" value={form.confPass} onChange={handleOnchange} placeholder={content.confirmpass2} className={style.input} />
+                                            <button onClick={() => toggleShowPass('confPass')} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1" type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 12C4.8 8.2 8.1 6.5 12 6.5s7.2 1.7 9.5 5.5c-2.3 3.8-5.6 5.5-9.5 5.5S4.8 15.8 2.5 12z" /><circle cx="12" cy="12" r="2.4" /></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="text-right lg:flex justify-between items-center">
                                         <div className="flex-1 lg:block hidden">
@@ -364,7 +368,7 @@ export default function EditAccountLayout({ style, content, noti, lang }) {
                 </section>
             </div>
             <AnimatedSection>
-                <AnimatedTitle className={`${!infor.email ? "block" : "hidden"} lg:hidden Style-Text1 absolute top-[52%] left-0 lg:relative text-red-700 bg-red-300 p-2 rounded-md inline-block`}>{content.expired}</AnimatedTitle>
+                <AnimatedTitle className={`${!loadingInfo && !infor.email ? "block" : "hidden"} lg:hidden Style-Text1 absolute top-[52%] left-0 lg:relative text-red-700 bg-red-300 p-2 rounded-md inline-block`}>{content.expired}</AnimatedTitle>
                 <AnimatedTitle className="lg:hidden block">
                     {err && (<ErrorNoti err={err} />)}
                     {succ && (<SuccessNoti succ={succ} />)}

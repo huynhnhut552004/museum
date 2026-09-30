@@ -51,7 +51,7 @@ export default function HeaderClass() {
               <Link to="search"><img src='/User/icon/Search.png' alt='Search' className='lg:w-5 lg:h-5 w-7 h-7 mt-1' /></Link>
             </div>
             <div className=''>
-              <button onClick={toggleLanguage} className='lg:text-xl text-lg hover:bg-gray-500 transition-all duration-300 ease-out p-1 rounded-xl'>{lang === "vi" ? "VI" : "EN"}</button>
+              <button onClick={toggleLanguage} className='lg:text-xl text-lg lg:hover:bg-gray-500 lg:transition-all lg:duration-300 lg:ease-out p-1 rounded-xl'>{lang === "vi" ? "VI" : "EN"}</button>
             </div>
           </div>
           <div className={admin ? 'hidden' : 'block'}>
@@ -85,10 +85,12 @@ export default function HeaderClass() {
           <Link to="/digital" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'>{lang === "vi" ? "Nghệ thuật số" : "Digital art"}</Link>
           <Link to="/event" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'><span className="lg:hidden">{lang === "vi" ? "Sự kiện" : "Event"}</span><span className="hidden lg:inline">{lang === "vi" ? "Diễn đàn & sự kiện" : "Forums & events"}</span></Link>
           <Link to="/explore" className='lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap'>{lang === "vi" ? "Khám phá thêm" : "Explore more"}</Link>
-          {admin ? (
+          {token ? (admin ? (
             <Link to="/admin" className={`lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Quản Trị" : "Admin"}</Link>
-          ): (
+          ):(
             <Link to="/account" className={`lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Hồ sơ của bạn" : "Profile"}</Link>
+          )) : (
+            <Link to="/login" className={`lg:hover:text-[#a8a8a8] transition-all duration-300 ease-in-out whitespace-nowrap ${isScrolled ? 'block top-5' : 'hidden pointer-events-none'}`}>{lang === "vi" ? "Đăng  nhập" : "Login"}</Link>
           )}
         </nav>
         <div

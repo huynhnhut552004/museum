@@ -9,6 +9,7 @@ import { io } from "socket.io-client";
 import CommentThread from '../CommentThread';
 import artworkApi from "../../api/artworkApi";
 import ErrorNoti from '../comon/Noti/Error';
+import WarningNoti from '../comon/Noti/Warning';
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LostConnection from '../LostConnection';
@@ -31,23 +32,37 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
     const [isFocused, setIsFocused] = useState(false);
     const [commentWrite, setCommentWrite] = useState("");
     const [err, setErr] = useState('');
+    const [warn, setWarn] = useState('');
     const [page, setPage] = useState(1);
     const [halgore, setHalgore] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [collection, setCollection] = useState([]);
     const [recommendations, setRecommendations] = useState([]);
     const scrollRef = useRef(null);
+    const menuRef = useRef(null);
+    const warningTimeout = useRef(null);
     const observer = useRef(null);
     const [loadingComment, setLoadingComment] = useState(false);
     const [socketInstance, setSocketInstance] = useState(null);
     const [totalComment, setTotalComment] = useState(null);
     const [noGetArtwork, setNoGetArtwork] = useState(null);
     const [loadArtwork, setLoadArtwork] = useState(false);
+    const [mobile, setMobile] = useState(false);
 
     const slideAnimation = {
         initial: { y: 300, opacity: 0 },
         animate: { y: 0, opacity: 1 },
         exit: { y: -300, opacity: 0 },
+        transition: {
+            duration: 0.3,
+            ease: "easeInOut"
+        }
+    };
+
+    const slideAnimationMobile = {
+        initial: { x: 300, opacity: 0 },
+        animate: { x: 0, opacity: 1 },
+        exit: { x: -300, opacity: 0 },
         transition: {
             duration: 0.3,
             ease: "easeInOut"
@@ -89,6 +104,15 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         } finally {
             setLoadArtwork(false);
         }
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setMobile(window.innerWidth < 1024);
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     useEffect(() => {
@@ -170,6 +194,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
     }, [artworkId, artistName, artworkLayout]);
 
     const like = async (id) => {
+        if (!requireLogin()) return;
         setLoading(true);
         try {
             const res = await likeApi.likeArtwork(id);
@@ -222,7 +247,26 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         };
     }, [addCollec]);
 
+    useEffect(() => () => clearTimeout(warningTimeout.current), []);
+
+    const requireLogin = () => {
+        if (localStorage.getItem('token')) return true;
+
+        setWarn(lang === "vi"
+            ? "Bạn cần đăng nhập để thực hiện hành động này."
+            : "You need to log in to perform this action.");
+        setMenu(false);
+        setAddCollec(false);
+        clearTimeout(warningTimeout.current);
+        warningTimeout.current = setTimeout(() => {
+            setWarn('');
+            warningTimeout.current = null;
+        }, 3500);
+        return false;
+    };
+
     const toggleAddCollec = () => {
+        if (!requireLogin()) return;
         setAddCollec(!addCollec);
     };
 
@@ -231,10 +275,23 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
         if (menu) setSearchQuery("");
     };
 
+    useEffect(() => {
+        if (!menu) return;
+        const handleOutsideClick = (event) => {
+            if (!menuRef.current?.contains(event.target)) {
+                setMenu(false);
+                setSearchQuery("");
+            }
+        };
+        document.addEventListener("pointerdown", handleOutsideClick);
+        return () => document.removeEventListener("pointerdown", handleOutsideClick);
+    }, [menu]);
+
     const filteredCollections = collection?.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
     const addArtworkCollection = async (collecId) => {
         if (!collecId || !artwork?.id) return;
+        if (!requireLogin()) return;
         setLoading(true);
         setErr('');
         try {
@@ -249,6 +306,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
 
     const handleCreateAndAdd = async (e) => {
         e.preventDefault();
+        if (!requireLogin()) return;
         if (!newCollecName.trim() || !artwork?.id) return;
         setLoading(true);
         setErr('');
@@ -410,7 +468,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                         <img src={artwork?.media_url} className='max-w-[80%] max-h-[80%] object-contain border border-white]' />
                     </AnimatedTitle>
                 </AnimatedSection>
-                <div className='lg:order-2 order-1 lg:border-b lg:border-gray-100 p-4 flex w-full gap-4 items-end justify-end'>
+                <div className='lg:order-2 order-1 lg:border-b lg:border-gray-100 p-4 flex w-full gap-4 items-end justify-end relative'>
                     <button type="button" disabled={loading} onClick={() => like(artwork?.id)} className="lg:hover:bg-white/20 transition-all duration-300 ease-out p-2 rounded-full">{liked ?
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="#f70000" d="M11.566 21.112L12 20.5za.75.75 0 0 0 .867 0L12 20.5l.434.612l.008-.006l.021-.015l.08-.058q.104-.075.295-.219a38.5 38.5 0 0 0 4.197-3.674c1.148-1.168 2.315-2.533 3.199-3.981c.88-1.44 1.516-3.024 1.516-4.612c0-1.885-.585-3.358-1.62-4.358c-1.03-.994-2.42-1.439-3.88-1.439c-1.725 0-3.248.833-4.25 2.117C10.998 3.583 9.474 2.75 7.75 2.75c-3.08 0-5.5 2.639-5.5 5.797c0 1.588.637 3.171 1.516 4.612c.884 1.448 2.051 2.813 3.199 3.982a38.5 38.5 0 0 0 4.492 3.892l.08.058l.021.015z" /></svg>
                         :
@@ -428,9 +486,10 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                             Mosaic Museum <br /> {content.location}
                         </div>
                     </div>
+                    {warn && <div className="absolute z-20 top-full right-4 w-[min(90vw,32rem)]"><WarningNoti warn={warn} /></div>}
                 </div>
                 {menu && (
-                    <div className="bg-[#191B1D] border overflow-y-auto no-scrollbar z-10 p-2 lg:w-[30vw] w-[90vw] h-[50vh] lg:h-[60vh] absolute top-[8%] left-1/2 -translate-x-1/2 lg:top-[20%] lg:left-[78%] rounded-xl">
+                    <div ref={menuRef} className="bg-[#191B1D] border overflow-y-auto no-scrollbar z-10 p-2 lg:w-[30vw] w-[90vw] h-[50vh] lg:h-[60vh] absolute top-[8%] left-1/2 -translate-x-1/2 lg:top-[20%] lg:left-[78%] rounded-xl">
                         <div className="sticky space-y-2 inset-0 z-10 -top-2">
                             <div className="flex justify-between items-center">
                                 <div className="Digital-Heading text-2xl pb-2">
@@ -472,10 +531,10 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                     </div>
                 )}
                 <div className='w-full min-h-0 min-w-0 flex lg:flex-row flex-col lg:items-stretch items-center lg:gap-1 gap-2 order-3'>
-                    <div className='flex-1 self-stretch min-w-0 min-h-0 lg:order-1 order-2'>
+                    <div className='flex-1 self-stretch min-w-0 min-h-0 overflow-x-clip lg:order-1 order-2'>
                         <AnimatePresence mode='wait'>
                             {view === "artworkDetail" && (
-                                <MotionDiv key="artworkDetail" {...slideAnimation} className='rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 h-full overflow-y-auto no-scrollbar'>
+                                <MotionDiv key="artworkDetail" {...(mobile ? slideAnimationMobile : slideAnimation)} className='rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 h-full overflow-y-auto no-scrollbar'>
                                     <AnimatedSection>
                                         <AnimatedTitle className='Digital-Heading text-2xl'>
                                             {artwork?.artist_id ? (<Link className="underline" to={`/user/${artwork?.artist_display_name.split(" #")[1]}`}>{artwork?.artist_display_name}</Link>) : (artwork?.artist_display_name)} - {getDisplayYear(artwork?.year)}
@@ -502,7 +561,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                                 </MotionDiv >
                             )}
                             {view === "comment" && (
-                                <MotionDiv key="comment" {...slideAnimation} className="rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden">
+                                <MotionDiv key="comment" {...(mobile ? slideAnimationMobile : slideAnimation)} className="rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-14 py-2 w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden">
                                     <AnimatedSection className="flex justify-between items-center shrink-0">
                                         <AnimatedTitle className="Digital-Heading lg:text-3xl text-xl lg:py-6 py-4">
                                             {content.comment}
@@ -563,7 +622,7 @@ export default function ArtworkDetailDigitalLayout({ noti, content, input, butto
                                 </MotionDiv>
                             )}
                             {view === "recommend" && (
-                                <MotionDiv key="recommend" {...slideAnimation} className="w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-4 lg:px-14">
+                                <MotionDiv key="recommend" {...(mobile ? slideAnimationMobile : slideAnimation)} className="w-full h-full min-w-0 min-h-0 flex flex-col overflow-hidden rounded-xl backdrop-saturate-150 shadow-2xl backdrop-blur-xl bg-white/10 border border-gray-400 px-4 lg:px-14">
                                     <AnimatedSection className="flex justify-between items-center shrink-0 lg:py-6 py-4">
                                         <AnimatedTitle className="Digital-Heading lg:text-3xl text-xl">
                                             {content.same}

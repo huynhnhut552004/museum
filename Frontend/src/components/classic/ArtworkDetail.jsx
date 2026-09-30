@@ -8,6 +8,7 @@ import likeApi from "../../api/likeApi";
 import commentApi from "../../api/commentApi";
 import collectionApi from "../../api/collectionApi";
 import ErrorNoti from "../comon/Noti/Error";
+import WarningNoti from "../comon/Noti/Warning";
 import CommentThread from "../CommentThread";
 import { io } from "socket.io-client";
 import LostConnection from "../LostConnection";
@@ -27,12 +28,15 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
     const [isFocused, setIsFocused] = useState(false);
     const [commentWrite, setCommentWrite] = useState("");
     const [err, setErr] = useState('');
+    const [warn, setWarn] = useState('');
     const [page, setPage] = useState(1);
     const [halgore, setHalgore] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [collection, setCollection] = useState([]);
     const [recommendations, setRecommendations] = useState([]);
     const scrollRef = useRef(null);
+    const menuRef = useRef(null);
+    const warningTimeout = useRef(null);
     const observer = useRef(null);
     const [loadingComment, setLoadingComment] = useState(false);
     const [socketInstance, setSocketInstance] = useState(null);
@@ -166,6 +170,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
     }, [artworkId, artistName, artworkLayout]);
 
     const like = async (id) => {
+        if (!requireLogin()) return;
         setLoading(true);
         try {
             const res = await likeApi.likeArtwork(id);
@@ -218,7 +223,23 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
         };
     }, [addCollec]);
 
+    useEffect(() => () => clearTimeout(warningTimeout.current), []);
+
+    const requireLogin = () => {
+        if (localStorage.getItem('token')) return true;
+        setWarn(lang === "vi" ? "Bạn cần đăng nhập để thực hiện hành động này." : "You need to log in to perform this action.");
+        setMenu(false);
+        setAddCollec(false);
+        clearTimeout(warningTimeout.current);
+        warningTimeout.current = setTimeout(() => {
+            setWarn('');
+            warningTimeout.current = null;
+        }, 3500);
+        return false;
+    };
+
     const toggleAddCollec = () => {
+        if (!requireLogin()) return;
         setAddCollec(!addCollec);
     };
 
@@ -229,10 +250,23 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
         }
     };
 
+    useEffect(() => {
+        if (!menu) return;
+        const handleOutsideClick = (event) => {
+            if (!menuRef.current?.contains(event.target)) {
+                setMenu(false);
+                setSearchQuery("");
+            }
+        };
+        document.addEventListener("pointerdown", handleOutsideClick);
+        return () => document.removeEventListener("pointerdown", handleOutsideClick);
+    }, [menu]);
+
     const filteredCollections = collection?.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
     const addArtworkCollection = async (collecId) => {
         if (!collecId || !artwork?.id) return;
+        if (!requireLogin()) return;
         setLoading(true);
         setErr('');
         try {
@@ -255,6 +289,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
 
     const handleCreateAndAdd = async (e) => {
         e.preventDefault();
+        if (!requireLogin()) return;
         if (!newCollecName.trim() || !artwork?.id) return;
         setLoading(true);
         setErr('');
@@ -426,6 +461,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
                             </div>
                         </AnimatedTitle>
                     </div>
+                    {warn && <div className="max-w-lg"><WarningNoti warn={warn} /></div>}
                     <AnimatedText className="Style-Text1 max-w-4xl ">{lang === 'en' ? (artwork?.description_en || artwork?.description) : artwork?.description}</AnimatedText>
                     <AnimatedTitle className="Style-Heading2 lg:text-3xl text-xl lg:py-6 py-4">
                         {content.about}
@@ -443,7 +479,7 @@ export default function ArtworkDetailLayout({ noti, content, input, button, lang
                         ))}
                     </AnimatedText>
                     {menu && (
-                        <div className="bg-[#f9f6ec] overflow-y-auto z-10 p-2 lg:w-[30vw] w-[90vw] h-[50vh] lg:h-[60vh] absolute md:top-[9%] top-[5%] lg:left-[20%] left-1/2 -translate-x-1/2 rounded-xl shadow-xl">
+                        <div ref={menuRef} className="bg-[#f9f6ec] overflow-y-auto z-10 p-2 lg:w-[30vw] w-[90vw] h-[50vh] lg:h-[60vh] absolute md:top-[9%] top-[5%] lg:left-[20%] left-1/2 -translate-x-1/2 rounded-xl shadow-xl">
                             <div className="sticky space-y-2 inset-0 z-10 bg-[#f9f6ec] -top-2">
                                 <div className="flex justify-between items-center">
                                     <div className="Style-Heading2 text-xl pb-2">

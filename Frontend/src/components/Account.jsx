@@ -1,7 +1,7 @@
 import userApi from "../api/userApi";
 import authApi from "../api/authApi";
 import collectionApi from "../api/collectionApi";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import ErrorNoti from "./comon/Noti/Error";
 import SuccessNoti from "./comon/Noti/Success";
@@ -31,6 +31,8 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
     const navigate = useNavigate();
     const { pathname: path } = useLocation();
     const [user, setUser] = useState("");
+    const moreRef = useRef(null);
+    const lockTimeout = useRef(null);
 
     const toggleMenu = () => {
         setMore(!more);
@@ -124,6 +126,17 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
     }, [fetchCollection, getInfo]);
 
     useEffect(() => {
+        if (!more) return;
+        const handleOutsideClick = (event) => {
+            if (!moreRef.current?.contains(event.target)) setMore(false);
+        };
+        document.addEventListener("pointerdown", handleOutsideClick);
+        return () => document.removeEventListener("pointerdown", handleOutsideClick);
+    }, [more]);
+
+    useEffect(() => () => clearTimeout(lockTimeout.current), []);
+
+    useEffect(() => {
         const handleResize = () => {
             setMobile(window.innerWidth < 1024);
         };
@@ -159,6 +172,24 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
         } else {
             setEditing(false);
         }
+    };
+
+    const toggleMobileLock = (event, itemId) => {
+        event.preventDefault();
+        event.stopPropagation();
+        clearTimeout(lockTimeout.current);
+
+        if (lock === itemId) {
+            lockTimeout.current = null;
+            setLock(null);
+            return;
+        }
+
+        setLock(itemId);
+        lockTimeout.current = setTimeout(() => {
+            setLock((currentLock) => currentLock === itemId ? null : currentLock);
+            lockTimeout.current = null;
+        }, 3500);
     };
 
     useEffect(() => {
@@ -275,7 +306,7 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
                                 <img src="/User/img/No_Image.png" draggable={false} alt="Img" className={`${item.cover_image ? "hidden" : "block"} object-cover w-full h-full rounded-md `} />
                                 <img src={item.cover_image} draggable={false} alt="Img" className={`${item.cover_image ? "block" : "hidden"} object-cover w-full h-full rounded-md `} />
                                 <div className="absolute inset-0 bg-black/10" />
-                                <div className={`${item.is_public ? "hidden" : "block"} absolute top-0 right-0 bg-black/60 rounded-tr-md rounded-bl-md`} onMouseEnter={!mobile ? () => setLock(item.id) : undefined} onMouseLeave={!mobile ? () => setLock(null) : undefined} onClick={mobile ? () => setLock(lock === item.id ? null : item.id) : undefined} >
+                                <div className={`${item.is_public ? "hidden" : "block"} absolute top-0 right-0 bg-black/60 rounded-tr-md rounded-bl-md`} onMouseEnter={!mobile ? () => setLock(item.id) : undefined} onMouseLeave={!mobile ? () => setLock(null) : undefined} onClick={mobile ? (event) => toggleMobileLock(event, item.id) : undefined}>
                                     <img src="/User/icon/Lock.png" draggable={false} alt="Riêng tư" className=" w-10 h-auto" />
                                 </div>
                                 {lock === item.id && (
@@ -323,11 +354,11 @@ export default function AccountLayout({ style, link, content, noti, lang }) {
                     </div>
                 </AnimatedTitle>
                 {more && (
-                    <div className={`absolute z-10 left-auto right-0 lg:top-[60%] top-[40%] flex flex-col rounded-md gap-2 items-start py-4 px-6  border ${style.bg1} border-gray-800 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200`}>
-                        <Link to={link.edit} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link1}</Link>
-                        <Link to={link.editInfo} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link4}</Link>
-                        <Link to={link.interaction} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link2}</Link>
-                        <button type="button" onClick={logout} disabled={loading} className={`hover:bg-black/20 transform-all duration-300 ease-out w-full ${style.text_color_popup} text-red-600 rounded-md text-left font-bold ${style.text}`}>{content.link3}</button>
+                    <div ref={moreRef} className={`absolute z-10 left-auto right-0 lg:top-[60%] top-[40%] flex flex-col rounded-md gap-2 items-start py-4 px-6  border ${style.bg1} border-gray-800 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200`}>
+                        <Link to={link.edit} className={`hover:bg-black/20 p-2 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link1}</Link>
+                        <Link to={link.editInfo} className={`hover:bg-black/20 p-2 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link4}</Link>
+                        <Link to={link.interaction} className={`hover:bg-black/20 p-2 transform-all duration-300 ease-out w-full rounded-md ${style.text_color_popup} ${style.text}`}>{content.link2}</Link>
+                        <button type="button" onClick={logout} disabled={loading} className={`hover:bg-black/20 p-2 transform-all duration-300 ease-out w-full ${style.text_color_popup} text-red-600 rounded-md text-left font-bold ${style.text}`}>{content.link3}</button>
                     </div>
                 )}
             </AnimatedSection>

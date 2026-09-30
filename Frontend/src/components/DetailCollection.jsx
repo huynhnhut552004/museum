@@ -21,7 +21,7 @@ export default function DetailCollectionLayout({ style, lang, noti }) {
             setErr(null);
             setdata({});
             const res = await collectionApi.getDetail(id);
-            setdata(res.data.data);
+            setdata(res?.data?.data);
         } catch (error) {
             if (error.response) {
                 const status = error.response.status;
@@ -62,14 +62,17 @@ export default function DetailCollectionLayout({ style, lang, noti }) {
                             <div className={`${style.text} flex items-center justify-center`}>{lang === "vi" ? "Bộ sưu tập này rỗng." : "This collection is empty."}</div>
                         ) : (
                             <div className=" columns-2 md:columns-3 lg:columns-4 gap-2">
-                                {data?.items?.map((item) => (
-                                    <Link key={item.id} to={`/artwork/${item.slug}`}>
-                                        <div className="relative mb-2 break-inside-avoid" title={item.title}>
-                                            <img src={item.media_url} alt="Img" className="w-full h-auto block rounded-sm" />
-                                            <div className="absolute inset-0 pointer-events-none bg-black/20 rounded-sm" />
-                                        </div>
-                                    </Link>
-                                ))}
+                                {data?.items?.map((item) => {
+                                    const artworkPath = item.layout_type === "digital" ? "/digital/artwork" : "/artwork";
+                                    return (
+                                        <Link key={item.id} to={`${artworkPath}/${item.slug}`}>
+                                            <div className="relative mb-2 break-inside-avoid" title={item.title}>
+                                                <img src={item.media_url} alt="Img" className="w-full h-auto block rounded-sm" />
+                                                <div className="absolute inset-0 pointer-events-none bg-black/20 rounded-sm" />
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         )
                     )}
