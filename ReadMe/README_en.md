@@ -67,7 +67,7 @@ The website is an online art exhibition platform, inspired by Google Arts & Cult
 
 | Your Account Page | Someone's Account Page |
 | :--: | :--: |
-| <img src="./Img/yourAccount.png" width=100%> | <img src="./Img/SomeoneAccount.png" width=100%> |
+| <img src="./Img/YourAccount.png" width=100%> | <img src="./Img/SomeoneAccount.png" width=100%> |
 
 | Edit Profile Page | Edit Information Page |
 | :--: | :--: |
