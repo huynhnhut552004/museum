@@ -54,7 +54,6 @@ const UserService = {
         const isResendTestMode = process.env.RESEND_TEST_MODE === 'true';
         const otpRecipient = isResendTestMode ? process.env.MAIL_USER : newEmail;
         if (!otpRecipient) throw new Error('MAIL_USER is required when RESEND_TEST_MODE is enabled');
-
         const otp = generateUtils.randomOTP();
         const tempPayload = JSON.stringify({ newEmail, otp });
         const redisKey = `email_change:${userId}`;
