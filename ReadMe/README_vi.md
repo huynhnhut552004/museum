@@ -69,7 +69,7 @@ Website là nền tảng triển lãm nghệ thuật trực tuyến, lấy cảm
 
 | Trang tài khoản của bạn | Trang tài khoản của người khác |
 | :--: | :--: |
-| <img src="./Img/yourAccount.png" width=100%> | <img src="./Img/SomeoneAccount.png" width=100%> |
+| <img src="./Img/YourAccount.png" width=100%> | <img src="./Img/SomeoneAccount.png" width=100%> |
 
 | Trang chỉnh sửa hồ sơ | Trang chỉnh sửa thông tin |
 | :--: | :--: |
