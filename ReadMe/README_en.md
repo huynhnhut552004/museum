@@ -10,6 +10,11 @@
 The website is an online art exhibition platform, inspired by Google Arts & Culture and Pinterest. The project combines a classic exhibition experience with a 3D digital exhibition space, while providing functions for searching, community interaction, and content management.
 
 **Live Demo:** https://museum-frontend-relh.onrender.com/
+
+**Viewer admin account:** `museumdemo2026@gmail.com`
+
+**Password:** `Museum@Demo2026`
+
 > **Note:** The backend is deployed on Render's Free Tier. The server may take approximately 30–50 seconds to respond upon the first visit following a period of inactivity. Images and videos may also load more slowly due to hosting and bandwidth limitations.
 
 ## Key Features
