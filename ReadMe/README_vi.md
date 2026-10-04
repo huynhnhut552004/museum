@@ -10,8 +10,11 @@
 Website là nền tảng triển lãm nghệ thuật trực tuyến, lấy cảm hứng từ Google Arts & Culture và Pinterest. Dự án kết hợp trải nghiệm trưng bày cổ điển với không gian triển lãm kỹ thuật số 3D, đồng thời cung cấp các chức năng tìm kiếm, tương tác cộng đồng và quản trị nội dung.
 
 **Demo trực tuyến:** https://museum-frontend-relh.onrender.com/
+
 **Tài khoản viewer admin:** museumdemo2026@gmail.com
+
 **Mật khẩu:** Museum@Demo2026
+
 > **Lưu ý:** Backend được triển khai trên Render Free Tier. Server có thể mất khoảng 30–50 giây để phản hồi ở lần truy cập đầu tiên sau một khoảng thời gian không hoạt động. Hình ảnh và video cũng có thể tải chậm hơn do giới hạn về hosting và băng thông.
 
 ## Tính năng chính
