@@ -11,7 +11,7 @@ Website là nền tảng triển lãm nghệ thuật trực tuyến, lấy cảm
 
 **Demo trực tuyến:** https://museum-frontend-relh.onrender.com/
 
-**Tài khoản viewer admin:** museumdemo2026@gmail.com
+**Tài khoản viewer admin:** `museumdemo2026@gmail.com`
 
 **Mật khẩu:** Museum@Demo2026
 
